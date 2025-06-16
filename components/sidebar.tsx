@@ -5,15 +5,17 @@ import {
   BookOpen,
   Code,
   CreditCard,
-  HelpCircle,
+  // HelpCircle,
   Home,
   LogIn,
-  Mail,
+  // Mail,
   Menu,
-  MessageSquare,
+  //  MessageSquare,
   Search,
+  Server,
   Settings,
   Shield,
+  ShoppingCart,
   User,
   UserPlus,
 } from "lucide-react";
@@ -65,6 +67,16 @@ const navigationItems = [
         url: "/api-page",
         icon: Code,
       },
+      {
+        title: "Services",
+        url: "/services",
+        icon: Server,
+      },
+      {
+        title: "Orders",
+        url: "/orders",
+        icon: ShoppingCart,
+      },
     ],
   },
   {
@@ -88,25 +100,42 @@ const navigationItems = [
     ],
   },
   {
-    title: "Support",
+    title: "Referral",
     items: [
+      // add funds
       {
-        title: "FAQs",
-        url: "/faqs",
-        icon: HelpCircle,
+        title: "Add funds",
+        url: "/add-funds",
+        icon: CreditCard,
       },
       {
-        title: "Contact",
-        url: "/contact",
-        icon: Mail,
+        title: "Referral",
+        url: "/referral",
+        icon: UserPlus,
       },
-      {
-        title: "Help Center",
-        url: "/help",
-        icon: MessageSquare,
-      },
+      // referral
     ],
   },
+  // {
+  //   title: "Support",
+  //   items: [
+  //     {
+  //       title: "FAQs",
+  //       url: "/faqs",
+  //       icon: HelpCircle,
+  //     },
+  //     {
+  //       title: "Contact",
+  //       url: "/contact",
+  //       icon: Mail,
+  //     },
+  //     {
+  //       title: "Help Center",
+  //       url: "/help",
+  //       icon: MessageSquare,
+  //     },
+  //   ],
+  // },
   {
     title: "Settings",
     items: [

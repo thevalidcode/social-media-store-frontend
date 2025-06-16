@@ -1,5 +1,6 @@
 import { AppSidebar } from "@/components/sidebar"; // Fixed import path to match actual file location
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { TopNav } from "./component/nav";
 
 export default function SidebarLayout({
   children,
@@ -10,7 +11,10 @@ export default function SidebarLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset>{children}</SidebarInset>
+      <SidebarInset>
+        <TopNav />
+        {children}
+      </SidebarInset>
     </SidebarProvider>
   );
 }
