@@ -1,0 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+always use this  file as a  reference when making a change or generating a code
+
+[valid_panel_styling.md](mdc:valid_panel_styling.md)
