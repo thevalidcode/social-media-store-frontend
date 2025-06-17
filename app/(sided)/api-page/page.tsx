@@ -1,12 +1,15 @@
 import APISection from "@/app/(root)/components/APIPage";
-import Wrapper from "@/components/wrapper";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: "valid panel api",
+  description: "API",
+  keywords: ["api", "valid panel api", "valid panel", "api"],
+};
 export default function ApiPage() {
   return (
-    <Wrapper>
-      <div>
-        <APISection />
-      </div>
-    </Wrapper>
+    <div>
+      <APISection />
+    </div>
   );
 }

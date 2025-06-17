@@ -1,3 +1,8 @@
+import { ServicesTable } from "../component/services.Table";
 export default function ServicesPage() {
-  return <div>ServicesPage</div>;
+  return (
+    <div>
+      <ServicesTable />
+    </div>
+  );
 }

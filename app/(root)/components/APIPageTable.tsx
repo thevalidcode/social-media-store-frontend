@@ -15,11 +15,6 @@ interface TableSectionProps {
   exampleResponse: string;
 }
 
-/**
- * TableSection renders a documentation block with a title, a parameter table, and a JSON example response.
- * - Uses shadcn Table for consistent, modern UI.
- * - Accepts title, parameters, and exampleResponse as props.
- */
 export function TableSection({
   title,
   parameters,
@@ -33,17 +28,17 @@ export function TableSection({
       </header>
       <div className="p-4 border border-border rounded-b-md bg-background">
         {/* Parameter table using shadcn Table */}
-        <Table>
+        <Table className="border">
           <TableHeader>
-            <TableRow>
-              <TableHead className="w-1/3">Parameters</TableHead>
-              <TableHead>Description</TableHead>
+            <TableRow className="border">
+              <TableHead className="w-1/3 border ">Parameters</TableHead>
+              <TableHead className="border  ">Description</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {parameters.map(([param, desc], idx) => (
               <TableRow key={idx}>
-                <TableCell className="text-foreground font-mono">
+                <TableCell className="text-foreground font-mono border">
                   {param}
                 </TableCell>
                 <TableCell className="text-foreground">{desc}</TableCell>

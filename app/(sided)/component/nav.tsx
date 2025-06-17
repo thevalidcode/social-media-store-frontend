@@ -1,14 +1,17 @@
 "use client";
-import { ModeToggle } from "@/components/mode-toggle";
-import { Notifications } from "./notiifcation";
 import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
+import Wrapper from "@/components/wrapper";
+import { PlusIcon, WalletIcon } from "lucide-react";
 import Link from "next/link";
+import { Notifications } from "./notiifcation";
+import { ThemeToggle } from "@/components/mode-toggle";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export function TopNav() {
   return (
-    <header className="sticky top-0 z-40 border-b bg-background">
-      <div className="container flex h-16 items-center justify-between px-4 md:px-6">
+    <header className="sticky top-0 z-40 border-b bg-transparent backdrop-blur-xl">
+      <Wrapper className="max-w-[100rem] flex h-16 items-center justify-between px-4 md:px-6">
+        <SidebarTrigger />
         <div className="hidden md:block">
           <nav className="flex items-center justify-between gap-4">
             <div>
@@ -26,7 +29,7 @@ export function TopNav() {
             <div>
               <Link href="/add-funds">
                 <Button className="rounded-lg cursor-pointer" size="sm">
-                  <PlusIcon className="mr-2 h-4 w-4" />
+                  <WalletIcon className="mr-2 h-4 w-4" />
                   Add Funds
                 </Button>
               </Link>
@@ -35,9 +38,9 @@ export function TopNav() {
         </div>
         <div className="flex items-center gap-4">
           <Notifications />
-          <ModeToggle />
+          <ThemeToggle />
         </div>
-      </div>
+      </Wrapper>
     </header>
   );
 }

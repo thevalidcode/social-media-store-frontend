@@ -83,7 +83,7 @@ const balanceValue = { balance: 6543.8373, currency: "USD" };
 
 export default function APISection() {
   return (
-    <div className="max-w-[80rem] mx-auto p-6 bg-background shadow-lg rounded-lg mt-10">
+    <div className="max-w-[80rem] mx-auto p-6 bg-background shadow-sm rounded-lg ">
       {/* API Documentation Header */}
       <header className="mb-6">
         <h1 className="text-3xl font-bold text-foreground mb-2">

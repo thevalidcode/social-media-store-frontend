@@ -5,8 +5,8 @@ import {
   BookOpen,
   Code,
   CreditCard,
-  // HelpCircle,
-  Home,
+  HelpCircle,
+  LayoutDashboard,
   LogIn,
   // Mail,
   Menu,
@@ -46,24 +46,25 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { TypographyInlineCode } from "./typography";
 
 // Navigation data
 const navigationItems = [
   {
-    title: "Main",
+    title: "Overview",
     items: [
       {
         title: "Home",
-        url: "/",
-        icon: Home,
+        url: "/dashboard",
+        icon: LayoutDashboard,
       },
       {
-        title: "Blogs",
+        title: "Articles",
         url: "/blog",
         icon: BookOpen,
       },
       {
-        title: "API",
+        title: "API Docs",
         url: "/api-page",
         icon: Code,
       },
@@ -73,7 +74,7 @@ const navigationItems = [
         icon: Server,
       },
       {
-        title: "Orders",
+        title: "My Orders",
         url: "/orders",
         icon: ShoppingCart,
       },
@@ -83,81 +84,54 @@ const navigationItems = [
     title: "Account",
     items: [
       {
-        title: "Sign In",
-        url: "/signin",
+        title: "Login",
+        url: "/auth/signin",
         icon: LogIn,
       },
       {
-        title: "Sign Up",
-        url: "/signup",
+        title: "Register",
+        url: "/auth/signup",
         icon: UserPlus,
       },
       {
-        title: "Profile",
+        title: "My Profile",
         url: "/profile",
         icon: User,
       },
     ],
   },
   {
-    title: "Referral",
+    title: "Payments",
     items: [
-      // add funds
       {
-        title: "Add funds",
+        title: "Deposit",
         url: "/add-funds",
         icon: CreditCard,
       },
       {
-        title: "Referral",
+        title: "Invite Friends",
         url: "/referral",
         icon: UserPlus,
       },
-      // referral
     ],
   },
-  // {
-  //   title: "Support",
-  //   items: [
-  //     {
-  //       title: "FAQs",
-  //       url: "/faqs",
-  //       icon: HelpCircle,
-  //     },
-  //     {
-  //       title: "Contact",
-  //       url: "/contact",
-  //       icon: Mail,
-  //     },
-  //     {
-  //       title: "Help Center",
-  //       url: "/help",
-  //       icon: MessageSquare,
-  //     },
-  //   ],
-  // },
   {
-    title: "Settings",
+    title: "Help & Support",
     items: [
       {
-        title: "General Settings",
-        url: "/settings",
-        icon: Settings,
+        title: "FAQ",
+        url: "/faq",
+        icon: HelpCircle,
       },
       {
-        title: "Notifications",
-        url: "/settings/notifications",
-        icon: Bell,
+        title: "Contact Support",
+        url: "/support",
+        icon: HelpCircle,
       },
       {
-        title: "Privacy & Security",
+        title: "Security",
         url: "/settings/privacy",
         icon: Shield,
-      },
-      {
-        title: "Billing",
-        url: "/settings/billing",
-        icon: CreditCard,
       },
     ],
   },
@@ -179,7 +153,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <Menu className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">My App</span>
+                  <span className="truncate font-semibold">
+                    <TypographyInlineCode>My App</TypographyInlineCode>
+                  </span>
                   <span className="truncate text-xs">Dashboard</span>
                 </div>
               </Link>
@@ -238,7 +214,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage
-                      src="/placeholder.svg?height=32&width=32"
+                      src="https://github.com/shadcn.png"
                       alt="User"
                     />
                     <AvatarFallback className="rounded-lg">JD</AvatarFallback>
@@ -259,7 +235,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                     <Avatar className="h-8 w-8 rounded-lg">
                       <AvatarImage
-                        src="/placeholder.svg?height=32&width=32"
+                        src="https://github.com/shadcn.png"
                         alt="User"
                       />
                       <AvatarFallback className="rounded-lg">JD</AvatarFallback>

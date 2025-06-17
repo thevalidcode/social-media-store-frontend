@@ -42,3 +42,8 @@ next-env.d.ts
 
 valid_panel_styling.m
 notes.md
+todo.md
+# cursor rules
+/.cursor
+.cursor/
+.cursor/

@@ -1,3 +1,7 @@
 export default function AddFunds() {
-  return <div>AddFunds</div>;
+  return (
+    <div>
+      <h1>Add Funds</h1>
+    </div>
+  );
 }

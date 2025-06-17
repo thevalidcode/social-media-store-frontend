@@ -3,14 +3,12 @@
 import { TypographyH1 } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Play } from "lucide-react";
-import Image from "next/image";
 import { InteractiveGrid } from "./interactive-grid";
 import { ShineBorder } from "./shine-border";
 
 export function HeroSection() {
   return (
     <section className="relative min-h-screen pt-32 pb-16 overflow-hidden bg-background">
-      ;
       <InteractiveGrid
         containerClassName="absolute inset-0"
         className="opacity-30"
@@ -52,39 +50,8 @@ export function HeroSection() {
           className="relative mx-auto"
           borderClassName="border border-border rounded-xl overflow-hidden"
         >
-          <div className="relative">
-            <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Hero%20image.jpg-mE5vAT4d864MlVhdkcrk1Vn2WcNONq.jpeg"
-              alt="Background Gradient"
-              width={1920}
-              height={1080}
-              className="w-full h-auto"
-              priority
-            />
-            <div className="absolute inset-0 flex items-end justify-center pb-16">
-              <div className="bg-background/20 backdrop-blur-sm p-4 rounded-xl w-[90%] h-[70%] flex">
-                <div className="flex-1 pr-2">
-                  <Image
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Browser-HZNDOssbyLixIa4lABR27yelWXveQ0.png"
-                    alt="Browser Preview"
-                    width={800}
-                    height={600}
-                    className="w-full h-full object-cover rounded-lg"
-                    priority
-                  />
-                </div>
-                <div className="flex-1 pl-2">
-                  <Image
-                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Editor%20Window-sJ4sXlXpgDhv7gLvQylqH5VTb3L0rc.png"
-                    alt="Code Editor"
-                    width={800}
-                    height={600}
-                    className="w-full h-full object-cover rounded-lg"
-                    priority
-                  />
-                </div>
-              </div>
-            </div>
+          <div>
+            <h1>Hero</h1>
           </div>
         </ShineBorder>
       </ShineBorder>
