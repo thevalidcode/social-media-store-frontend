@@ -135,22 +135,20 @@ export function Toast({ state: initialState, onReset, onSave }: ToastProps) {
   );
 }
 
-// const [state, setState] = useState<"initial" | "loading" | "success">(
-//     "initial"
-//   );
-
 // const handleSave = () => {
-//     setState("loading");
+//   setState("loading");
+//   setTimeout(() => {
+//     setState("success");
 //     setTimeout(() => {
-//       setState("success");
-//       setTimeout(() => {
-//         setState("initial");
-//       }, 2000);
-//     }, 1500);
-//   };
+//       setState("initial");
+//     }, 2000);
+//   }, 1500);
+// };
 
-//   const handleReset = () => {
-//     setState("initial");
-//   };
+// const handleReset = () => {
+//   setState("initial");
+// };
 
-//   <Toast state={state} onSave={handleSave} onReset={handleReset} />
+// const [state, setState] = useState<"initial" | "loading" | "success">(
+//   "initial"
+// );

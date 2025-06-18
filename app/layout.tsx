@@ -1,4 +1,4 @@
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "./providers/theme-provider";
 import { UseMounted } from "@/lib/mounted";
 import { QueryProvider } from "@/provider/queryProvider";
 import type { Metadata } from "next";
@@ -29,16 +29,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
+        suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Toaster />
         <UseMounted>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange
-          >
+          <ThemeProvider>
             <QueryProvider>
               <main>{children}</main>
             </QueryProvider>

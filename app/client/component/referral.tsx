@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Users, DollarSign, Copy, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
-import ReferralCard from "./referralCard";
+import GridCard from "./referralCard";
 
 export default function ReferralComponent() {
   const referralLink = "https://validplug.com.ng/referral";
@@ -61,23 +61,23 @@ export default function ReferralComponent() {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <ReferralCard
+            <GridCard
               icon={<Users className="h-5 w-5" />}
               title="Total Referrals"
               value={referralStats.totalReferrals}
             />
-            <ReferralCard
+            <GridCard
               icon={<DollarSign className="h-5 w-5" />}
               title="Total Earnings"
               value={referralStats.totalEarnings}
               valueFormatter={(val) => `$${val.toFixed(2)}`}
             />
-            <ReferralCard
+            <GridCard
               icon={<Users className="h-5 w-5" />}
               title="Active Referrals"
               value={referralStats.activeReferrals}
             />
-            <ReferralCard
+            <GridCard
               icon={<TrendingUp className="h-5 w-5" />}
               title="This Month"
               value={referralStats.monthlyEarnings}

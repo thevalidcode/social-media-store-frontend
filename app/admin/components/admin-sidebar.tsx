@@ -1,26 +1,22 @@
 "use client";
 
 import {
+  BarChart,
   Bell,
   BookOpen,
-  Code,
-  CreditCard,
   HelpCircle,
-  LayoutDashboard,
   LogIn,
-  // Mail,
   Menu,
-  PlusIcon,
-  //  MessageSquare,
   Search,
-  Server,
   Settings,
+  Shield,
   ShoppingCart,
   User,
-  UserPlus,
+  Users,
 } from "lucide-react";
 import type * as React from "react";
 
+import { TypographyInlineCode } from "@/components/typography";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -46,126 +42,71 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { TypographyInlineCode } from "./typography";
+import { SettingsDialog } from "./setting-dailog";
 
-// Navigation data
-const navigationItems = [
+// Admin navigation data
+const adminNavigationItems = [
   {
-    title: "Overview",
+    title: "Control Panel",
     items: [
       {
-        title: "Dashboard",
-        url: "/client/dashboard",
-        icon: LayoutDashboard,
+        title: "Users",
+        url: "/admin/users",
+        icon: Users,
       },
 
       {
-        title: "Services",
-        url: "/client/services",
-        icon: Server,
-      },
-      {
-        title: "New Order",
-        url: "/client/new-order",
-        icon: PlusIcon,
-      },
-      {
-        title: "My Orders",
-        url: "/client/orders",
+        title: "Orders",
+        url: "/admin/orders",
         icon: ShoppingCart,
       },
-    ],
-  },
-  {
-    title: "Blogs",
-    items: [
+      {
+        title: "Services",
+        url: "/admin/services",
+        icon: Shield,
+      },
       {
         title: "Blogs",
-        url: "/client/blog",
+        url: "/admin/blogs",
         icon: BookOpen,
       },
-    ],
-  },
-  {
-    title: "Account",
-    items: [
       {
-        title: "Sign In",
-        url: "/auth/signin",
-        icon: LogIn,
+        title: "Analytics",
+        url: "/admin/analytics",
+        icon: BarChart,
       },
       {
-        title: "Sign Up",
-        url: "/auth/signup",
-        icon: UserPlus,
-      },
-      {
-        title: "My Profile",
-        url: "/client/profile",
-        icon: User,
-      },
-    ],
-  },
-  {
-    title: "Payments",
-    items: [
-      {
-        title: "Deposit",
-        url: "/client/add-funds",
-        icon: CreditCard,
-      },
-      {
-        title: "Invite Friends",
-        url: "/client/referral",
-        icon: UserPlus,
-      },
-    ],
-  },
-  {
-    title: "Help & Support",
-    items: [
-      {
-        title: "FAQ",
-        url: "/client/faq",
+        title: "Support",
         icon: HelpCircle,
-      },
-      {
-        title: "Contact Support",
-        url: "/client/support",
-        icon: HelpCircle,
-      },
-
-      {
-        title: "API Docs",
-        url: "/client/api-page",
-        icon: Code,
+        url: "/admin/support",
       },
     ],
   },
 ];
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AdminSidebar({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const isActive = (path: string) => {
     return pathname === path;
   };
+
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/">
+              <Link href="/admin/users">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <Menu className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold text-base">
-                    <TypographyInlineCode>My App</TypographyInlineCode>
+                  <span className="truncate font-semibold">
+                    <TypographyInlineCode>Admin Panel</TypographyInlineCode>
                   </span>
-                  <span className="truncate text-sm text-muted-foreground">
-                    Dashboard
-                  </span>
+                  <span className="truncate text-xs">Control Center</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -185,7 +126,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </form>
       </SidebarHeader>
       <SidebarContent>
-        {navigationItems.map((group) => (
+        {adminNavigationItems.map((group) => (
           <SidebarGroup key={group.title}>
             <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
             <SidebarGroupContent>
@@ -193,7 +134,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 {group.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <a
+                      <Link
                         href={item.url}
                         className={
                           isActive(item.url)
@@ -203,10 +144,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       >
                         <item.icon />
                         <span>{item.title}</span>
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
+                <SettingsDialog />
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -224,17 +166,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage
                       src="https://github.com/shadcn.png"
-                      alt="User"
+                      alt="Admin"
                     />
-                    <AvatarFallback className="rounded-lg">JD</AvatarFallback>
+                    <AvatarFallback className="rounded-lg">AD</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold text-base">
-                      John Doe
-                    </span>
-                    <span className="truncate text-sm text-muted-foreground">
-                      john@example.com
-                    </span>
+                    <span className="truncate font-semibold">Admin User</span>
+                    <span className="truncate text-xs">admin@example.com</span>
                   </div>
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
@@ -249,16 +187,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <Avatar className="h-8 w-8 rounded-lg">
                       <AvatarImage
                         src="https://github.com/shadcn.png"
-                        alt="User"
+                        alt="Admin"
                       />
-                      <AvatarFallback className="rounded-lg">JD</AvatarFallback>
+                      <AvatarFallback className="rounded-lg">AD</AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold text-base">
-                        John Doe
-                      </span>
-                      <span className="truncate text-sm text-muted-foreground">
-                        john@example.com
+                      <span className="truncate font-semibold">Admin User</span>
+                      <span className="truncate text-xs">
+                        admin@example.com
                       </span>
                     </div>
                   </div>
@@ -266,7 +202,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <User />
-                  Account
+                  Profile
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Settings />

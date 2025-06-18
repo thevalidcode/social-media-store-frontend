@@ -15,7 +15,7 @@ export function TopNav() {
         <div className="hidden md:block">
           <nav className="flex items-center justify-between gap-4">
             <div>
-              <Link href="/orders">
+              <Link href="/client/new-order">
                 <Button
                   variant="outline"
                   className="rounded-lg cursor-pointer"
@@ -27,10 +27,10 @@ export function TopNav() {
               </Link>
             </div>
             <div>
-              <Link href="/add-funds">
+              <Link href="/client/add-funds">
                 <Button className="rounded-lg cursor-pointer" size="sm">
                   <WalletIcon className="mr-2 h-4 w-4" />
-                  Add Funds
+                  Deposit
                 </Button>
               </Link>
             </div>

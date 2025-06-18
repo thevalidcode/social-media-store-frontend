@@ -10,7 +10,7 @@ interface ReferralCardProps {
   valueFormatter?: (value: number) => string;
 }
 
-export default function ReferralCard({
+export default function GridCard({
   icon,
   title,
   value,
@@ -20,7 +20,7 @@ export default function ReferralCard({
   return (
     <Card
       className={cn(
-        "transition-all duration-200 hover:shadow-md border-border/50",
+        "transition-all duration-200 hover:shadow-md border-border/50 shadow-none ",
         className
       )}
     >
@@ -29,11 +29,9 @@ export default function ReferralCard({
           <div className="p-2 rounded-lg bg-primary/10 text-primary">
             {icon}
           </div>
-          <div className="flex-1">
-            <p className="text-sm font-medium text-muted-foreground leading-none">
-              {title}
-            </p>
-          </div>
+          <p className="text-sm font-medium text-muted-foreground leading-none">
+            {title}
+          </p>
         </div>
       </CardHeader>
       <CardContent className="pt-0">

@@ -20,19 +20,19 @@ export default function Nav() {
           </Link>
         </div>
         <nav className="hidden md:flex items-center gap-8">
-          <Link href="/api-page" className="text-sm  ">
-            Api
+          <Link href="/client/api-page" className="text-sm  ">
+            API
           </Link>
-          <Link href="/blog" className="text-sm  ">
+          <Link href="/client/blog" className="text-sm  ">
             Blog
           </Link>
-          <Link href="/services" className="text-sm  ">
+          <Link href="/client/services" className="text-sm  ">
             Services
           </Link>
-          <Link href="/faq" className="text-sm  ">
+          <Link href="/client/faq" className="text-sm  ">
             Faq
           </Link>
-          <Link href="/contact" className="text-sm  ">
+          <Link href="/client/contact" className="text-sm  ">
             Contact Us
           </Link>
         </nav>
