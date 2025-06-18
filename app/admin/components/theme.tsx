@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 // Types
 type ThemeSchema = {
   ":root": Record<string, string>;
@@ -26,20 +27,11 @@ type ThemeOption = {
   schema: ThemeSchema;
 };
 
-// Data
 const brandColors: ThemeOption[] = adminTheme.map((theme) => ({
   name: theme.title,
   hex: theme.hex,
   schema: theme.schema,
 }));
-
-// const customColorLabels = [
-//   "Primary",
-//   "Secondary",
-//   "Accent",
-//   "Background",
-//   "Text",
-// ];
 
 // Apply theme CSS variables to override global.css
 const applyThemeStyles = (schema: ThemeSchema, isDark: boolean) => {
@@ -120,7 +112,11 @@ export default function DesignSettings() {
       })
     );
     applyTheme(selectedBrand.schema);
-    console.log("Theme saved:", selectedBrand);
+    toast.success("Theme saved", {
+      duration: 2000,
+      position: "top-right",
+      richColors: true,
+    });
   };
 
   return (
@@ -165,8 +161,11 @@ export default function DesignSettings() {
         </Card>
       </CardContent>
 
-      <CardFooter className="border-t pt-6 px-0">
-        <Button className="ml-auto" onClick={handleSave}>
+      <CardFooter className="border-t pt-6 px-0 ">
+        <Button
+          className="ml-auto cursor-pointer active:scale-95 transition-all"
+          onClick={handleSave}
+        >
           Save Theme
         </Button>
       </CardFooter>

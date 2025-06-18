@@ -262,22 +262,20 @@ function SidebarTrigger({
   const { toggleSidebar } = useSidebar();
 
   return (
-    <TooltipComponent text="Toggle Sidebar">
-      <Button
-        data-sidebar="trigger"
-        data-slot="sidebar-trigger"
-        variant="ghost"
-        size="icon"
-        className={cn("size-7 cursor-pointer", className)}
-        onClick={(event) => {
-          onClick?.(event);
-          toggleSidebar();
-        }}
-        {...props}
-      >
-        <PanelLeftIcon />
-      </Button>
-    </TooltipComponent>
+    <Button
+      data-sidebar="trigger"
+      data-slot="sidebar-trigger"
+      variant="ghost"
+      size="icon"
+      className={cn("size-7 cursor-pointer", className)}
+      onClick={(event) => {
+        onClick?.(event);
+        toggleSidebar();
+      }}
+      {...props}
+    >
+      <PanelLeftIcon />
+    </Button>
   );
 }
 
