@@ -8,22 +8,26 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
 import {
-  Settings,
   CreditCard,
-  Settings2,
-  Server,
   FileText,
   HelpCircle,
-  Palette,
   Link2,
+  Palette,
+  Server,
+  Settings,
+  Settings2,
 } from "lucide-react";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import AdminPages from "./admin-pages";
+import AdminPayment from "./admin-payment";
+import AdminProviders from "./admin-providers";
 import GeneralSettingsForm from "./general-setting";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
+import Integration from "./integration";
 import DesignSettingsForm from "./theme";
-import SettingsForm from "./settings-form";
+import AdminFaq from "./admin-faq";
 
 export function SettingsDialog() {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,7 +38,7 @@ export function SettingsDialog() {
       id: "1",
       label: "payment method",
       key: "payment",
-      component: SettingsForm,
+      component: AdminPayment,
       icon: CreditCard,
     },
     {
@@ -48,21 +52,21 @@ export function SettingsDialog() {
       id: "3",
       label: "Providers",
       key: "providers",
-      component: GeneralSettingsForm,
+      component: AdminProviders,
       icon: Server,
     },
     {
       id: "4",
       label: "pages",
       key: "pages",
-      component: GeneralSettingsForm,
+      component: AdminPages,
       icon: FileText,
     },
     {
       id: "5",
       label: "faq",
       key: "faq",
-      component: GeneralSettingsForm,
+      component: AdminFaq,
       icon: HelpCircle,
     },
     {
@@ -76,7 +80,7 @@ export function SettingsDialog() {
       id: "7",
       label: "integration",
       key: "integration",
-      component: GeneralSettingsForm,
+      component: Integration,
       icon: Link2,
     },
   ];
@@ -103,7 +107,7 @@ export function SettingsDialog() {
                     key={header.id}
                     variant="ghost"
                     className={cn(
-                      "justify-start gap-2",
+                      "justify-start gap-2 cursor-pointer",
                       activePage ===
                         (typeof header.key === "string"
                           ? header.key

@@ -139,22 +139,25 @@ export default function DesignSettings() {
           <CardContent>
             <div className="space-y-4">
               <h4 className="text-md font-medium">Select a Brand Color</h4>
-              <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2 ">
-                {brandColors.map((theme) => (
-                  <Button
-                    key={theme.hex}
-                    title={theme.name}
-                    aria-label={`Select ${theme.name}`}
-                    className={cn(
-                      "w-full h-14 aspect-square rounded-md border-2 transition-all",
-                      selectedBrand.hex === theme.hex
-                        ? "ring-2 ring-offset-2 ring-primary"
-                        : "border-transparent hover:border-muted-foreground/50"
-                    )}
-                    style={{ backgroundColor: theme.hex }}
-                    onClick={() => handleBrandSelect(theme)}
-                  />
-                ))}
+              {/* Container to right-align the small grid and prevent it from stretching full width */}
+              <div className="flex justify-end w-full">
+                <div className="grid grid-cols-4 gap-2 p-2 w-max">
+                  {brandColors.map((theme) => (
+                    <Button
+                      key={theme.hex}
+                      title={theme.name}
+                      aria-label={`Select ${theme.name}`}
+                      className={cn(
+                        "w-5 h-5 aspect-square rounded-md border-2 transition-all",
+                        selectedBrand.hex === theme.hex
+                          ? "ring-2 ring-offset-2 ring-primary"
+                          : "border-transparent hover:border-muted-foreground/50"
+                      )}
+                      style={{ backgroundColor: theme.hex }}
+                      onClick={() => handleBrandSelect(theme)}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           </CardContent>

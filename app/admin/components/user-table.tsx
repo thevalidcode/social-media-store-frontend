@@ -32,13 +32,17 @@ import {
   ArrowUpDown,
   ChevronLeft,
   ChevronRight,
+  CreditCard,
   Edit,
   Eye,
   MoreHorizontal,
+  ShoppingCart,
   Search,
   Trash2,
   UserCheck,
   UserX,
+  BanIcon,
+  LockIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { CreateUser } from "./create_user";
@@ -315,11 +319,22 @@ export default function UserDataTable() {
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
 
-                          <DropdownMenuItem>Manage Balance</DropdownMenuItem>
-                          <DropdownMenuItem>User Orders</DropdownMenuItem>
-                          <DropdownMenuItem>Ban User</DropdownMenuItem>
-
-                          <DropdownMenuItem>Change Password</DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <CreditCard className="mr-2 h-4 w-4" />
+                            Manage Balance
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <ShoppingCart className="mr-2 h-4 w-4" />
+                            User Orders
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <BanIcon className="mr-2 h-4 w-4" />
+                            Ban User
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <LockIcon size={16} className="mr-2 h-4 w-4" />
+                            Change Password
+                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem className="text-destructive">
                             <Trash2 className="mr-2 h-4 w-4" />
