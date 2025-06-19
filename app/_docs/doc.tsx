@@ -1592,6 +1592,663 @@ export const adminTheme = [
       },
     },
   },
+  {
+    title: "Pastel", // Soft pastel colors
+    hex: "#FFB3BA",
+    schema: {
+      ":root": {
+        "--radius": "0.65rem",
+        "--background": "oklch(0.99 0.01 350)",
+        "--foreground": "oklch(0.25 0.05 350)",
+        "--card": "oklch(0.98 0.01 350)",
+        "--card-foreground": "oklch(0.25 0.05 350)",
+        "--popover": "oklch(0.98 0.01 350)",
+        "--popover-foreground": "oklch(0.25 0.05 350)",
+        "--primary": "oklch(0.75 0.15 350)",
+        "--primary-foreground": "oklch(0.99 0.01 350)",
+        "--secondary": "oklch(0.95 0.02 350)",
+        "--secondary-foreground": "oklch(0.3 0.05 350)",
+        "--muted": "oklch(0.95 0.02 350)",
+        "--muted-foreground": "oklch(0.6 0.03 350)",
+        "--accent": "oklch(0.95 0.02 350)",
+        "--accent-foreground": "oklch(0.3 0.05 350)",
+        "--destructive": "oklch(0.577 0.245 27.325)",
+        "--border": "oklch(0.9 0.02 350)",
+        "--input": "oklch(0.9 0.02 350)",
+        "--ring": "oklch(0.75 0.15 350)",
+        "--chart-1": "oklch(0.646 0.222 41.116)",
+        "--chart-2": "oklch(0.6 0.118 184.704)",
+        "--chart-3": "oklch(0.398 0.07 227.392)",
+        "--chart-4": "oklch(0.828 0.189 84.429)",
+        "--chart-5": "oklch(0.769 0.188 70.08)",
+        "--sidebar": "oklch(0.97 0.01 350)",
+        "--sidebar-foreground": "oklch(0.25 0.05 350)",
+        "--sidebar-primary": "oklch(0.75 0.15 350)",
+        "--sidebar-primary-foreground": "oklch(0.99 0.01 350)",
+        "--sidebar-accent": "oklch(0.95 0.02 350)",
+        "--sidebar-accent-foreground": "oklch(0.3 0.05 350)",
+        "--sidebar-border": "oklch(0.9 0.02 350)",
+        "--sidebar-ring": "oklch(0.75 0.15 350)",
+      },
+      ".dark": {
+        "--background": "oklch(0.15 0.02 350)",
+        "--foreground": "oklch(0.95 0.01 350)",
+        "--card": "oklch(0.2 0.02 350)",
+        "--card-foreground": "oklch(0.95 0.01 350)",
+        "--popover": "oklch(0.2 0.02 350)",
+        "--popover-foreground": "oklch(0.95 0.01 350)",
+        "--primary": "oklch(0.75 0.15 350)",
+        "--primary-foreground": "oklch(0.95 0.01 350)",
+        "--secondary": "oklch(0.25 0.02 350)",
+        "--secondary-foreground": "oklch(0.95 0.01 350)",
+        "--muted": "oklch(0.25 0.02 350)",
+        "--muted-foreground": "oklch(0.75 0.15 350)",
+        "--accent": "oklch(0.25 0.02 350)",
+        "--accent-foreground": "oklch(0.95 0.01 350)",
+        "--destructive": "oklch(0.704 0.191 22.216)",
+        "--border": "oklch(1 0 0 / 10%)",
+        "--input": "oklch(1 0 0 / 15%)",
+        "--ring": "oklch(0.75 0.15 350)",
+        "--chart-1": "oklch(0.488 0.243 264.376)",
+        "--chart-2": "oklch(0.696 0.17 162.48)",
+        "--chart-3": "oklch(0.769 0.188 70.08)",
+        "--chart-4": "oklch(0.627 0.265 303.9)",
+        "--chart-5": "oklch(0.645 0.246 16.439)",
+        "--sidebar": "oklch(0.2 0.02 350)",
+        "--sidebar-foreground": "oklch(0.95 0.01 350)",
+        "--sidebar-primary": "oklch(0.75 0.15 350)",
+        "--sidebar-primary-foreground": "oklch(0.95 0.01 350)",
+        "--sidebar-accent": "oklch(0.25 0.02 350)",
+        "--sidebar-accent-foreground": "oklch(0.95 0.01 350)",
+        "--sidebar-border": "oklch(1 0 0 / 10%)",
+        "--sidebar-ring": "oklch(0.75 0.15 350)",
+      },
+    },
+  },
+  {
+    title: "Gold", // Luxurious gold theme
+    hex: "#FFD700",
+    schema: {
+      ":root": {
+        "--radius": "0.65rem",
+        "--background": "oklch(1 0 0)",
+        "--foreground": "oklch(0.2 0.08 80)",
+        "--card": "oklch(1 0 0)",
+        "--card-foreground": "oklch(0.2 0.08 80)",
+        "--popover": "oklch(1 0 0)",
+        "--popover-foreground": "oklch(0.2 0.08 80)",
+        "--primary": "oklch(0.8 0.25 80)",
+        "--primary-foreground": "oklch(0.15 0.08 80)",
+        "--secondary": "oklch(0.95 0.05 80)",
+        "--secondary-foreground": "oklch(0.25 0.08 80)",
+        "--muted": "oklch(0.95 0.05 80)",
+        "--muted-foreground": "oklch(0.55 0.05 80)",
+        "--accent": "oklch(0.95 0.05 80)",
+        "--accent-foreground": "oklch(0.25 0.08 80)",
+        "--destructive": "oklch(0.577 0.245 27.325)",
+        "--border": "oklch(0.9 0.05 80)",
+        "--input": "oklch(0.9 0.05 80)",
+        "--ring": "oklch(0.8 0.25 80)",
+        "--chart-1": "oklch(0.646 0.222 41.116)",
+        "--chart-2": "oklch(0.6 0.118 184.704)",
+        "--chart-3": "oklch(0.398 0.07 227.392)",
+        "--chart-4": "oklch(0.828 0.189 84.429)",
+        "--chart-5": "oklch(0.769 0.188 70.08)",
+        "--sidebar": "oklch(0.985 0 0)",
+        "--sidebar-foreground": "oklch(0.2 0.08 80)",
+        "--sidebar-primary": "oklch(0.8 0.25 80)",
+        "--sidebar-primary-foreground": "oklch(0.15 0.08 80)",
+        "--sidebar-accent": "oklch(0.95 0.05 80)",
+        "--sidebar-accent-foreground": "oklch(0.25 0.08 80)",
+        "--sidebar-border": "oklch(0.9 0.05 80)",
+        "--sidebar-ring": "oklch(0.8 0.25 80)",
+      },
+      ".dark": {
+        "--background": "oklch(0.1 0.05 80)",
+        "--foreground": "oklch(0.95 0.01 80)",
+        "--card": "oklch(0.15 0.05 80)",
+        "--card-foreground": "oklch(0.95 0.01 80)",
+        "--popover": "oklch(0.15 0.05 80)",
+        "--popover-foreground": "oklch(0.95 0.01 80)",
+        "--primary": "oklch(0.8 0.25 80)",
+        "--primary-foreground": "oklch(0.1 0.05 80)",
+        "--secondary": "oklch(0.2 0.05 80)",
+        "--secondary-foreground": "oklch(0.95 0.01 80)",
+        "--muted": "oklch(0.2 0.05 80)",
+        "--muted-foreground": "oklch(0.8 0.25 80)",
+        "--accent": "oklch(0.2 0.05 80)",
+        "--accent-foreground": "oklch(0.95 0.01 80)",
+        "--destructive": "oklch(0.704 0.191 22.216)",
+        "--border": "oklch(1 0 0 / 10%)",
+        "--input": "oklch(1 0 0 / 15%)",
+        "--ring": "oklch(0.8 0.25 80)",
+        "--chart-1": "oklch(0.488 0.243 264.376)",
+        "--chart-2": "oklch(0.696 0.17 162.48)",
+        "--chart-3": "oklch(0.769 0.188 70.08)",
+        "--chart-4": "oklch(0.627 0.265 303.9)",
+        "--chart-5": "oklch(0.645 0.246 16.439)",
+        "--sidebar": "oklch(0.15 0.05 80)",
+        "--sidebar-foreground": "oklch(0.95 0.01 80)",
+        "--sidebar-primary": "oklch(0.8 0.25 80)",
+        "--sidebar-primary-foreground": "oklch(0.1 0.05 80)",
+        "--sidebar-accent": "oklch(0.2 0.05 80)",
+        "--sidebar-accent-foreground": "oklch(0.95 0.01 80)",
+        "--sidebar-border": "oklch(1 0 0 / 10%)",
+        "--sidebar-ring": "oklch(0.8 0.25 80)",
+      },
+    },
+  },
+  {
+    title: "Dark", // Deep dark theme
+    hex: "#1a1a1a",
+    schema: {
+      ":root": {
+        "--radius": "0.65rem",
+        "--background": "oklch(0.05 0 0)",
+        "--foreground": "oklch(0.95 0 0)",
+        "--card": "oklch(0.08 0 0)",
+        "--card-foreground": "oklch(0.95 0 0)",
+        "--popover": "oklch(0.08 0 0)",
+        "--popover-foreground": "oklch(0.95 0 0)",
+        "--primary": "oklch(0.8 0.2 250)",
+        "--primary-foreground": "oklch(0.05 0 0)",
+        "--secondary": "oklch(0.12 0 0)",
+        "--secondary-foreground": "oklch(0.95 0 0)",
+        "--muted": "oklch(0.12 0 0)",
+        "--muted-foreground": "oklch(0.7 0 0)",
+        "--accent": "oklch(0.12 0 0)",
+        "--accent-foreground": "oklch(0.95 0 0)",
+        "--destructive": "oklch(0.577 0.245 27.325)",
+        "--border": "oklch(0.15 0 0)",
+        "--input": "oklch(0.15 0 0)",
+        "--ring": "oklch(0.8 0.2 250)",
+        "--chart-1": "oklch(0.646 0.222 41.116)",
+        "--chart-2": "oklch(0.6 0.118 184.704)",
+        "--chart-3": "oklch(0.398 0.07 227.392)",
+        "--chart-4": "oklch(0.828 0.189 84.429)",
+        "--chart-5": "oklch(0.769 0.188 70.08)",
+        "--sidebar": "oklch(0.08 0 0)",
+        "--sidebar-foreground": "oklch(0.95 0 0)",
+        "--sidebar-primary": "oklch(0.8 0.2 250)",
+        "--sidebar-primary-foreground": "oklch(0.05 0 0)",
+        "--sidebar-accent": "oklch(0.12 0 0)",
+        "--sidebar-accent-foreground": "oklch(0.95 0 0)",
+        "--sidebar-border": "oklch(0.15 0 0)",
+        "--sidebar-ring": "oklch(0.8 0.2 250)",
+      },
+      ".dark": {
+        "--background": "oklch(0.02 0 0)",
+        "--foreground": "oklch(0.98 0 0)",
+        "--card": "oklch(0.05 0 0)",
+        "--card-foreground": "oklch(0.98 0 0)",
+        "--popover": "oklch(0.05 0 0)",
+        "--popover-foreground": "oklch(0.98 0 0)",
+        "--primary": "oklch(0.8 0.2 250)",
+        "--primary-foreground": "oklch(0.02 0 0)",
+        "--secondary": "oklch(0.08 0 0)",
+        "--secondary-foreground": "oklch(0.98 0 0)",
+        "--muted": "oklch(0.08 0 0)",
+        "--muted-foreground": "oklch(0.8 0.2 250)",
+        "--accent": "oklch(0.08 0 0)",
+        "--accent-foreground": "oklch(0.98 0 0)",
+        "--destructive": "oklch(0.704 0.191 22.216)",
+        "--border": "oklch(1 0 0 / 10%)",
+        "--input": "oklch(1 0 0 / 15%)",
+        "--ring": "oklch(0.8 0.2 250)",
+        "--chart-1": "oklch(0.488 0.243 264.376)",
+        "--chart-2": "oklch(0.696 0.17 162.48)",
+        "--chart-3": "oklch(0.769 0.188 70.08)",
+        "--chart-4": "oklch(0.627 0.265 303.9)",
+        "--chart-5": "oklch(0.645 0.246 16.439)",
+        "--sidebar": "oklch(0.05 0 0)",
+        "--sidebar-foreground": "oklch(0.98 0 0)",
+        "--sidebar-primary": "oklch(0.8 0.2 250)",
+        "--sidebar-primary-foreground": "oklch(0.02 0 0)",
+        "--sidebar-accent": "oklch(0.08 0 0)",
+        "--sidebar-accent-foreground": "oklch(0.98 0 0)",
+        "--sidebar-border": "oklch(1 0 0 / 10%)",
+        "--sidebar-ring": "oklch(0.8 0.2 250)",
+      },
+    },
+  },
+  {
+    title: "Cold", // Icy cold blue theme
+    hex: "#87CEEB",
+    schema: {
+      ":root": {
+        "--radius": "0.65rem",
+        "--background": "oklch(0.98 0.01 210)",
+        "--foreground": "oklch(0.15 0.05 210)",
+        "--card": "oklch(0.99 0.005 210)",
+        "--card-foreground": "oklch(0.15 0.05 210)",
+        "--popover": "oklch(0.99 0.005 210)",
+        "--popover-foreground": "oklch(0.15 0.05 210)",
+        "--primary": "oklch(0.7 0.15 210)",
+        "--primary-foreground": "oklch(0.98 0.01 210)",
+        "--secondary": "oklch(0.92 0.02 210)",
+        "--secondary-foreground": "oklch(0.2 0.05 210)",
+        "--muted": "oklch(0.92 0.02 210)",
+        "--muted-foreground": "oklch(0.5 0.03 210)",
+        "--accent": "oklch(0.92 0.02 210)",
+        "--accent-foreground": "oklch(0.2 0.05 210)",
+        "--destructive": "oklch(0.577 0.245 27.325)",
+        "--border": "oklch(0.88 0.02 210)",
+        "--input": "oklch(0.88 0.02 210)",
+        "--ring": "oklch(0.7 0.15 210)",
+        "--chart-1": "oklch(0.646 0.222 41.116)",
+        "--chart-2": "oklch(0.6 0.118 184.704)",
+        "--chart-3": "oklch(0.398 0.07 227.392)",
+        "--chart-4": "oklch(0.828 0.189 84.429)",
+        "--chart-5": "oklch(0.769 0.188 70.08)",
+        "--sidebar": "oklch(0.97 0.005 210)",
+        "--sidebar-foreground": "oklch(0.15 0.05 210)",
+        "--sidebar-primary": "oklch(0.7 0.15 210)",
+        "--sidebar-primary-foreground": "oklch(0.98 0.01 210)",
+        "--sidebar-accent": "oklch(0.92 0.02 210)",
+        "--sidebar-accent-foreground": "oklch(0.2 0.05 210)",
+        "--sidebar-border": "oklch(0.88 0.02 210)",
+        "--sidebar-ring": "oklch(0.7 0.15 210)",
+      },
+      ".dark": {
+        "--background": "oklch(0.1 0.03 210)",
+        "--foreground": "oklch(0.95 0.01 210)",
+        "--card": "oklch(0.15 0.03 210)",
+        "--card-foreground": "oklch(0.95 0.01 210)",
+        "--popover": "oklch(0.15 0.03 210)",
+        "--popover-foreground": "oklch(0.95 0.01 210)",
+        "--primary": "oklch(0.7 0.15 210)",
+        "--primary-foreground": "oklch(0.1 0.03 210)",
+        "--secondary": "oklch(0.2 0.03 210)",
+        "--secondary-foreground": "oklch(0.95 0.01 210)",
+        "--muted": "oklch(0.2 0.03 210)",
+        "--muted-foreground": "oklch(0.7 0.15 210)",
+        "--accent": "oklch(0.2 0.03 210)",
+        "--accent-foreground": "oklch(0.95 0.01 210)",
+        "--destructive": "oklch(0.704 0.191 22.216)",
+        "--border": "oklch(1 0 0 / 10%)",
+        "--input": "oklch(1 0 0 / 15%)",
+        "--ring": "oklch(0.7 0.15 210)",
+        "--chart-1": "oklch(0.488 0.243 264.376)",
+        "--chart-2": "oklch(0.696 0.17 162.48)",
+        "--chart-3": "oklch(0.769 0.188 70.08)",
+        "--chart-4": "oklch(0.627 0.265 303.9)",
+        "--chart-5": "oklch(0.645 0.246 16.439)",
+        "--sidebar": "oklch(0.15 0.03 210)",
+        "--sidebar-foreground": "oklch(0.95 0.01 210)",
+        "--sidebar-primary": "oklch(0.7 0.15 210)",
+        "--sidebar-primary-foreground": "oklch(0.1 0.03 210)",
+        "--sidebar-accent": "oklch(0.2 0.03 210)",
+        "--sidebar-accent-foreground": "oklch(0.95 0.01 210)",
+        "--sidebar-border": "oklch(1 0 0 / 10%)",
+        "--sidebar-ring": "oklch(0.7 0.15 210)",
+      },
+    },
+  },
+  {
+    title: "Summer", // Bright summer theme
+    hex: "#FFB347",
+    schema: {
+      ":root": {
+        "--radius": "0.65rem",
+        "--background": "oklch(0.99 0.02 50)",
+        "--foreground": "oklch(0.2 0.08 50)",
+        "--card": "oklch(1 0 0)",
+        "--card-foreground": "oklch(0.2 0.08 50)",
+        "--popover": "oklch(1 0 0)",
+        "--popover-foreground": "oklch(0.2 0.08 50)",
+        "--primary": "oklch(0.75 0.2 50)",
+        "--primary-foreground": "oklch(0.99 0.02 50)",
+        "--secondary": "oklch(0.95 0.03 50)",
+        "--secondary-foreground": "oklch(0.25 0.08 50)",
+        "--muted": "oklch(0.95 0.03 50)",
+        "--muted-foreground": "oklch(0.55 0.05 50)",
+        "--accent": "oklch(0.95 0.03 50)",
+        "--accent-foreground": "oklch(0.25 0.08 50)",
+        "--destructive": "oklch(0.577 0.245 27.325)",
+        "--border": "oklch(0.9 0.03 50)",
+        "--input": "oklch(0.9 0.03 50)",
+        "--ring": "oklch(0.75 0.2 50)",
+        "--chart-1": "oklch(0.646 0.222 41.116)",
+        "--chart-2": "oklch(0.6 0.118 184.704)",
+        "--chart-3": "oklch(0.398 0.07 227.392)",
+        "--chart-4": "oklch(0.828 0.189 84.429)",
+        "--chart-5": "oklch(0.769 0.188 70.08)",
+        "--sidebar": "oklch(0.98 0.01 50)",
+        "--sidebar-foreground": "oklch(0.2 0.08 50)",
+        "--sidebar-primary": "oklch(0.75 0.2 50)",
+        "--sidebar-primary-foreground": "oklch(0.99 0.02 50)",
+        "--sidebar-accent": "oklch(0.95 0.03 50)",
+        "--sidebar-accent-foreground": "oklch(0.25 0.08 50)",
+        "--sidebar-border": "oklch(0.9 0.03 50)",
+        "--sidebar-ring": "oklch(0.75 0.2 50)",
+      },
+      ".dark": {
+        "--background": "oklch(0.15 0.05 50)",
+        "--foreground": "oklch(0.95 0.01 50)",
+        "--card": "oklch(0.2 0.05 50)",
+        "--card-foreground": "oklch(0.95 0.01 50)",
+        "--popover": "oklch(0.2 0.05 50)",
+        "--popover-foreground": "oklch(0.95 0.01 50)",
+        "--primary": "oklch(0.75 0.2 50)",
+        "--primary-foreground": "oklch(0.15 0.05 50)",
+        "--secondary": "oklch(0.25 0.05 50)",
+        "--secondary-foreground": "oklch(0.95 0.01 50)",
+        "--muted": "oklch(0.25 0.05 50)",
+        "--muted-foreground": "oklch(0.75 0.2 50)",
+        "--accent": "oklch(0.25 0.05 50)",
+        "--accent-foreground": "oklch(0.95 0.01 50)",
+        "--destructive": "oklch(0.704 0.191 22.216)",
+        "--border": "oklch(1 0 0 / 10%)",
+        "--input": "oklch(1 0 0 / 15%)",
+        "--ring": "oklch(0.75 0.2 50)",
+        "--chart-1": "oklch(0.488 0.243 264.376)",
+        "--chart-2": "oklch(0.696 0.17 162.48)",
+        "--chart-3": "oklch(0.769 0.188 70.08)",
+        "--chart-4": "oklch(0.627 0.265 303.9)",
+        "--chart-5": "oklch(0.645 0.246 16.439)",
+        "--sidebar": "oklch(0.2 0.05 50)",
+        "--sidebar-foreground": "oklch(0.95 0.01 50)",
+        "--sidebar-primary": "oklch(0.75 0.2 50)",
+        "--sidebar-primary-foreground": "oklch(0.15 0.05 50)",
+        "--sidebar-accent": "oklch(0.25 0.05 50)",
+        "--sidebar-accent-foreground": "oklch(0.95 0.01 50)",
+        "--sidebar-border": "oklch(1 0 0 / 10%)",
+        "--sidebar-ring": "oklch(0.75 0.2 50)",
+      },
+    },
+  },
+  {
+    title: "Fall", // Autumn fall theme
+    hex: "#D2691E",
+    schema: {
+      ":root": {
+        "--radius": "0.65rem",
+        "--background": "oklch(0.98 0.02 30)",
+        "--foreground": "oklch(0.2 0.06 30)",
+        "--card": "oklch(1 0 0)",
+        "--card-foreground": "oklch(0.2 0.06 30)",
+        "--popover": "oklch(1 0 0)",
+        "--popover-foreground": "oklch(0.2 0.06 30)",
+        "--primary": "oklch(0.7 0.18 30)",
+        "--primary-foreground": "oklch(0.98 0.02 30)",
+        "--secondary": "oklch(0.94 0.02 30)",
+        "--secondary-foreground": "oklch(0.25 0.06 30)",
+        "--muted": "oklch(0.94 0.02 30)",
+        "--muted-foreground": "oklch(0.55 0.04 30)",
+        "--accent": "oklch(0.94 0.02 30)",
+        "--accent-foreground": "oklch(0.25 0.06 30)",
+        "--destructive": "oklch(0.577 0.245 27.325)",
+        "--border": "oklch(0.9 0.02 30)",
+        "--input": "oklch(0.9 0.02 30)",
+        "--ring": "oklch(0.7 0.18 30)",
+        "--chart-1": "oklch(0.646 0.222 41.116)",
+        "--chart-2": "oklch(0.6 0.118 184.704)",
+        "--chart-3": "oklch(0.398 0.07 227.392)",
+        "--chart-4": "oklch(0.828 0.189 84.429)",
+        "--chart-5": "oklch(0.769 0.188 70.08)",
+        "--sidebar": "oklch(0.97 0.01 30)",
+        "--sidebar-foreground": "oklch(0.2 0.06 30)",
+        "--sidebar-primary": "oklch(0.7 0.18 30)",
+        "--sidebar-primary-foreground": "oklch(0.98 0.02 30)",
+        "--sidebar-accent": "oklch(0.94 0.02 30)",
+        "--sidebar-accent-foreground": "oklch(0.25 0.06 30)",
+        "--sidebar-border": "oklch(0.9 0.02 30)",
+        "--sidebar-ring": "oklch(0.7 0.18 30)",
+      },
+      ".dark": {
+        "--background": "oklch(0.12 0.04 30)",
+        "--foreground": "oklch(0.95 0.01 30)",
+        "--card": "oklch(0.18 0.04 30)",
+        "--card-foreground": "oklch(0.95 0.01 30)",
+        "--popover": "oklch(0.18 0.04 30)",
+        "--popover-foreground": "oklch(0.95 0.01 30)",
+        "--primary": "oklch(0.7 0.18 30)",
+        "--primary-foreground": "oklch(0.12 0.04 30)",
+        "--secondary": "oklch(0.22 0.04 30)",
+        "--secondary-foreground": "oklch(0.95 0.01 30)",
+        "--muted": "oklch(0.22 0.04 30)",
+        "--muted-foreground": "oklch(0.7 0.18 30)",
+        "--accent": "oklch(0.22 0.04 30)",
+        "--accent-foreground": "oklch(0.95 0.01 30)",
+        "--destructive": "oklch(0.704 0.191 22.216)",
+        "--border": "oklch(1 0 0 / 10%)",
+        "--input": "oklch(1 0 0 / 15%)",
+        "--ring": "oklch(0.7 0.18 30)",
+        "--chart-1": "oklch(0.488 0.243 264.376)",
+        "--chart-2": "oklch(0.696 0.17 162.48)",
+        "--chart-3": "oklch(0.769 0.188 70.08)",
+        "--chart-4": "oklch(0.627 0.265 303.9)",
+        "--chart-5": "oklch(0.645 0.246 16.439)",
+        "--sidebar": "oklch(0.18 0.04 30)",
+        "--sidebar-foreground": "oklch(0.95 0.01 30)",
+        "--sidebar-primary": "oklch(0.7 0.18 30)",
+        "--sidebar-primary-foreground": "oklch(0.12 0.04 30)",
+        "--sidebar-accent": "oklch(0.22 0.04 30)",
+        "--sidebar-accent-foreground": "oklch(0.95 0.01 30)",
+        "--sidebar-border": "oklch(1 0 0 / 10%)",
+        "--sidebar-ring": "oklch(0.7 0.18 30)",
+      },
+    },
+  },
+  {
+    title: "Winter", // Cool winter theme
+    hex: "#E8F4FD",
+    schema: {
+      ":root": {
+        "--radius": "0.65rem",
+        "--background": "oklch(0.99 0.005 240)",
+        "--foreground": "oklch(0.15 0.03 240)",
+        "--card": "oklch(1 0 0)",
+        "--card-foreground": "oklch(0.15 0.03 240)",
+        "--popover": "oklch(1 0 0)",
+        "--popover-foreground": "oklch(0.15 0.03 240)",
+        "--primary": "oklch(0.65 0.12 240)",
+        "--primary-foreground": "oklch(0.99 0.005 240)",
+        "--secondary": "oklch(0.94 0.01 240)",
+        "--secondary-foreground": "oklch(0.2 0.03 240)",
+        "--muted": "oklch(0.94 0.01 240)",
+        "--muted-foreground": "oklch(0.5 0.02 240)",
+        "--accent": "oklch(0.94 0.01 240)",
+        "--accent-foreground": "oklch(0.2 0.03 240)",
+        "--destructive": "oklch(0.577 0.245 27.325)",
+        "--border": "oklch(0.9 0.01 240)",
+        "--input": "oklch(0.9 0.01 240)",
+        "--ring": "oklch(0.65 0.12 240)",
+        "--chart-1": "oklch(0.646 0.222 41.116)",
+        "--chart-2": "oklch(0.6 0.118 184.704)",
+        "--chart-3": "oklch(0.398 0.07 227.392)",
+        "--chart-4": "oklch(0.828 0.189 84.429)",
+        "--chart-5": "oklch(0.769 0.188 70.08)",
+        "--sidebar": "oklch(0.97 0.005 240)",
+        "--sidebar-foreground": "oklch(0.15 0.03 240)",
+        "--sidebar-primary": "oklch(0.65 0.12 240)",
+        "--sidebar-primary-foreground": "oklch(0.99 0.005 240)",
+        "--sidebar-accent": "oklch(0.94 0.01 240)",
+        "--sidebar-accent-foreground": "oklch(0.2 0.03 240)",
+        "--sidebar-border": "oklch(0.9 0.01 240)",
+        "--sidebar-ring": "oklch(0.65 0.12 240)",
+      },
+      ".dark": {
+        "--background": "oklch(0.1 0.02 240)",
+        "--foreground": "oklch(0.95 0.005 240)",
+        "--card": "oklch(0.15 0.02 240)",
+        "--card-foreground": "oklch(0.95 0.005 240)",
+        "--popover": "oklch(0.15 0.02 240)",
+        "--popover-foreground": "oklch(0.95 0.005 240)",
+        "--primary": "oklch(0.65 0.12 240)",
+        "--primary-foreground": "oklch(0.1 0.02 240)",
+        "--secondary": "oklch(0.2 0.02 240)",
+        "--secondary-foreground": "oklch(0.95 0.005 240)",
+        "--muted": "oklch(0.2 0.02 240)",
+        "--muted-foreground": "oklch(0.65 0.12 240)",
+        "--accent": "oklch(0.2 0.02 240)",
+        "--accent-foreground": "oklch(0.95 0.005 240)",
+        "--destructive": "oklch(0.704 0.191 22.216)",
+        "--border": "oklch(1 0 0 / 10%)",
+        "--input": "oklch(1 0 0 / 15%)",
+        "--ring": "oklch(0.65 0.12 240)",
+        "--chart-1": "oklch(0.488 0.243 264.376)",
+        "--chart-2": "oklch(0.696 0.17 162.48)",
+        "--chart-3": "oklch(0.769 0.188 70.08)",
+        "--chart-4": "oklch(0.627 0.265 303.9)",
+        "--chart-5": "oklch(0.645 0.246 16.439)",
+        "--sidebar": "oklch(0.15 0.02 240)",
+        "--sidebar-foreground": "oklch(0.95 0.005 240)",
+        "--sidebar-primary": "oklch(0.65 0.12 240)",
+        "--sidebar-primary-foreground": "oklch(0.1 0.02 240)",
+        "--sidebar-accent": "oklch(0.2 0.02 240)",
+        "--sidebar-accent-foreground": "oklch(0.95 0.005 240)",
+        "--sidebar-border": "oklch(1 0 0 / 10%)",
+        "--sidebar-ring": "oklch(0.65 0.12 240)",
+      },
+    },
+  },
+  {
+    title: "Earth", // Natural earth tones
+    hex: "#8B4513",
+    schema: {
+      ":root": {
+        "--radius": "0.65rem",
+        "--background": "oklch(0.98 0.01 70)",
+        "--foreground": "oklch(0.2 0.04 70)",
+        "--card": "oklch(1 0 0)",
+        "--card-foreground": "oklch(0.2 0.04 70)",
+        "--popover": "oklch(1 0 0)",
+        "--popover-foreground": "oklch(0.2 0.04 70)",
+        "--primary": "oklch(0.6 0.12 70)",
+        "--primary-foreground": "oklch(0.98 0.01 70)",
+        "--secondary": "oklch(0.93 0.01 70)",
+        "--secondary-foreground": "oklch(0.25 0.04 70)",
+        "--muted": "oklch(0.93 0.01 70)",
+        "--muted-foreground": "oklch(0.55 0.02 70)",
+        "--accent": "oklch(0.93 0.01 70)",
+        "--accent-foreground": "oklch(0.25 0.04 70)",
+        "--destructive": "oklch(0.577 0.245 27.325)",
+        "--border": "oklch(0.88 0.01 70)",
+        "--input": "oklch(0.88 0.01 70)",
+        "--ring": "oklch(0.6 0.12 70)",
+        "--chart-1": "oklch(0.646 0.222 41.116)",
+        "--chart-2": "oklch(0.6 0.118 184.704)",
+        "--chart-3": "oklch(0.398 0.07 227.392)",
+        "--chart-4": "oklch(0.828 0.189 84.429)",
+        "--chart-5": "oklch(0.769 0.188 70.08)",
+        "--sidebar": "oklch(0.96 0.005 70)",
+        "--sidebar-foreground": "oklch(0.2 0.04 70)",
+        "--sidebar-primary": "oklch(0.6 0.12 70)",
+        "--sidebar-primary-foreground": "oklch(0.98 0.01 70)",
+        "--sidebar-accent": "oklch(0.93 0.01 70)",
+        "--sidebar-accent-foreground": "oklch(0.25 0.04 70)",
+        "--sidebar-border": "oklch(0.88 0.01 70)",
+        "--sidebar-ring": "oklch(0.6 0.12 70)",
+      },
+      ".dark": {
+        "--background": "oklch(0.12 0.02 70)",
+        "--foreground": "oklch(0.95 0.005 70)",
+        "--card": "oklch(0.18 0.02 70)",
+        "--card-foreground": "oklch(0.95 0.005 70)",
+        "--popover": "oklch(0.18 0.02 70)",
+        "--popover-foreground": "oklch(0.95 0.005 70)",
+        "--primary": "oklch(0.6 0.12 70)",
+        "--primary-foreground": "oklch(0.12 0.02 70)",
+        "--secondary": "oklch(0.22 0.02 70)",
+        "--secondary-foreground": "oklch(0.95 0.005 70)",
+        "--muted": "oklch(0.22 0.02 70)",
+        "--muted-foreground": "oklch(0.6 0.12 70)",
+        "--accent": "oklch(0.22 0.02 70)",
+        "--accent-foreground": "oklch(0.95 0.005 70)",
+        "--destructive": "oklch(0.704 0.191 22.216)",
+        "--border": "oklch(1 0 0 / 10%)",
+        "--input": "oklch(1 0 0 / 15%)",
+        "--ring": "oklch(0.6 0.12 70)",
+        "--chart-1": "oklch(0.488 0.243 264.376)",
+        "--chart-2": "oklch(0.696 0.17 162.48)",
+        "--chart-3": "oklch(0.769 0.188 70.08)",
+        "--chart-4": "oklch(0.627 0.265 303.9)",
+        "--chart-5": "oklch(0.645 0.246 16.439)",
+        "--sidebar": "oklch(0.18 0.02 70)",
+        "--sidebar-foreground": "oklch(0.95 0.005 70)",
+        "--sidebar-primary": "oklch(0.6 0.12 70)",
+        "--sidebar-primary-foreground": "oklch(0.12 0.02 70)",
+        "--sidebar-accent": "oklch(0.22 0.02 70)",
+        "--sidebar-accent-foreground": "oklch(0.95 0.005 70)",
+        "--sidebar-border": "oklch(1 0 0 / 10%)",
+        "--sidebar-ring": "oklch(0.6 0.12 70)",
+      },
+    },
+  },
+  {
+    title: "Space", // Deep space theme
+    hex: "#1E1E2E",
+    schema: {
+      ":root": {
+        "--radius": "0.65rem",
+        "--background": "oklch(0.08 0.02 280)",
+        "--foreground": "oklch(0.95 0.01 280)",
+        "--card": "oklch(0.12 0.02 280)",
+        "--card-foreground": "oklch(0.95 0.01 280)",
+        "--popover": "oklch(0.12 0.02 280)",
+        "--popover-foreground": "oklch(0.95 0.01 280)",
+        "--primary": "oklch(0.75 0.25 280)",
+        "--primary-foreground": "oklch(0.08 0.02 280)",
+        "--secondary": "oklch(0.18 0.02 280)",
+        "--secondary-foreground": "oklch(0.95 0.01 280)",
+        "--muted": "oklch(0.18 0.02 280)",
+        "--muted-foreground": "oklch(0.75 0.25 280)",
+        "--accent": "oklch(0.18 0.02 280)",
+        "--accent-foreground": "oklch(0.95 0.01 280)",
+        "--destructive": "oklch(0.577 0.245 27.325)",
+        "--border": "oklch(0.22 0.02 280)",
+        "--input": "oklch(0.22 0.02 280)",
+        "--ring": "oklch(0.75 0.25 280)",
+        "--chart-1": "oklch(0.646 0.222 41.116)",
+        "--chart-2": "oklch(0.6 0.118 184.704)",
+        "--chart-3": "oklch(0.398 0.07 227.392)",
+        "--chart-4": "oklch(0.828 0.189 84.429)",
+        "--chart-5": "oklch(0.769 0.188 70.08)",
+        "--sidebar": "oklch(0.12 0.02 280)",
+        "--sidebar-foreground": "oklch(0.95 0.01 280)",
+        "--sidebar-primary": "oklch(0.75 0.25 280)",
+        "--sidebar-primary-foreground": "oklch(0.08 0.02 280)",
+        "--sidebar-accent": "oklch(0.18 0.02 280)",
+        "--sidebar-accent-foreground": "oklch(0.95 0.01 280)",
+        "--sidebar-border": "oklch(0.22 0.02 280)",
+        "--sidebar-ring": "oklch(0.75 0.25 280)",
+      },
+      ".dark": {
+        "--background": "oklch(0.05 0.01 280)",
+        "--foreground": "oklch(0.98 0.005 280)",
+        "--card": "oklch(0.08 0.01 280)",
+        "--card-foreground": "oklch(0.98 0.005 280)",
+        "--popover": "oklch(0.08 0.01 280)",
+        "--popover-foreground": "oklch(0.98 0.005 280)",
+        "--primary": "oklch(0.75 0.25 280)",
+        "--primary-foreground": "oklch(0.05 0.01 280)",
+        "--secondary": "oklch(0.12 0.01 280)",
+        "--secondary-foreground": "oklch(0.98 0.005 280)",
+        "--muted": "oklch(0.12 0.01 280)",
+        "--muted-foreground": "oklch(0.75 0.25 280)",
+        "--accent": "oklch(0.12 0.01 280)",
+        "--accent-foreground": "oklch(0.98 0.005 280)",
+        "--destructive": "oklch(0.704 0.191 22.216)",
+        "--border": "oklch(1 0 0 / 10%)",
+        "--input": "oklch(1 0 0 / 15%)",
+        "--ring": "oklch(0.75 0.25 280)",
+        "--chart-1": "oklch(0.488 0.243 264.376)",
+        "--chart-2": "oklch(0.696 0.17 162.48)",
+        "--chart-3": "oklch(0.769 0.188 70.08)",
+        "--chart-4": "oklch(0.627 0.265 303.9)",
+        "--chart-5": "oklch(0.645 0.246 16.439)",
+        "--sidebar": "oklch(0.08 0.01 280)",
+        "--sidebar-foreground": "oklch(0.98 0.005 280)",
+        "--sidebar-primary": "oklch(0.75 0.25 280)",
+        "--sidebar-primary-foreground": "oklch(0.05 0.01 280)",
+        "--sidebar-accent": "oklch(0.12 0.01 280)",
+        "--sidebar-accent-foreground": "oklch(0.98 0.005 280)",
+        "--sidebar-border": "oklch(1 0 0 / 10%)",
+        "--sidebar-ring": "oklch(0.75 0.25 280)",
+      },
+    },
+  },
 ];
 
 export const currency = {
@@ -1758,3 +2415,174 @@ export const currency = {
   ZMW: "Zambian kwacha",
   ZWL: "Zimbabwean dollar",
 };
+
+export function getCurrencySymbol(currencyCode: string) {
+  const shortCurrencyCode = currencyCode?.substring(0, 3);
+  if (shortCurrencyCode && shortCurrencyCode !== "") {
+    const currencySymbols = {
+      AED: "د.إ", // United Arab Emirates Dirham
+      AFN: "؋", // Afghan Afghani
+      ALL: "L", // Albanian Lek
+      AMD: "֏", // Armenian Dram
+      ANG: "ƒ", // Netherlands Antillean Guilder
+      AOA: "Kz", // Angolan Kwanza
+      ARS: "$", // Argentine Peso
+      AUD: "$", // Australian Dollar
+      AWG: "ƒ", // Aruban Florin
+      AZN: "₼", // Azerbaijani Manat
+      BAM: "КМ", // Bosnia-Herzegovina Convertible Mark
+      BBD: "$", // Barbadian Dollar
+      BDT: "৳", // Bangladeshi Taka
+      BGN: "лв", // Bulgarian Lev
+      BHD: ".د.ب", // Bahraini Dinar
+      BIF: "FBu", // Burundian Franc
+      BMD: "$", // Bermudian Dollar
+      BND: "$", // Brunei Dollar
+      BOB: "Bs.", // Bolivian Boliviano
+      BRL: "R$", // Brazilian Real
+      BSD: "$", // Bahamian Dollar
+      BTN: "Nu.", // Bhutanese Ngultrum
+      BWP: "P", // Botswana Pula
+      BYN: "Br", // Belarusian Ruble
+      BZD: "$", // Belize Dollar
+      CAD: "$", // Canadian Dollar
+      CDF: "FC", // Congolese Franc
+      CHF: "CHF", // Swiss Franc
+      CLP: "$", // Chilean Peso
+      CNY: "¥", // Chinese Yuan
+      COP: "$", // Colombian Peso
+      CRC: "₡", // Costa Rican Colón
+      CUP: "₱", // Cuban Peso
+      CVE: "$", // Cape Verdean Escudo
+      CZK: "Kč", // Czech Koruna
+      DJF: "Fdj", // Djiboutian Franc
+      DKK: "kr", // Danish Krone
+      DOP: "RD$", // Dominican Peso
+      DZD: "دج", // Algerian Dinar
+      EGP: "E£", // Egyptian Pound
+      ERN: "Nfk", // Eritrean Nakfa
+      ETB: "Br", // Ethiopian Birr
+      EUR: "€", // Euro
+      FJD: "$", // Fijian Dollar
+      FKP: "£", // Falkland Islands Pound
+      FOK: "HK$", // Falkland Islands Pound
+      GBP: "£", // British Pound Sterling
+      GEL: "₾", // Georgian Lari
+      GGP: "GGP", // Guernsey Pound
+      GHS: "GH₵", // Ghanaian Cedi
+      GIP: "£", // Gibraltar Pound
+      GMD: "D", // Gambian Dalasi
+      GNF: "FG", // Guinean Franc
+      GTQ: "Q", // Guatemalan Quetzal
+      GYD: "$", // Guyanaese Dollar
+      HKD: "HK$", // Hong Kong Dollar
+      HNL: "L", // Honduran Lempira
+      HRK: "kn", // Croatian Kuna
+      HTG: "G", // Haitian Gourde
+      HUF: "Ft", // Hungarian Forint
+      IDR: "Rp", // Indonesian Rupiah
+      ILS: "₪", // Israeli New Shekel
+      IMP: "IMP", // Isle of Man Pound
+      INR: "₹", // Indian Rupee
+      IQD: "ع.د", // Iraqi Dinar
+      IRR: "﷼", // Iranian Rial
+      ISK: "Íkr", // Icelandic Króna
+      JEP: "JEP", // Jersey Pound
+      JMD: "J$", // Jamaican Dollar
+      JOD: "JD", // Jordanian Dinar
+      JPY: "¥", // Japanese Yen
+      KES: "Ksh", // Kenyan Shilling
+      KGS: "с", // Kyrgystani Som
+      KHR: "៛", // Cambodian Riel
+      KID: "$", // Kiribati Dollar
+      KMF: "CF", // Comorian Franc
+      KRW: "₩", // South Korean Won
+      KWD: "KD", // Kuwaiti Dinar
+      KYD: "$", // Cayman Islands Dollar
+      KZT: "₸", // Kazakhstani Tenge
+      LAK: "₭", // Laotian Kip
+      LBP: "ل.ل", // Lebanese Pound
+      LKR: "රු", // Sri Lankan Rupee
+      LRD: "$", // Liberian Dollar
+      LSL: "L", // Lesotho Loti
+      LYD: "LD", // Libyan Dinar
+      MAD: "MAD", // Moroccan Dirham
+      MDL: "MDL", // Moldovan Leu
+      MGA: "Ar", // Malagasy Ariary
+      MKD: "MKD", // Macedonian Denar
+      MMK: "K", // Myanma Kyat
+      MNT: "₮", // Mongolian Tugrik
+      MOP: "MOP$", // Macanese Pataca
+      MRU: "UM", // Mauritanian Ouguiya
+      MUR: "₨", // Mauritian Rupee
+      MVR: "MVR", // Maldivian Rufiyaa
+      MWK: "MK", // Malawian Kwacha
+      MXN: "$", // Mexican Peso
+      MYR: "RM", // Malaysian Ringgit
+      MZN: "MT", // Mozambican Metical
+      NAD: "$", // Namibian Dollar
+      NGN: "₦", // Nigerian Naira
+      NIO: "C$", // Nicaraguan Córdoba
+      NOK: "kr", // Norwegian Krone
+      NPR: "₨", // Nepalese Rupee
+      NZD: "$", // New Zealand Dollar
+      OMR: "OMR", // Omani Rial
+      PAB: "B/.", // Panamanian Balboa
+      PEN: "S/.", // Peruvian Nuevo Sol
+      PGK: "K", // Papua New Guinean Kina
+      PHP: "₱", // Philippine Peso
+      PKR: "₨", // Pakistani Rupee
+      PLN: "zł", // Polish Zloty
+      PYG: "₲", // Paraguayan Guarani
+      QAR: "QR", // Qatari Rial
+      RON: "lei", // Romanian Leu
+      RSD: "дин", // Serbian Dinar
+      RUB: "₽", // Russian Ruble
+      RWF: "FR", // Rwandan Franc
+      SAR: "SR", // Saudi Riyal
+      SBD: "$", // Solomon Islands Dollar
+      SCR: "SR", // Seychellois Rupee
+      SDG: "SDG", // Sudanese Pound
+      SEK: "kr", // Swedish Krona
+      SGD: "$", // Singapore Dollar
+      SHP: "£", // Saint Helena Pound
+      SLL: "Le", // Sierra Leonean Leone
+      SOS: "S", // Somali Shilling
+      SRD: "$", // Surinamese Dollar
+      SSP: "SSP", // South Sudanese Pound
+      STN: "Db", // São Tomé and Príncipe Dobra
+      SYP: "ل.س", // Syrian Pound
+      SZL: "L", // Swazi Lilangeni
+      THB: "฿", // Thai Baht
+      TJS: "ЅМ", // Tajikistani Somoni
+      TMT: "T", // Turkmenistani Manat
+      TND: "د.ت", // Tunisian Dinar
+      TOP: "T$", // Tongan Pa'anga
+      TRY: "₺", // Turkish Lira
+      TTD: "TT$", // Trinidad and Tobago Dollar
+      TVD: "$", // Tuvaluan Dollar
+      TWD: "NT$", // New Taiwan Dollar
+      TZS: "TSh", // Tanzanian Shilling
+      UAH: "₴", // Ukrainian Hryvnia
+      UGX: "USh", // Ugandan Shilling
+      USD: "$", // United States Dollar
+      UYU: "$", // Uruguayan Peso
+      UZS: "лв", // Uzbekistan Som
+      VES: "Bs.", // Venezuelan Bolívar
+      VND: "₫", // Vietnamese Dong
+      VUV: "VT", // Vanuatu Vatu
+      WST: "WS$", // Samoan Tala
+      XAF: "FCFA", // Central African CFA Franc
+      XCD: "$", // East Caribbean Dollar
+      XDR: "SDR", // Special Drawing Rights
+      XOF: "CFA", // West African CFA Franc
+      XPF: "₣", // CFP Franc
+      YER: "﷼", // Yemeni Rial
+      ZAR: "R", // South African Rand
+      ZMW: "ZK", // Zambian Kwacha
+      ZWL: "$", // Zimbabwean Dollar
+    };
+
+    return (currencySymbols as Record<string, string>)[shortCurrencyCode] || "";
+  }
+}

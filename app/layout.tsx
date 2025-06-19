@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
+import { AppProvider } from "@/context/appContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,13 +33,22 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* toaster for notifications */}
         <Toaster />
+        {/* to check if the user is mounted */}
         <UseMounted>
-          <ThemeProvider>
-            <QueryProvider>
-              <main>{children}</main>
-            </QueryProvider>
-          </ThemeProvider>
+          {/* app provider to provide the api url to the app */}
+          <AppProvider>
+            {/* theme provider to provide the theme to the app */}
+            <ThemeProvider>
+              {/* query provider to provide the query client to the app */}
+              <QueryProvider>
+                {/* main to render the children */}
+                <main>{children}</main>
+              </QueryProvider>
+              {/* theme provider to provide the theme to the app */}
+            </ThemeProvider>
+          </AppProvider>
         </UseMounted>
       </body>
     </html>

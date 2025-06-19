@@ -25,7 +25,7 @@ export default function AdminUsersPage() {
           icon={<UserCheck className="h-5 w-5" />}
         />
         <GridCard
-          title="Inactive Users"
+          title="Banned Users"
           value={userStats.inactiveUsers}
           icon={<UserX className="h-5 w-5" />}
         />

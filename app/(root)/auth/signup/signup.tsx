@@ -6,36 +6,64 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, User, Mail } from "lucide-react";
-import { useState } from "react";
+import { useCreateUser } from "@/hooks/use-user";
+import { useQueryClient } from "@tanstack/react-query";
+import { Eye, EyeOff, Mail, User } from "lucide-react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
+    username: "",
     email: "",
+    panel_id: 35,
+    ref: 0,
     password: "",
     confirmPassword: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const { mutate, isPending } = useCreateUser();
+  const queryClient = useQueryClient();
+  const router = useRouter();
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Clear error when user starts typing
+    // Clear error when user starts typing0
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
+  // Password requirements regex
+  const passwordRequirements = {
+    length: {
+      test: (pw: string) => pw.length >= 8,
+      label: "At least 8 characters",
+    },
+    uppercase: {
+      test: (pw: string) => /[A-Z]/.test(pw),
+      label: "At least one uppercase letter",
+    },
+    lowercase: {
+      test: (pw: string) => /[a-z]/.test(pw),
+      label: "At least one lowercase letter",
+    },
+    special: {
+      test: (pw: string) => /[^A-Za-z0-9]/.test(pw),
+      label: "At least one special character",
+    },
+  };
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required";
+    if (!formData.username.trim()) {
+      newErrors.username = "Username is required";
     }
 
     if (!formData.email.trim()) {
@@ -46,8 +74,17 @@ export default function Signup() {
 
     if (!formData.password) {
       newErrors.password = "Password is required";
-    } else if (formData.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
+    } else {
+      // Check all password requirements
+      if (!passwordRequirements.length.test(formData.password)) {
+        newErrors.password = passwordRequirements.length.label;
+      } else if (!passwordRequirements.uppercase.test(formData.password)) {
+        newErrors.password = passwordRequirements.uppercase.label;
+      } else if (!passwordRequirements.lowercase.test(formData.password)) {
+        newErrors.password = passwordRequirements.lowercase.label;
+      } else if (!passwordRequirements.special.test(formData.password)) {
+        newErrors.password = passwordRequirements.special.label;
+      }
     }
 
     if (!formData.confirmPassword) {
@@ -63,32 +100,51 @@ export default function Signup() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      console.log("Form submitted:", formData);
-      // Handle form submission here
+      mutate({
+        email: formData.email,
+        password: formData.password,
+        panel_id: formData.panel_id,
+        ref: formData.ref,
+        username: formData.username,
+      });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     }
   };
 
+  const searchUrl = useSearchParams();
+  const token = searchUrl.get("token");
+  console.log(token);
+
+  if (token) {
+    router.push(`/auth/signup?token=${token}`);
+  }
+  const redirect = (e: React.FormEvent) => {
+    e.preventDefault();
+    router.push(
+      "https://auth.validpanel.com/api/auth/panel/login/google?panel_id=35&redirect=http://localhost:3000/auth/signup"
+    );
+  };
   return (
     <div className="h-[calc(100vh-4rem)] flex items-center justify-center p-4 md:p-8 mt-16">
       <Card className="w-full max-w-md shadow-xl mx-auto">
         <CardContent className="space-y-8 p-6 sm:p-8">
           {/* Signup Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Name Field */}
+            {/* Username Field */}
             <div className="space-y-2.5">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="name"
-                name="name"
+                id="username"
+                name="username"
                 type="text"
-                placeholder="Enter your full name"
-                value={formData.name}
+                placeholder="Enter your username"
+                value={formData.username}
                 onChange={handleInputChange}
-                className={errors.name ? "border-destructive" : ""}
+                className={errors.username ? "border-destructive" : ""}
                 required
               />
-              {errors.name && (
-                <p className="text-xs text-destructive">{errors.name}</p>
+              {errors.username && (
+                <p className="text-xs text-destructive">{errors.username}</p>
               )}
             </div>
 
@@ -138,6 +194,8 @@ export default function Signup() {
                   )}
                 </Button>
               </div>
+              {/* Live password requirements feedback */}
+
               {errors.password && (
                 <p className="text-xs text-destructive">{errors.password}</p>
               )}
@@ -178,8 +236,8 @@ export default function Signup() {
               )}
             </div>
 
-            <Button type="submit" className="w-full mt-6">
-              Create Account
+            <Button type="submit" className="w-full mt-6" disabled={isPending}>
+              {isPending ? "Creating Account..." : "Create Account"}
             </Button>
 
             {/* Divider */}
@@ -199,10 +257,7 @@ export default function Signup() {
               type="button"
               variant="outline"
               className="w-full flex items-center justify-center gap-2"
-              onClick={() => {
-                // Handle Google OAuth
-                console.log("Google OAuth clicked");
-              }}
+              onClick={redirect}
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path
