@@ -1,6 +1,5 @@
 import type React from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface ReferralCardProps {
   icon: React.ReactNode;
@@ -18,25 +17,13 @@ export default function GridCard({
   valueFormatter = (val) => val.toString(),
 }: ReferralCardProps) {
   return (
-    <Card
-      className={cn(
-        "transition-all duration-200 hover:shadow-md border-border/50 shadow-none ",
-        className
-      )}
-    >
-      <CardHeader className="pb-3">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-primary/10 text-primary">
-            {icon}
-          </div>
-          <p className="text-sm font-medium text-muted-foreground leading-none">
-            {title}
-          </p>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <div className="text-2xl font-bold tracking-tight">
-          {valueFormatter(value)}
+    <Card>
+      <CardContent className={`p-4 flex items-center${className}`}>
+        <div className="bg-blue-50 p-3 rounded-full mr-4">{icon}</div>
+        <div>
+          <p className="text-sm text-gray-500">{title}</p>
+          <h3 className="text-2xl font-bold">{valueFormatter(value)}</h3>
+          <p className="text-xs text-green-600">{valueFormatter(value)}</p>
         </div>
       </CardContent>
     </Card>

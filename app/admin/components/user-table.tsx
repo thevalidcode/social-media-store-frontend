@@ -28,29 +28,44 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useDeleteASingleUser, useDeleteMultipleUsers } from "@/hooks/use-user";
+import { AxiosError } from "axios";
 import {
   ArrowUpDown,
+  BanIcon,
   ChevronLeft,
   ChevronRight,
   CreditCard,
   Edit,
-  Eye,
+  LockIcon,
   MoreHorizontal,
-  ShoppingCart,
   Search,
+  ShoppingCart,
   Trash2,
   UserCheck,
   UserX,
-  BanIcon,
-  LockIcon,
 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { CreateUser } from "./create_user";
 import { mockUsers, User } from "./mock-users";
+
+// Import Dialog components
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { EditUser } from "./edit-user";
+import { useQueryClient } from "@tanstack/react-query";
 
 type SortField = keyof User;
 type SortDirection = "asc" | "desc";
 export default function UserDataTable() {
+  const queryClient = useQueryClient();
   const [users] = useState<User[]>(mockUsers); // Removed unused _setUsers
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -59,11 +74,26 @@ export default function UserDataTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
+  // Dialog state for delete confirmation
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteDialogUserIds, setDeleteDialogUserIds] = useState<string[]>([]);
+
+  // State for Edit User dialog
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  // State for the user being edited
+  const [editUserData, setEditUserData] = useState({
+    uid: "",
+    username: "",
+    email: "",
+    full_name: "",
+    balance: 0,
+  });
+
   // Filter users based on search term
   const filteredUsers = users.filter(
     (user) =>
       user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   // Sort users
@@ -88,7 +118,7 @@ export default function UserDataTable() {
   const totalPages = Math.ceil(sortedUsers.length / pageSize);
   const paginatedUsers = sortedUsers.slice(
     (currentPage - 1) * pageSize,
-    currentPage * pageSize
+    currentPage * pageSize,
   );
 
   // Handle page change
@@ -164,6 +194,87 @@ export default function UserDataTable() {
     }).format(amount);
   };
 
+  const { mutate: deleteMultipleUsers } = useDeleteMultipleUsers();
+  const { mutate: deleteSingleUser } = useDeleteASingleUser();
+
+  // delete a single user
+  const handleDeleteASingleUser = () => {
+    deleteSingleUser(
+      {
+        uid: String(deleteDialogUserIds[0]),
+      },
+      {
+        onSuccess: () => {
+          toast.success("User deleted successfully");
+          queryClient.invalidateQueries({ queryKey: ["users"] });
+          setDeleteDialogOpen(false);
+          setSelectedUsers([]);
+        },
+        onError: (error: unknown) => {
+          if (error instanceof AxiosError) {
+            toast.error(error.response?.data?.error || "Failed to delete user");
+          } else {
+            toast.error("Failed to delete user");
+          }
+          setDeleteDialogOpen(false);
+        },
+      },
+    );
+  };
+
+  // used to delete an array of users
+  const handleDeleteMultipleUsers = (userIds: string[]) => {
+    deleteMultipleUsers(
+      { uids: userIds },
+      {
+        onSuccess: () => {
+          toast.success("Users deleted successfully");
+          queryClient.invalidateQueries({ queryKey: ["users"] });
+          setDeleteDialogOpen(false);
+          setSelectedUsers([]);
+        },
+        onError: (error: unknown) => {
+          if (error instanceof AxiosError) {
+            toast.error(
+              error.response?.data?.error || "Failed to delete users",
+            );
+          } else {
+            toast.error("Failed to delete users");
+          }
+          setDeleteDialogOpen(false);
+        },
+      },
+    );
+  };
+
+  // Open dialog for delete confirmation
+  const openDeleteDialog = (userIds: string[]) => {
+    setDeleteDialogUserIds(userIds);
+    setDeleteDialogOpen(true);
+  };
+
+  // Confirm delete actiondel
+
+  // Get usernames for dialog display
+  const getUsernamesByIds = (ids: string[]) => {
+    return users
+      .filter((u) => ids.includes(String(u.id)))
+      .map((u) => u.username);
+  };
+
+  // Handler to open Edit dialog with selected user data
+  const handleEditUser = (user: User) => {
+    setEditUserData({
+      uid: String(user.id),
+      username: user.username,
+      email: user.email,
+      // User type does not have full_name, so use username for this field
+      full_name: user.username,
+      balance: user.balance,
+    });
+    setEditDialogOpen(true);
+  };
+
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between">
@@ -181,21 +292,68 @@ export default function UserDataTable() {
         </div>
       </div>
 
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogDescription>
+              {deleteDialogUserIds.length === 1 ? (
+                <>
+                  Are you sure you want to delete user{" "}
+                  <span className="font-semibold">
+                    {getUsernamesByIds(deleteDialogUserIds)[0]}
+                  </span>
+                  ?
+                </>
+              ) : (
+                <>
+                  Are you sure you want to delete{" "}
+                  <span className="font-semibold">
+                    {deleteDialogUserIds.length}
+                  </span>{" "}
+                  users?
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => handleDeleteMultipleUsers(deleteDialogUserIds)}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {selectedUsers.length > 0 && (
         <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
           <span className="text-sm text-muted-foreground">
             {selectedUsers.length} user(s) selected
           </span>
           <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="cursor-pointer">
               <UserCheck className="h-4 w-4 mr-2" />
               Activate
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="cursor-pointer">
               <UserX className="h-4 w-4 mr-2" />
               Deactivate
             </Button>
-            <Button variant="destructive" size="sm">
+            <Button
+              variant="destructive"
+              size="sm"
+              className="cursor-pointer"
+              onClick={() => openDeleteDialog(selectedUsers.map(String))}
+            >
               <Trash2 className="h-4 w-4 mr-2" />
               Delete
             </Button>
@@ -309,16 +467,12 @@ export default function UserDataTable() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleEditUser(user)}
+                          >
                             <Edit className="mr-2 h-4 w-4" />
-                            Edit user
+                            Edit User
                           </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-
                           <DropdownMenuItem>
                             <CreditCard className="mr-2 h-4 w-4" />
                             Manage Balance
@@ -336,7 +490,10 @@ export default function UserDataTable() {
                             Change Password
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-destructive">
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={() => openDeleteDialog([String(user.id)])}
+                          >
                             <Trash2 className="mr-2 h-4 w-4" />
                             Delete user
                           </DropdownMenuItem>
@@ -456,6 +613,14 @@ export default function UserDataTable() {
           </Button>
         </div>
       </div>
+
+      {/* Edit User Dialog rendered at root level so it persists */}
+      <EditUser
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        formData={editUserData}
+        onFormDataChange={setEditUserData}
+      />
     </div>
   );
 }

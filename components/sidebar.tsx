@@ -270,7 +270,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Settings />
-                  Settings
+                  Settings 
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Bell />

@@ -16,11 +16,23 @@ interface NewUser {
 }
 
 export function useCreateUser() {
-  const { apiUrl } = useAppContext(); // moved inside hook to follow React rules
+  const { apiUrl, panel_id } = useAppContext(); // moved inside hook to follow React rules
   const router = useRouter();
   return useMutation({
+    mutationKey: ["createUser", panel_id],
     mutationFn: async (newUser: NewUser) => {
-      const res = await axios.post(`${apiUrl}/user`, newUser);
+      // Validate panel_id is available
+      if (!panel_id) {
+        throw new Error("Panel configuration not found");
+      }
+
+      const res = await axios.post(`${apiUrl}/user`, {
+        email: newUser.email,
+        password: newUser.password,
+        panel_id: newUser.panel_id, // Use the passed panel_id (already converted to number)
+        username: newUser.username,
+        ref: newUser.ref || null,
+      });
       if (!res.data) throw new Error("Failed to create user");
       console.log(res.data);
       return res.data;
@@ -69,8 +81,8 @@ interface DeleteUsersProps {
   uids: string[];
 }
 
-// delete multiple users
-export function useDeleteUsers() {
+//! delete multiple users
+export function useDeleteMultipleUsers() {
   const { apiUrl } = useAppContext();
   return useMutation({
     mutationFn: async (data: DeleteUsersProps) => {
@@ -86,6 +98,63 @@ export function useDeleteUsers() {
         toast.error(error.response?.data?.error || "Failed to delete users");
       } else {
         toast.error("Failed to delete users");
+      }
+    },
+  });
+}
+
+//! delete a single user
+
+interface DeleteUserProps {
+  uid: string;
+}
+export const useDeleteASingleUser = () => {
+  const { apiUrl } = useAppContext();
+  return useMutation({
+    mutationFn: async (data: DeleteUserProps) => {
+      try {
+        const res = await axios.delete(`${apiUrl}/user`, {
+          data: { uid: data.uid },
+        });
+        if (!res.data) throw new Error("Failed to delete user");
+        return res.data;
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          throw new Error(
+            error.response?.data?.error || "Failed to delete user"
+          );
+        }
+      }
+    },
+  });
+};
+
+// update user info
+
+interface UpdateUserProps {
+  uid: string;
+  username: string;
+  email: string;
+  full_name: string;
+  balance: number;
+}
+
+export function useUpdateUser() {
+  const { apiUrl } = useAppContext();
+  return useMutation({
+    mutationFn: async (data: UpdateUserProps) => {
+      const res = await axios.put(`${apiUrl}/user`, data);
+      if (!res.data) throw new Error("Failed to update user");
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("User updated successfully");
+    },
+    onError: (error: unknown) => {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data?.error || "Failed to update user");
+      } else {
+        toast.error("Failed to update user");
       }
     },
   });

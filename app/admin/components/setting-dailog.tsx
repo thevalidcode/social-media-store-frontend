@@ -96,7 +96,7 @@ export function SettingsDialog() {
             size="sm"
           >
             <Settings />
-            <span>Settings</span>
+            <span>control panel</span>
           </Button>
         </DialogTrigger>
         <DialogContent className="min-w-[85%] h-[85vh] max-h-[85vh] flex flex-col border lg:ml-20">
@@ -115,11 +115,11 @@ export function SettingsDialog() {
                       activePage ===
                         (typeof header.key === "string"
                           ? header.key
-                          : "general") && "bg-accent"
+                          : "general") && "bg-accent",
                     )}
                     onClick={() =>
                       setActivePage(
-                        typeof header.key === "string" ? header.key : "general"
+                        typeof header.key === "string" ? header.key : "general",
                       )
                     }
                   >
@@ -135,12 +135,12 @@ export function SettingsDialog() {
                   (header) =>
                     (typeof header.key === "string"
                       ? header.key
-                      : "general") === activePage
+                      : "general") === activePage,
                 )?.key === "string" ? (
                   <div className="p-6">
                     {(() => {
                       const Component = headers.find(
-                        (header) => header.key === activePage
+                        (header) => header.key === activePage,
                       )?.component;
                       return Component ? <Component /> : null;
                     })()}

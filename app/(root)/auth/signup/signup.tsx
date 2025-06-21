@@ -7,10 +7,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCreateUser } from "@/hooks/use-user";
+import { useAppContext } from "@/context/appContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { Eye, EyeOff, Mail, User } from "lucide-react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export default function Signup() {
@@ -19,27 +19,40 @@ export default function Signup() {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
-    panel_id: 35,
-    ref: 0,
     password: "",
     confirmPassword: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { mutate, isPending } = useCreateUser();
+  const { panel_id } = useAppContext(); // Get panel_id from context
   const queryClient = useQueryClient();
-  const router = useRouter();
+
+  // Check if panel_id is available
+  if (!panel_id) {
+    return (
+      <div className="h-[calc(100vh-4rem)] flex items-center justify-center p-4 md:p-8 mt-16">
+        <Card className="w-full max-w-md shadow-xl mx-auto">
+          <CardContent className="space-y-8 p-6 sm:p-8">
+            <div className="text-center">
+              <p className="text-destructive">
+                Panel configuration not found. Please try again later.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
-    // Clear error when user starts typing0
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
 
-  // Password requirements regex
   const passwordRequirements = {
     length: {
       test: (pw: string) => pw.length >= 8,
@@ -100,36 +113,49 @@ export default function Signup() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
+      // Convert panel_id to number for API call
+      const panelIdNumber = parseInt(panel_id, 10);
+      if (isNaN(panelIdNumber)) {
+        setErrors({ general: "Invalid panel configuration" });
+        return;
+      }
+
       mutate({
         email: formData.email,
         password: formData.password,
-        panel_id: formData.panel_id,
-        ref: formData.ref,
+        panel_id: panelIdNumber, // Use converted number
         username: formData.username,
       });
       queryClient.invalidateQueries({ queryKey: ["users"] });
     }
   };
 
-  const searchUrl = useSearchParams();
-  const token = searchUrl.get("token");
-  console.log(token);
-
-  if (token) {
-    router.push(`/auth/signup?token=${token}`);
-  }
-  const redirect = (e: React.FormEvent) => {
-    e.preventDefault();
-    router.push(
-      "https://auth.validpanel.com/api/auth/panel/login/google?panel_id=35&redirect=http://localhost:3000/auth/signup"
-    );
-  };
+  // const searchUrl = useSearchParams();
+  // const token = searchUrl.get("token");
+  // console.log(token);
+  //
+  // if (token) {
+  //   router.push(`/auth/signup?token=${token}`);
+  // }
+  // const redirect = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   router.push(
+  //     "https://auth.validpanel.com/api/auth/panel/login/google?panel_id=35&redirect=http://localhost:3000/auth/signup",
+  //   );
+  // };
   return (
     <div className="h-[calc(100vh-4rem)] flex items-center justify-center p-4 md:p-8 mt-16">
       <Card className="w-full max-w-md shadow-xl mx-auto">
         <CardContent className="space-y-8 p-6 sm:p-8">
           {/* Signup Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* General Error Display */}
+            {errors.general && (
+              <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                <p className="text-sm text-destructive">{errors.general}</p>
+              </div>
+            )}
+
             {/* Username Field */}
             <div className="space-y-2.5">
               <Label htmlFor="username">Username</Label>
@@ -141,6 +167,7 @@ export default function Signup() {
                 value={formData.username}
                 onChange={handleInputChange}
                 className={errors.username ? "border-destructive" : ""}
+                autoComplete="username"
                 required
               />
               {errors.username && (
@@ -159,6 +186,7 @@ export default function Signup() {
                 value={formData.email}
                 onChange={handleInputChange}
                 className={errors.email ? "border-destructive" : ""}
+                autoComplete="email"
                 required
               />
               {errors.email && (
@@ -178,6 +206,7 @@ export default function Signup() {
                   value={formData.password}
                   onChange={handleInputChange}
                   className={errors.password ? "border-destructive" : ""}
+                  autoComplete="new-password"
                   required
                 />
                 <Button
@@ -213,6 +242,7 @@ export default function Signup() {
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
                   className={errors.confirmPassword ? "border-destructive" : ""}
+                  autoComplete="new-password"
                   required
                 />
                 <Button
@@ -257,7 +287,6 @@ export default function Signup() {
               type="button"
               variant="outline"
               className="w-full flex items-center justify-center gap-2"
-              onClick={redirect}
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path

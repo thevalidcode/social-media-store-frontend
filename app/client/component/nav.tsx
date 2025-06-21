@@ -19,7 +19,7 @@ export function TopNav() {
                 <Button
                   variant="outline"
                   className="rounded-lg cursor-pointer"
-                  size="sm"
+                  size="lg"
                 >
                   <PlusIcon className="mr-2 h-4 w-4" />
                   New Order
@@ -28,7 +28,7 @@ export function TopNav() {
             </div>
             <div>
               <Link href="/client/add-funds">
-                <Button className="rounded-lg cursor-pointer" size="sm">
+                <Button className="rounded-lg cursor-pointer" size="lg">
                   <WalletIcon className="mr-2 h-4 w-4" />
                   Deposit
                 </Button>

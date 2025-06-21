@@ -39,6 +39,7 @@ export default function Nav() {
         <div className="flex items-center gap-2">
           <Link href="/auth/signin">
             <Button
+              size="lg"
               variant="secondary"
               className="bg-white text-black hover:bg-gray-100"
             >
