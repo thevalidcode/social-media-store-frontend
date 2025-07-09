@@ -23,7 +23,7 @@ export function useCreateUser() {
     mutationFn: async (newUser: NewUser) => {
       if (!store_id) {
         throw new Error(
-          "Panel configuration not found. Please contact support.",
+          "Store configuration not found. Please contact support.",
         );
       }
 

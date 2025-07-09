@@ -81,7 +81,7 @@ export default function Signin() {
   const handleGoogleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     router.push(
-      `https://auth.validpanel.com/api/auth/store/google?store_id=${store_id}&redirect=${domain}/client/dashboard`,
+      `https://auth.validpanel.com/api/auth/store/google?store_id=${store_id}&redirect=https://${domain}/client/dashboard`,
     );
   };
 
