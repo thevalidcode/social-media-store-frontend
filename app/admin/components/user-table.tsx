@@ -28,7 +28,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useDeleteASingleUser, useDeleteMultipleUsers } from "@/hooks/use-user";
+import { useDeleteMultipleUsers } from "@/hooks/use-user";
 import { AxiosError } from "axios";
 import {
   ArrowUpDown,
@@ -59,8 +59,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { EditUser } from "./edit-user";
 import { useQueryClient } from "@tanstack/react-query";
+import { EditUser } from "./edit-user";
 
 type SortField = keyof User;
 type SortDirection = "asc" | "desc";
@@ -93,7 +93,7 @@ export default function UserDataTable() {
   const filteredUsers = users.filter(
     (user) =>
       user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()),
+      user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Sort users
@@ -118,7 +118,7 @@ export default function UserDataTable() {
   const totalPages = Math.ceil(sortedUsers.length / pageSize);
   const paginatedUsers = sortedUsers.slice(
     (currentPage - 1) * pageSize,
-    currentPage * pageSize,
+    currentPage * pageSize
   );
 
   // Handle page change
@@ -195,32 +195,32 @@ export default function UserDataTable() {
   };
 
   const { mutate: deleteMultipleUsers } = useDeleteMultipleUsers();
-  const { mutate: deleteSingleUser } = useDeleteASingleUser();
+  // const { mutate: deleteSingleUser } = useDeleteASingleUser();
 
   // delete a single user
-  const handleDeleteASingleUser = () => {
-    deleteSingleUser(
-      {
-        uid: String(deleteDialogUserIds[0]),
-      },
-      {
-        onSuccess: () => {
-          toast.success("User deleted successfully");
-          queryClient.invalidateQueries({ queryKey: ["users"] });
-          setDeleteDialogOpen(false);
-          setSelectedUsers([]);
-        },
-        onError: (error: unknown) => {
-          if (error instanceof AxiosError) {
-            toast.error(error.response?.data?.error || "Failed to delete user");
-          } else {
-            toast.error("Failed to delete user");
-          }
-          setDeleteDialogOpen(false);
-        },
-      },
-    );
-  };
+  // const handleDeleteASingleUser = () => {
+  //   deleteSingleUser(
+  //     {
+  //       uid: String(deleteDialogUserIds[0]),
+  //     },
+  //     {
+  //       onSuccess: () => {
+  //         toast.success("User deleted successfully");
+  //         queryClient.invalidateQueries({ queryKey: ["users"] });
+  //         setDeleteDialogOpen(false);
+  //         setSelectedUsers([]);
+  //       },
+  //       onError: (error: unknown) => {
+  //         if (error instanceof AxiosError) {
+  //           toast.error(error.response?.data?.error || "Failed to delete user");
+  //         } else {
+  //           toast.error("Failed to delete user");
+  //         }
+  //         setDeleteDialogOpen(false);
+  //       },
+  //     },
+  //   );
+  // };
 
   // used to delete an array of users
   const handleDeleteMultipleUsers = (userIds: string[]) => {
@@ -236,14 +236,14 @@ export default function UserDataTable() {
         onError: (error: unknown) => {
           if (error instanceof AxiosError) {
             toast.error(
-              error.response?.data?.error || "Failed to delete users",
+              error.response?.data?.error || "Failed to delete users"
             );
           } else {
             toast.error("Failed to delete users");
           }
           setDeleteDialogOpen(false);
         },
-      },
+      }
     );
   };
 

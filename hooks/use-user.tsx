@@ -1,5 +1,6 @@
 "use client";
 import { useAppContext } from "@/context/appContext";
+import { getCookieRegex } from "@/lib/helpers";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
@@ -10,43 +11,145 @@ import { toast } from "sonner";
 interface NewUser {
   email: string;
   password: string;
-  panel_id: number;
-  ref?: number;
   username: string;
+  store_id: number;
+  ref?: number;
 }
 
 export function useCreateUser() {
-  const { apiUrl, panel_id } = useAppContext(); // moved inside hook to follow React rules
-  const router = useRouter();
+  const { apiUrl, store_id } = useAppContext();
   return useMutation({
-    mutationKey: ["createUser", panel_id],
+    mutationKey: ["createUser"],
     mutationFn: async (newUser: NewUser) => {
-      // Validate panel_id is available
-      if (!panel_id) {
-        throw new Error("Panel configuration not found");
+      if (!store_id) {
+        throw new Error(
+          "Panel configuration not found. Please contact support.",
+        );
       }
 
-      const res = await axios.post(`${apiUrl}/user`, {
+      // Prepare payload with correct types and explicit interface for type safety
+      const payload: {
+        email: string;
+        password: string;
+        store_id: number;
+        username: string;
+        ref?: number;
+      } = {
         email: newUser.email,
         password: newUser.password,
-        panel_id: newUser.panel_id, // Use the passed panel_id (already converted to number)
+        store_id: Number(store_id), // Ensure store_id is a number
         username: newUser.username,
-        ref: newUser.ref || null,
-      });
-      if (!res.data) throw new Error("Failed to create user");
-      console.log(res.data);
+      };
+
+      // Only add ref if it's a valid number
+      if (newUser.ref && !isNaN(Number(newUser.ref))) {
+        payload.ref = Number(newUser.ref);
+      }
+
+      const res = await axios.post(`${apiUrl}/user`, payload);
+
+      if (!res.data.user) {
+        // Log the response for debugging
+        console.error("User creation failed. Response:", res.data);
+        throw new Error(
+          "Failed to create user: No user object returned from server.",
+        );
+      }
       return res.data;
     },
+
     onSuccess: () => {
       toast.success("User created successfully");
-      router.push("/auth/signin");
     },
     onError: (error: unknown) => {
+      // Enhanced error extraction to handle various backend formats
+      let errorMsg = "An unexpected error occurred";
       if (error instanceof AxiosError) {
-        toast.error(error.response?.data?.error || "Failed to create user");
-      } else {
-        toast.error("Failed to create user");
+        // Try to extract error from common backend formats
+        const data = error.response?.data;
+        if (typeof data === "string") {
+          errorMsg = data;
+        } else if (data?.error) {
+          errorMsg = data.error;
+        } else if (data?.message) {
+          errorMsg = data.message;
+        } else {
+          errorMsg = "Failed to create user";
+        }
+      } else if (error instanceof Error) {
+        errorMsg = error.message;
       }
+      toast.error(errorMsg);
+    },
+  });
+}
+
+interface LoginProps {
+  email: string;
+  password: string;
+  store_id: number;
+}
+export function useUserLogin() {
+  const { apiUrl, setUserInfo } = useAppContext();
+  const router = useRouter();
+  return useMutation({
+    mutationKey: ["userLogins"],
+    mutationFn: async (data: LoginProps) => {
+      const res = await axios.post(
+        `${apiUrl}/user/me`,
+        {
+          email: data.email,
+          password: data.password,
+          store_id: data.store_id,
+        },
+        {
+          withCredentials: true,
+        },
+      );
+
+      if (!res.data) {
+        throw new Error(
+          "Failed to login user: No response data received from server.",
+        );
+      }
+      console.log("Login response:", res.data);
+      return res.data;
+    },
+    onSuccess: async (data) => {
+      if (!data.role) {
+        throw new Error("Login failed: User role is missing in response.");
+      }
+
+      const storeEndPoint =
+        data.role === "admin"
+          ? `${apiUrl}/store/current-admin`
+          : `${apiUrl}/store/current-user`;
+
+      await axios.get(`${storeEndPoint}`, {
+        withCredentials: true,
+      });
+
+      router.push(data.role === "admin" ? "/admin/users" : "/user/dashboard");
+    },
+    onError: (error: unknown) => {
+      // Enhanced error extraction for better user feedback
+      let errorMsg = "An unexpected error occurred during login.";
+      if (error instanceof AxiosError) {
+        const data = error.response?.data;
+        if (typeof data === "string") {
+          errorMsg = data;
+        } else if (data?.error) {
+          errorMsg = data.error;
+        } else if (data?.message) {
+          errorMsg = data.message;
+        } else {
+          errorMsg =
+            "Failed to login user: Server returned an unknown error format.";
+        }
+      } else if (error instanceof Error) {
+        errorMsg = error.message;
+      }
+      toast.error(errorMsg);
     },
   });
 }
@@ -57,7 +160,13 @@ export function useGetUsers() {
   return useQuery({
     queryKey: ["users"],
     queryFn: async () => {
-      const res = await axios.get(`${apiUrl}/user`);
+      const res = await axios.get(`${apiUrl}/user`, {
+        headers: {
+          Origin: window.location.origin,
+          Accept: "application/json",
+        },
+        withCredentials: true,
+      });
       if (!res.data) throw new Error("Failed to fetch user");
       return res.data;
     },
@@ -121,7 +230,7 @@ export const useDeleteASingleUser = () => {
       } catch (error) {
         if (error instanceof AxiosError) {
           throw new Error(
-            error.response?.data?.error || "Failed to delete user"
+            error.response?.data?.error || "Failed to delete user",
           );
         }
       }
@@ -130,7 +239,6 @@ export const useDeleteASingleUser = () => {
 };
 
 // update user info
-
 interface UpdateUserProps {
   uid: string;
   username: string;

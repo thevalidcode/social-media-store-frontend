@@ -1,5 +1,6 @@
 import type React from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface ReferralCardProps {
   icon: React.ReactNode;
@@ -7,6 +8,10 @@ interface ReferralCardProps {
   value: number;
   className?: string;
   valueFormatter?: (value: number) => string;
+  trend?: {
+    value: number;
+    isPositive: boolean;
+  };
 }
 
 export default function GridCard({
@@ -15,15 +20,17 @@ export default function GridCard({
   value,
   className,
   valueFormatter = (val) => val.toString(),
+  trend,
 }: ReferralCardProps) {
   return (
-    <Card>
-      <CardContent className={`p-4 flex items-center${className}`}>
-        <div className="bg-blue-50 p-3 rounded-full mr-4">{icon}</div>
-        <div>
-          <p className="text-sm text-gray-500">{title}</p>
-          <h3 className="text-2xl font-bold">{valueFormatter(value)}</h3>
-          <p className="text-xs text-green-600">{valueFormatter(value)}</p>
+    <Card className={`${className} shadow-none`}>
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs tracking-wider">{title}</p>
+            <p className="text-2xl  font-semibold">{value}</p>
+          </div>
+          {icon}
         </div>
       </CardContent>
     </Card>

@@ -6,30 +6,30 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useCreateUser } from "@/hooks/use-user";
 import { useAppContext } from "@/context/appContext";
+import { useCreateUser } from "@/hooks/use-user";
 import { useQueryClient } from "@tanstack/react-query";
 import { Eye, EyeOff, Mail, User } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     email: "",
+    ref: "",
     password: "",
-    confirmPassword: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const domain = window.location.hostname;
   const { mutate, isPending } = useCreateUser();
-  const { panel_id } = useAppContext(); // Get panel_id from context
+  const { store_id } = useAppContext();
   const queryClient = useQueryClient();
-
-  // Check if panel_id is available
-  if (!panel_id) {
+  const router = useRouter();
+  if (!store_id) {
     return (
       <div className="h-[calc(100vh-4rem)] flex items-center justify-center p-4 md:p-8 mt-16">
         <Card className="w-full max-w-md shadow-xl mx-auto">
@@ -100,49 +100,56 @@ export default function Signup() {
       }
     }
 
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleGoogleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    router.push(
+      `https://auth.validpanel.com/api/auth/store/google?store_id=${store_id}&redirect=${domain}/client/dashboard`,
+    );
+  };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      // Convert panel_id to number for API call
-      const panelIdNumber = parseInt(panel_id, 10);
-      if (isNaN(panelIdNumber)) {
-        setErrors({ general: "Invalid panel configuration" });
-        return;
-      }
+      mutate(
+        {
+          email: formData.email,
+          password: formData.password,
+          store_id: store_id,
+          username: formData.username,
+          ref: formData.ref ? Number(formData.ref) : undefined,
+        },
 
-      mutate({
-        email: formData.email,
-        password: formData.password,
-        panel_id: panelIdNumber, // Use converted number
-        username: formData.username,
-      });
+        {
+          onError: (error: unknown) => {
+            if (
+              typeof error === "object" &&
+              error !== null &&
+              "response" in error
+            ) {
+              const err = error as { response?: { data?: { error?: string } } };
+              if (err.response?.data?.error) {
+                setErrors({ general: err.response.data.error });
+                return;
+              }
+            }
+            if (error instanceof Error && error.message) {
+              setErrors({ general: error.message });
+            } else {
+              setErrors({ general: "An unexpected error occurred" });
+            }
+          },
+          onSuccess: () => {
+            router.push("/auth/signin");
+          },
+        },
+      );
       queryClient.invalidateQueries({ queryKey: ["users"] });
     }
   };
 
-  // const searchUrl = useSearchParams();
-  // const token = searchUrl.get("token");
-  // console.log(token);
-  //
-  // if (token) {
-  //   router.push(`/auth/signup?token=${token}`);
-  // }
-  // const redirect = (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   router.push(
-  //     "https://auth.validpanel.com/api/auth/panel/login/google?panel_id=35&redirect=http://localhost:3000/auth/signup",
-  //   );
-  // };
   return (
     <div className="h-[calc(100vh-4rem)] flex items-center justify-center p-4 md:p-8 mt-16">
       <Card className="w-full max-w-md shadow-xl mx-auto">
@@ -230,42 +237,6 @@ export default function Signup() {
               )}
             </div>
 
-            {/* Confirm Password Field */}
-            <div className="space-y-2.5">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <div className="relative">
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Confirm your password"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  className={errors.confirmPassword ? "border-destructive" : ""}
-                  autoComplete="new-password"
-                  required
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-12 px-3 py-2 hover:bg-transparent"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-              {errors.confirmPassword && (
-                <p className="text-xs text-destructive">
-                  {errors.confirmPassword}
-                </p>
-              )}
-            </div>
-
             <Button type="submit" className="w-full mt-6" disabled={isPending}>
               {isPending ? "Creating Account..." : "Create Account"}
             </Button>
@@ -284,6 +255,7 @@ export default function Signup() {
 
             {/* Google OAuth Button */}
             <Button
+              onClick={handleGoogleLogin}
               type="button"
               variant="outline"
               className="w-full flex items-center justify-center gap-2"

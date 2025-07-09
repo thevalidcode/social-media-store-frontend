@@ -24,9 +24,8 @@ export default function AdminLayout({
         <MemoizedSidebar />
         <SidebarInset>
           <SidebarTrigger />
-          <Wrapper className="max-w-[90rem] md:py-5 dark:bg-background">
-            {children}
-          </Wrapper>
+
+          <Wrapper className="max-w-[90rem] md:py-5 ">{children}</Wrapper>
         </SidebarInset>
       </SidebarProvider>
     ),

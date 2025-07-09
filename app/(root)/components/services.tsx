@@ -52,22 +52,21 @@ const features = [
   },
 ];
 
-function Features() {
-  // Optimized slider settings for smooth continuous scrolling
+function CardsCarousel() {
   const settings = {
     dots: false,
     infinite: true,
     slidesToShow: 7,
     slidesToScroll: 1,
     autoplay: true,
-    speed: 5000, // Increased speed for slower, more consistent movement
-    autoplaySpeed: 0, // Continuous movement without delays
-    cssEase: "linear", // Linear easing for consistent speed
+    speed: 3000,
+    autoplaySpeed: 0,
+    cssEase: "linear",
     arrows: false,
     pauseOnHover: false,
-    rtl: false, // Ensure left-to-right direction
-    swipeToSlide: false, // Disable swipe to prevent speed variations
-    touchMove: false, // Disable touch movement to maintain consistent speed
+    rtl: false,
+    swipeToSlide: false,
+    touchMove: false,
     responsive: [
       {
         breakpoint: 1400, // Large screens
@@ -75,10 +74,13 @@ function Features() {
           slidesToShow: 5,
           slidesToScroll: 1,
           infinite: true,
+          autoplay: true,
+          speed: 3000,
+          autoplaySpeed: 0,
+          cssEase: "linear",
           dots: false,
           arrows: false,
-          speed: 5000,
-          cssEase: "linear",
+          pauseOnHover: false,
           swipeToSlide: false,
           touchMove: false,
         },
@@ -89,10 +91,13 @@ function Features() {
           slidesToShow: 4,
           slidesToScroll: 1,
           infinite: true,
+          autoplay: true,
+          speed: 3000,
+          autoplaySpeed: 0,
+          cssEase: "linear",
           dots: false,
           arrows: false,
-          speed: 5000,
-          cssEase: "linear",
+          pauseOnHover: false,
           swipeToSlide: false,
           touchMove: false,
         },
@@ -103,24 +108,30 @@ function Features() {
           slidesToShow: 3,
           slidesToScroll: 1,
           infinite: true,
+          autoplay: true,
+          speed: 3000,
+          autoplaySpeed: 0,
+          cssEase: "linear",
           dots: false,
           arrows: false,
-          speed: 5000,
-          cssEase: "linear",
+          pauseOnHover: false,
           swipeToSlide: false,
           touchMove: false,
         },
       },
       {
-        breakpoint: 600, // Mobile landscape
+        breakpoint: 600,
         settings: {
           slidesToShow: 2,
           slidesToScroll: 1,
           infinite: true,
+          autoplay: true,
+          speed: 3000,
+          autoplaySpeed: 0,
+          cssEase: "linear",
           dots: false,
           arrows: false,
-          speed: 5000,
-          cssEase: "linear",
+          pauseOnHover: false,
           swipeToSlide: false,
           touchMove: false,
         },
@@ -131,10 +142,13 @@ function Features() {
           slidesToShow: 1,
           slidesToScroll: 1,
           infinite: true,
+          autoplay: true,
+          speed: 3000,
+          autoplaySpeed: 0,
+          cssEase: "linear",
           dots: false,
           arrows: false,
-          speed: 5000,
-          cssEase: "linear",
+          pauseOnHover: false,
           swipeToSlide: false,
           touchMove: false,
         },
@@ -167,4 +181,4 @@ function Features() {
   );
 }
 
-export default Features;
+export default CardsCarousel;

@@ -10,17 +10,17 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAppContext } from "@/context/appContext";
+import { useCreateUser } from "@/hooks/use-user";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 
 export function CreateUser() {
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    confirmPassword: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -34,6 +34,8 @@ export function CreateUser() {
     }
   };
 
+  const { mutate } = useCreateUser();
+  const { panel_id } = useAppContext();
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
@@ -53,12 +55,6 @@ export function CreateUser() {
       newErrors.password = "Password must be at least 8 characters";
     }
 
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -66,8 +62,21 @@ export function CreateUser() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      console.log("Form submitted:", formData);
-      // Handle form submission here
+      mutate(
+        {
+          password: formData.password,
+          username: formData.name,
+          email: formData.email,
+          store_id: Number(panel_id),
+        },
+        {
+          onSuccess: () => {
+            formData.name = "";
+            formData.email = "";
+            formData.password = "";
+          },
+        },
+      );
     }
   };
   return (
@@ -152,41 +161,6 @@ export function CreateUser() {
               )}
             </div>
 
-            {/* Confirm Password Field */}
-            <div className="space-y-2.5">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <div className="relative">
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Confirm your password"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  className={errors.confirmPassword ? "border-destructive" : ""}
-                  required
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-12 px-3 py-2 hover:bg-transparent"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-              {errors.confirmPassword && (
-                <p className="text-xs text-destructive">
-                  {errors.confirmPassword}
-                </p>
-              )}
-            </div>
-
             <Button type="submit" className="w-full mt-6">
               Create Account
             </Button>
@@ -196,19 +170,8 @@ export function CreateUser() {
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t" />
               </div>
-              {/* <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
-                </span>
-              </div> */}
             </div>
           </form>
-          {/* <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button type="submit">Save changes</Button>
-          </DialogFooter> */}
         </DialogContent>
       </form>
     </Dialog>

@@ -9,6 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, User, Mail } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
+import { useUserLogin } from "@/hooks/use-user";
+import { useAppContext } from "@/context/appContext";
+import { AxiosError } from "axios";
+import { useRouter } from "next/navigation";
 
 export default function Signin() {
   const [showPassword, setShowPassword] = useState(false);
@@ -17,7 +21,8 @@ export default function Signin() {
     password: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-
+  const { store_id, domain } = useAppContext();
+  const { mutate, isPending } = useUserLogin();
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -25,7 +30,7 @@ export default function Signin() {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
   };
-
+  const router = useRouter();
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
@@ -45,10 +50,39 @@ export default function Signin() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     if (validateForm()) {
-      console.log("Sign in attempt:", formData);
-      // Handle sign in logic here
+      mutate(
+        {
+          email: formData.email,
+          password: formData.password,
+          store_id: store_id || 0, // Ensure store_id is a number
+        },
+        {
+          onError: (error) => {
+            if (error instanceof AxiosError) {
+              let errorMsg = "An unexpected error occurred";
+              const data = error.response?.data;
+              if (typeof data === "string") {
+                errorMsg = data;
+              } else if (data?.error) {
+                errorMsg = data.error;
+              } else if (data?.message) {
+                errorMsg = data.message;
+              }
+              setErrors({ email: errorMsg, password: "" });
+            }
+          },
+        },
+      );
     }
+  };
+
+  const handleGoogleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    router.push(
+      `https://auth.validpanel.com/api/auth/store/google?store_id=${store_id}&redirect=${domain}/client/dashboard`,
+    );
   };
 
   return (
@@ -108,7 +142,7 @@ export default function Signin() {
             </div>
 
             <Button type="submit" className="w-full mt-6">
-              Sign In
+              {isPending ? "Signing in..." : "Sign In"}
             </Button>
 
             {/* Divider */}
@@ -128,9 +162,7 @@ export default function Signin() {
               type="button"
               variant="outline"
               className="w-full flex items-center justify-center gap-2"
-              onClick={() => {
-                console.log("Google OAuth clicked");
-              }}
+              onClick={handleGoogleLogin}
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path

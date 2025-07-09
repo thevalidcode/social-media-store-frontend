@@ -5,6 +5,9 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Wrapper from "@/components/wrapper";
 import { memo, useCallback } from "react";
 import { TopNav } from "./component/nav";
+import { useAppContext } from "@/context/appContext";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 // Memoize the sidebar to prevent re-renders
 const MemoizedSidebar = memo(AppSidebar);
@@ -14,7 +17,22 @@ export default function SidebarLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Memoize the layout structure
+  // const { apiUrl, panel_id } = useAppContext();
+  //
+  // const { isLoading, error } = useQuery({
+  //   queryKey: ["site_styles"],
+  //   queryFn: async () => {
+  //     const res = await axios.get(
+  //       `${apiUrl}/panel/styles?panel_id=${panel_id}`
+  //     );
+  //     if (!res.data) {
+  //       return;
+  //     }
+  //     localStorage.setItem("site_styles", res.data);
+  //   },
+  //   enabled: typeof window !== "undefined" && !panel_id,
+  // });
+  //
   const renderLayout = useCallback(
     () => (
       <SidebarProvider>
@@ -25,8 +43,9 @@ export default function SidebarLayout({
         </SidebarInset>
       </SidebarProvider>
     ),
-    [children]
+    [children],
   );
 
+  // Check loading state after all hooks have been called
   return renderLayout();
 }
