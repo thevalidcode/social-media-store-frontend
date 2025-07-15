@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -28,7 +27,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useDeleteMultipleUsers } from "@/hooks/use-user";
 import { AxiosError } from "axios";
 import {
   ArrowUpDown,
@@ -45,12 +43,9 @@ import {
   UserCheck,
   UserX,
 } from "lucide-react";
-import { useState } from "react";
+import { CSSProperties, useState } from "react";
 import { toast } from "sonner";
 import { CreateUser } from "./create_user";
-import { mockUsers, User } from "./mock-users";
-
-// Import Dialog components
 import {
   Dialog,
   DialogContent,
@@ -61,26 +56,48 @@ import {
 } from "@/components/ui/dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { EditUser } from "./edit-user";
+import Loading from "@/app/loading";
+import {
+  useDeleteASingleUser,
+  useDeleteMultipleUsers,
+  useGetUsers,
+} from "@/hooks/use-user";
 
-type SortField = keyof User;
+interface User {
+  id: number;
+  ref_code?: number;
+  uid?: string;
+  email: string;
+  image?: string | null;
+  username: string;
+  role?: string;
+  status: string;
+  store_id?: number;
+  balance: number;
+  spent: number;
+  timestamp?: string;
+  last_seen?: string;
+  currency?: string;
+  ref?: null;
+}
+
+type SortField = keyof Pick<
+  User,
+  "id" | "username" | "email" | "balance" | "spent"
+>;
 type SortDirection = "asc" | "desc";
+
 export default function UserDataTable() {
   const queryClient = useQueryClient();
-  const [users] = useState<User[]>(mockUsers); // Removed unused _setUsers
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortField, setSortField] = useState<SortField>("id");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-
-  // Dialog state for delete confirmation
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [deleteDialogUserIds, setDeleteDialogUserIds] = useState<string[]>([]);
-
-  // State for Edit User dialog
+  const [deleteDialogUserIds, setDeleteDialogUserIds] = useState<number[]>([]);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  // State for the user being edited
   const [editUserData, setEditUserData] = useState({
     uid: "",
     username: "",
@@ -89,15 +106,27 @@ export default function UserDataTable() {
     balance: 0,
   });
 
+  const { data: users = [], isLoading, error } = useGetUsers();
+  const { mutate: deleteAUser } = useDeleteASingleUser();
+  const { mutate: deleteMultipleUsers } = useDeleteMultipleUsers();
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (error) {
+    return <div>Error loading users: {error.message}</div>;
+  }
+
   // Filter users based on search term
   const filteredUsers = users.filter(
-    (user) =>
+    (user: User) =>
       user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   // Sort users
-  const sortedUsers = [...filteredUsers].sort((a, b) => {
+  const sortedUsers = [...filteredUsers].sort((a: User, b: User) => {
     const aValue = a[sortField];
     const bValue = b[sortField];
 
@@ -118,7 +147,7 @@ export default function UserDataTable() {
   const totalPages = Math.ceil(sortedUsers.length / pageSize);
   const paginatedUsers = sortedUsers.slice(
     (currentPage - 1) * pageSize,
-    currentPage * pageSize
+    currentPage * pageSize,
   );
 
   // Handle page change
@@ -129,7 +158,7 @@ export default function UserDataTable() {
   // Handle page size change
   const handlePageSizeChange = (value: string) => {
     setPageSize(Number(value));
-    setCurrentPage(1); // Reset to first page when changing page size
+    setCurrentPage(1);
   };
 
   const handleSort = (field: SortField) => {
@@ -143,7 +172,7 @@ export default function UserDataTable() {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedUsers(sortedUsers.map((user) => user.id));
+      setSelectedUsers(sortedUsers.map((user: User) => user.id));
     } else {
       setSelectedUsers([]);
     }
@@ -157,32 +186,67 @@ export default function UserDataTable() {
     }
   };
 
+  const convertToRegistrationDate = (DATE: string) => {
+    return new Date(DATE).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      minute: "2-digit",
+      hour: "2-digit",
+      year: "numeric",
+    });
+  };
+
   const getStatusBadge = (status: User["status"]) => {
-    const statusConfig = {
-      online: {
-        label: "Online",
-        variant: "default" as const,
-        color: "bg-green-500 text-green-500-foreground",
+    const statusConfig: {
+      [key: string]: {
+        label: string;
+        color: string;
+      };
+    } = {
+      active: {
+        label: "Active",
+        color: "#22c55e", // green-500
       },
       offline: {
         label: "Offline",
-        variant: "destructive" as const,
-        color: "bg-red-500",
+        color: "#ef4444", // red-500
       },
       away: {
         label: "Away",
-        variant: "secondary" as const,
-        color: "bg-yellow-500 ",
+        color: "#f59e0b", // amber-500
+      },
+      banned: {
+        label: "Banned",
+        color: "#84cc16", // lime-500
       },
     };
 
-    // Type-safe status configuration lookup
-    const config = statusConfig[status as keyof typeof statusConfig];
+    const config = statusConfig[status] || statusConfig.offline;
+
+    const badgeStyle: CSSProperties = {
+      backgroundColor: `${config.color}20`, // 20% opacity
+      color: config.color,
+      border: `1px solid ${config.color}`,
+      padding: "4px 8px",
+      borderRadius: "9999px",
+      display: "inline-flex",
+      alignItems: "center",
+      fontWeight: "500",
+      textTransform: "capitalize",
+    };
+
+    const dotStyle: CSSProperties = {
+      width: "8px",
+      height: "8px",
+      borderRadius: "50%",
+      backgroundColor: config.color,
+      marginRight: "6px",
+    };
 
     return (
-      <div className="flex items-center gap-2">
-        <div className={`w-2 h-2 rounded-full ${config.color}`} />
-        <Badge variant={config.variant}>{config.label}</Badge>
+      <div style={badgeStyle}>
+        <div style={dotStyle} />
+        <span>{config.label}</span>
       </div>
     );
   };
@@ -194,41 +258,19 @@ export default function UserDataTable() {
     }).format(amount);
   };
 
-  const { mutate: deleteMultipleUsers } = useDeleteMultipleUsers();
-  // const { mutate: deleteSingleUser } = useDeleteASingleUser();
+  // Handle deleting multiple users
+  const handleDeleteMultipleUsers = (userIds: number[]) => {
+    // Convert user IDs to UIDs (assuming uid is string representation of id)
+    const uids = userIds.map((id) => {
+      const user = users.find((u: User) => u.id === id);
+      return user?.uid || String(id);
+    });
 
-  // delete a single user
-  // const handleDeleteASingleUser = () => {
-  //   deleteSingleUser(
-  //     {
-  //       uid: String(deleteDialogUserIds[0]),
-  //     },
-  //     {
-  //       onSuccess: () => {
-  //         toast.success("User deleted successfully");
-  //         queryClient.invalidateQueries({ queryKey: ["users"] });
-  //         setDeleteDialogOpen(false);
-  //         setSelectedUsers([]);
-  //       },
-  //       onError: (error: unknown) => {
-  //         if (error instanceof AxiosError) {
-  //           toast.error(error.response?.data?.error || "Failed to delete user");
-  //         } else {
-  //           toast.error("Failed to delete user");
-  //         }
-  //         setDeleteDialogOpen(false);
-  //       },
-  //     },
-  //   );
-  // };
-
-  // used to delete an array of users
-  const handleDeleteMultipleUsers = (userIds: string[]) => {
     deleteMultipleUsers(
-      { uids: userIds },
+      { uids },
       {
         onSuccess: () => {
-          toast.success("Users deleted successfully");
+          toast.success(`${userIds.length} user(s) deleted successfully`);
           queryClient.invalidateQueries({ queryKey: ["users"] });
           setDeleteDialogOpen(false);
           setSelectedUsers([]);
@@ -236,39 +278,77 @@ export default function UserDataTable() {
         onError: (error: unknown) => {
           if (error instanceof AxiosError) {
             toast.error(
-              error.response?.data?.error || "Failed to delete users"
+              error.response?.data?.error || "Failed to delete users",
             );
           } else {
             toast.error("Failed to delete users");
           }
           setDeleteDialogOpen(false);
         },
-      }
+      },
     );
   };
 
-  // Open dialog for delete confirmation
-  const openDeleteDialog = (userIds: string[]) => {
+  // Handle deleting a single user
+  const handleDeleteSingleUser = (userId: number) => {
+    const user = users.find((u: User) => u.id === userId);
+    const uid = user?.uid || String(userId);
+
+    deleteAUser(
+      { uid },
+      {
+        onSuccess: () => {
+          toast.success("User deleted successfully");
+          queryClient.invalidateQueries({ queryKey: ["users"] });
+          setDeleteDialogOpen(false);
+          setSelectedUsers((prev) => prev.filter((id) => id !== userId));
+        },
+        onError: (error: unknown) => {
+          if (error instanceof AxiosError) {
+            toast.error(error.response?.data?.error || "Failed to delete user");
+          } else {
+            toast.error("Failed to delete user");
+          }
+          setDeleteDialogOpen(false);
+        },
+      },
+    );
+  };
+
+  // Open delete dialog for single or multiple users
+  const openDeleteDialog = (userIds: number[]) => {
     setDeleteDialogUserIds(userIds);
     setDeleteDialogOpen(true);
   };
 
-  // Confirm delete actiondel
-
-  // Get usernames for dialog display
-  const getUsernamesByIds = (ids: string[]) => {
+  // Get usernames by IDs for display in dialog
+  const getUsernamesByIds = (ids: number[]) => {
     return users
-      .filter((u) => ids.includes(String(u.id)))
-      .map((u) => u.username);
+      .filter((u: User) => ids.includes(u.id))
+      .map((u: User) => u.username);
   };
 
-  // Handler to open Edit dialog with selected user data
+  // Handle delete confirmation
+  const handleDeleteConfirm = () => {
+    if (deleteDialogUserIds.length === 1) {
+      handleDeleteSingleUser(deleteDialogUserIds[0]);
+    } else {
+      handleDeleteMultipleUsers(deleteDialogUserIds);
+    }
+  };
+
+  // Handle deleting selected users
+  const handleDeleteSelected = () => {
+    if (selectedUsers.length > 0) {
+      openDeleteDialog(selectedUsers);
+    }
+  };
+
   const handleEditUser = (user: User) => {
     setEditUserData({
       uid: String(user.id),
       username: user.username,
       email: user.email,
-      // User type does not have full_name, so use username for this field
       full_name: user.username,
       balance: user.balance,
     });
@@ -304,7 +384,7 @@ export default function UserDataTable() {
                   <span className="font-semibold">
                     {getUsernamesByIds(deleteDialogUserIds)[0]}
                   </span>
-                  ?
+                  ? This action cannot be undone.
                 </>
               ) : (
                 <>
@@ -312,7 +392,13 @@ export default function UserDataTable() {
                   <span className="font-semibold">
                     {deleteDialogUserIds.length}
                   </span>{" "}
-                  users?
+                  users? This action cannot be undone.
+                  <br />
+                  <br />
+                  Users to be deleted:{" "}
+                  <span className="font-medium">
+                    {getUsernamesByIds(deleteDialogUserIds).join(", ")}
+                  </span>
                 </>
               )}
             </DialogDescription>
@@ -324,16 +410,14 @@ export default function UserDataTable() {
             >
               Cancel
             </Button>
-            <Button
-              variant="destructive"
-              onClick={() => handleDeleteMultipleUsers(deleteDialogUserIds)}
-            >
-              Delete
+            <Button variant="destructive" onClick={handleDeleteConfirm}>
+              Delete {deleteDialogUserIds.length === 1 ? "User" : "Users"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
+      {/* Bulk Actions Bar */}
       {selectedUsers.length > 0 && (
         <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
           <span className="text-sm text-muted-foreground">
@@ -352,10 +436,10 @@ export default function UserDataTable() {
               variant="destructive"
               size="sm"
               className="cursor-pointer"
-              onClick={() => openDeleteDialog(selectedUsers.map(String))}
+              onClick={handleDeleteSelected}
             >
               <Trash2 className="h-4 w-4 mr-2" />
-              Delete
+              Delete Selected
             </Button>
           </div>
         </div>
@@ -430,7 +514,7 @@ export default function UserDataTable() {
                   </TableCell>
                 </TableRow>
               ) : (
-                paginatedUsers.map((user) => (
+                paginatedUsers.map((user: User) => (
                   <TableRow key={user.id}>
                     <TableCell>
                       <Checkbox
@@ -454,8 +538,16 @@ export default function UserDataTable() {
                       {formatCurrency(user.balance)}
                     </TableCell>
                     <TableCell>{formatCurrency(user.spent)}</TableCell>
-                    <TableCell>{user.registrationDate}</TableCell>
-                    <TableCell>{user.lastSeen}</TableCell>
+                    <TableCell>
+                      {user.timestamp
+                        ? convertToRegistrationDate(user.timestamp)
+                        : "N/A"}
+                    </TableCell>
+                    <TableCell>
+                      {user.last_seen
+                        ? convertToRegistrationDate(user.last_seen)
+                        : "N/A"}
+                    </TableCell>
                     <TableCell>{getStatusBadge(user.status)}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
@@ -492,7 +584,7 @@ export default function UserDataTable() {
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             className="text-destructive"
-                            onClick={() => openDeleteDialog([String(user.id)])}
+                            onClick={() => openDeleteDialog([user.id])}
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
                             Delete user
@@ -508,6 +600,7 @@ export default function UserDataTable() {
         </div>
       </ScrollArea>
 
+      {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-center justify-between text-sm gap-4">
         <div className="flex items-center space-x-2">
           <p className="text-muted-foreground hidden sm:block">
@@ -614,7 +707,6 @@ export default function UserDataTable() {
         </div>
       </div>
 
-      {/* Edit User Dialog rendered at root level so it persists */}
       <EditUser
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}

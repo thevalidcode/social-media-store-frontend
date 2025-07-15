@@ -1,8 +1,7 @@
 "use client";
 import { useAppContext } from "@/context/appContext";
-import { getCookieRegex } from "@/lib/helpers";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 // Custom hook for user-related queries and mutations
@@ -17,13 +16,17 @@ interface NewUser {
 }
 
 export function useCreateUser() {
-  const { apiUrl, store_id } = useAppContext();
+  const { api, store_id } = useAppContext();
   return useMutation({
     mutationKey: ["createUser"],
     mutationFn: async (newUser: NewUser) => {
       if (!store_id) {
         throw new Error(
+<<<<<<< HEAD
           "Store configuration not found. Please contact support.",
+=======
+          "Panel configuration not found. Please contact support."
+>>>>>>> afdede3 (added the functionality of for the faq admin actions)
         );
       }
 
@@ -46,13 +49,13 @@ export function useCreateUser() {
         payload.ref = Number(newUser.ref);
       }
 
-      const res = await axios.post(`${apiUrl}/user`, payload);
+      const res = await api.post(`/user`, payload);
 
       if (!res.data.user) {
         // Log the response for debugging
         console.error("User creation failed. Response:", res.data);
         throw new Error(
-          "Failed to create user: No user object returned from server.",
+          "Failed to create user: No user object returned from server."
         );
       }
       return res.data;
@@ -90,29 +93,23 @@ interface LoginProps {
   store_id: number;
 }
 export function useUserLogin() {
-  const { apiUrl, setUserInfo } = useAppContext();
+  const { api, setUserInfo } = useAppContext();
   const router = useRouter();
   return useMutation({
     mutationKey: ["userLogins"],
     mutationFn: async (data: LoginProps) => {
-      const res = await axios.post(
-        `${apiUrl}/user/me`,
-        {
-          email: data.email,
-          password: data.password,
-          store_id: data.store_id,
-        },
-        {
-          withCredentials: true,
-        },
-      );
+      const res = await api.post(`/user/me`, {
+        email: data.email,
+        password: data.password,
+        store_id: data.store_id,
+      });
 
       if (!res.data) {
         throw new Error(
-          "Failed to login user: No response data received from server.",
+          "Failed to login user: No response data received from server."
         );
       }
-      console.log("Login response:", res.data);
+      // console.log("Login response:", res.data);
       return res.data;
     },
     onSuccess: async (data) => {
@@ -121,15 +118,16 @@ export function useUserLogin() {
       }
 
       const storeEndPoint =
-        data.role === "admin"
-          ? `${apiUrl}/store/current-admin`
-          : `${apiUrl}/store/current-user`;
+        data.role === "admin" ? `/store/current-admin` : `/store/current-user`;
 
-      await axios.get(`${storeEndPoint}`, {
-        withCredentials: true,
+      // The 'withCredentials' option is now set globally in the API context.
+      const res = await api.get(`${storeEndPoint}`);
+      // Set user info in context, which also persists it to localStorage.
+      setUserInfo({
+        ...res.data,
       });
-
-      router.push(data.role === "admin" ? "/admin/users" : "/user/dashboard");
+      // Redirect to the appropriate dashboard. The user session is now active.
+      router.push(data.role === "admin" ? "/admin/users" : "/client/dashboard");
     },
     onError: (error: unknown) => {
       // Enhanced error extraction for better user feedback
@@ -156,17 +154,13 @@ export function useUserLogin() {
 
 // get users
 export function useGetUsers() {
-  const { apiUrl } = useAppContext();
+  const { api } = useAppContext();
   return useQuery({
     queryKey: ["users"],
+    // Fetches all users.
     queryFn: async () => {
-      const res = await axios.get(`${apiUrl}/user`, {
-        headers: {
-          Origin: window.location.origin,
-          Accept: "application/json",
-        },
-        withCredentials: true,
-      });
+      // The 'withCredentials' option is now set globally in the API context.
+      const res = await api.get(`/user`, {});
       if (!res.data) throw new Error("Failed to fetch user");
       return res.data;
     },
@@ -175,11 +169,11 @@ export function useGetUsers() {
 
 // ! get user by id`
 export function useGetUserById(id: string) {
-  const { apiUrl } = useAppContext();
+  const { api } = useAppContext();
   return useQuery({
     queryKey: ["user", id],
     queryFn: async () => {
-      const res = await axios.get(`${apiUrl}/user/${id}`);
+      const res = await api.get(`/user/${id}`);
       if (!res.data) throw new Error("Failed to fetch user");
       return res.data;
     },
@@ -192,10 +186,10 @@ interface DeleteUsersProps {
 
 //! delete multiple users
 export function useDeleteMultipleUsers() {
-  const { apiUrl } = useAppContext();
+  const { api } = useAppContext();
   return useMutation({
     mutationFn: async (data: DeleteUsersProps) => {
-      const res = await axios.delete(`${apiUrl}/user`, { data });
+      const res = await api.delete(`/user/multiple`, { data });
       if (!res.data) throw new Error("Failed to delete users");
       return res.data;
     },
@@ -218,11 +212,11 @@ interface DeleteUserProps {
   uid: string;
 }
 export const useDeleteASingleUser = () => {
-  const { apiUrl } = useAppContext();
+  const { api } = useAppContext();
   return useMutation({
     mutationFn: async (data: DeleteUserProps) => {
       try {
-        const res = await axios.delete(`${apiUrl}/user`, {
+        const res = await api.delete(`/user`, {
           data: { uid: data.uid },
         });
         if (!res.data) throw new Error("Failed to delete user");
@@ -248,10 +242,10 @@ interface UpdateUserProps {
 }
 
 export function useUpdateUser() {
-  const { apiUrl } = useAppContext();
+  const { api } = useAppContext();
   return useMutation({
     mutationFn: async (data: UpdateUserProps) => {
-      const res = await axios.put(`${apiUrl}/user`, data);
+      const res = await api.patch(`/user`, data);
       if (!res.data) throw new Error("Failed to update user");
       return res.data;
     },

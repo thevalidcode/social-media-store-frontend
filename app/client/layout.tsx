@@ -5,9 +5,6 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Wrapper from "@/components/wrapper";
 import { memo, useCallback } from "react";
 import { TopNav } from "./component/nav";
-import { useAppContext } from "@/context/appContext";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 
 // Memoize the sidebar to prevent re-renders
 const MemoizedSidebar = memo(AppSidebar);

@@ -27,7 +27,7 @@ import AdminProviders from "./admin-providers";
 import GeneralSettingsForm from "./general-setting";
 import Integration from "./integration";
 import DesignSettingsForm from "./theme";
-import AdminFaq from "./admin-faq";
+import { AdminFaq } from "./admin-faq";
 
 export function SettingsDialog() {
   const [isOpen, setIsOpen] = useState(false);

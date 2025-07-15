@@ -16,6 +16,10 @@ function UserStatsGrid() {
   if (!data || !Array.isArray(data)) {
     return <div>No user data available</div>;
   }
+  const activeUsers = data.filter((user) => user.status === "active").length;
+
+  const bannedUsers = data.filter((user) => user.status === "banned").length;
+  const newUsers = data.filter((user) => user.status === "newUsers").length;
   const totalUsers = data.length;
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -26,17 +30,17 @@ function UserStatsGrid() {
       />
       <GridCard
         title="Active Users"
-        value={40}
+        value={activeUsers}
         icon={<UserCheck className="h-5 w-5" />}
       />
       <GridCard
         title="Banned Users"
-        value={10}
+        value={bannedUsers}
         icon={<UserX className="h-5 w-5" />}
       />
       <GridCard
         title="New Users"
-        value={5}
+        value={newUsers}
         icon={<Users className="h-5 w-5" />}
       />
     </div>

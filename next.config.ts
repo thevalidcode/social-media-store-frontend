@@ -10,6 +10,14 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // async rewrites() {
+  //   return [
+  //     {
+  //       source: "/sys/api/:path*",
+  //       destination: "https://validpanel.com:6060/sys/api/:path*",
+  //     },
+  //   ];
+  // },
 };
 
 export default nextConfig;

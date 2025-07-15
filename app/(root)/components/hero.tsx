@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { motion, useInView } from "framer-motion";
 import Link from "next/link";
 import { useRef } from "react";
-import CardsCarousel from "./services";
 import Wrapper from "@/components/wrapper";
 
 function FloatingPaths({ position }: { position: number }) {
