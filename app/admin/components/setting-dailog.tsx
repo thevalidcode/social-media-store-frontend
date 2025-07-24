@@ -99,12 +99,12 @@ export function SettingsDialog() {
             <span>control panel</span>
           </Button>
         </DialogTrigger>
-        <DialogContent className="min-w-[85%] h-[85vh] max-h-[85vh] flex flex-col border lg:ml-20">
+        <DialogContent className="w-full h-full sm:max-w-[85%] sm:max-h-[85vh] flex flex-col border lg:ml-5">
           <DialogHeader>
             <DialogTitle>Settings</DialogTitle>
           </DialogHeader>
-          <div className="flex flex-1 overflow-hidden">
-            <div className="w-1/4 border-r p-4">
+          <div className="flex flex-1 overflow-hidden flex-col sm:flex-row">
+            <div className="w-full sm:w-1/4 sm:border-r border-b sm:border-b-0 p-2">
               <div className="flex flex-col gap-2">
                 {headers.map((header) => (
                   <Button
@@ -129,7 +129,7 @@ export function SettingsDialog() {
                 ))}
               </div>
             </div>
-            <div className="w-3/4 overflow-auto">
+            <div className="w-full sm:w-3/4 overflow-auto">
               <ScrollArea className="h-full">
                 {typeof headers.find(
                   (header) =>

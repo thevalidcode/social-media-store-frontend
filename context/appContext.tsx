@@ -96,7 +96,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     // Dynamically set the CSRF token on the API instance after it's fetched.
-    // This is crucial for securing state-changing requests (POST, PUT, DELETE).
     if (csrfToken) {
       api.defaults.headers.common["X-CSRF-Token"] = csrfToken;
     }

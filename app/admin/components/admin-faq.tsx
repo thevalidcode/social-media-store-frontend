@@ -1,13 +1,14 @@
 "use client";
 
-import type React from "react";
+import Loading from "@/app/loading";
+import { Button } from "@/components/ui/button";
 import {
-  useCreateFaq,
-  useDeleteMultipleFaqs,
-  useDeleteSingleFaq,
-  useGetFaqs,
-  useUpdateFaqs,
-} from "@/hooks/use-faqs";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
@@ -17,11 +18,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -30,16 +28,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Pencil, Plus, Trash, HelpCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+  useCreateFaq,
+  useDeleteMultipleFaqs,
+  useDeleteSingleFaq,
+  useGetFaqs,
+  useUpdateFaqs,
+} from "@/hooks/use-faqs";
 import { useQueryClient } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
+import { HelpCircle, Pencil, Plus, Trash, TrashIcon } from "lucide-react";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface Faq {
   uid?: string;
@@ -54,7 +56,7 @@ export function AdminFaq() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [faqToDelete, setFaqToDelete] = useState<Faq | null>(null);
   const [selectedFaqs, setSelectedFaqs] = useState<string[]>([]);
-
+  const isVisible = false;
   const { data: faqs, isLoading } = useGetFaqs();
   const { mutate: deleteFaq } = useDeleteSingleFaq();
   const { mutate: deleteMultipleFaqs } = useDeleteMultipleFaqs();
@@ -89,11 +91,11 @@ export function AdminFaq() {
           },
           onError: (error: Error) => {
             toast.error(
-              error instanceof Error ? error.message : "Failed to delete FAQs",
+              error instanceof Error ? error.message : "Failed to delete FAQs"
             );
             setDeleteDialogOpen(false);
           },
-        },
+        }
       );
     } else if (faqToDelete?.uid) {
       deleteFaq(faqToDelete.uid, {
@@ -105,7 +107,7 @@ export function AdminFaq() {
         },
         onError: (error: Error) => {
           toast.error(
-            error instanceof Error ? error.message : "Failed to delete FAQ",
+            error instanceof Error ? error.message : "Failed to delete FAQ"
           );
           setDeleteDialogOpen(false);
         },
@@ -115,7 +117,7 @@ export function AdminFaq() {
 
   const handleSelectFaq = (uid: string) => {
     setSelectedFaqs((prev) =>
-      prev.includes(uid) ? prev.filter((id) => id !== uid) : [...prev, uid],
+      prev.includes(uid) ? prev.filter((id) => id !== uid) : [...prev, uid]
     );
   };
 
@@ -128,7 +130,7 @@ export function AdminFaq() {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
+    <div className=" p-2 lg:p-6 max-w-6xl">
       <Card className="bg-transparent shadow-none border border-muted/50">
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -145,14 +147,27 @@ export function AdminFaq() {
             </div>
             <div className="flex items-center gap-2">
               {selectedFaqs.length > 0 && (
-                <Button
-                  variant="destructive"
-                  onClick={() => setDeleteDialogOpen(true)}
-                  className="gap-2"
-                >
-                  <Trash className="h-4 w-4" />
-                  Delete Selected ({selectedFaqs.length})
-                </Button>
+                <AnimatePresence>
+                  {!isVisible && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{
+                        opacity: 0,
+                        scale: 0.9,
+                        transition: { duration: 0.3 },
+                      }}
+                    >
+                      <Button
+                        onClick={() => setDeleteDialogOpen(true)}
+                        id="deleteMany"
+                      >
+                        <TrashIcon />
+                        Delete selected( {`${selectedFaqs.length}`})
+                      </Button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               )}
               <Button onClick={() => handleOpenDialog()} className="gap-2">
                 <Plus className="h-4 w-4" />
@@ -182,8 +197,7 @@ export function AdminFaq() {
                   <TableRow>
                     <TableCell colSpan={4} className="h-24 text-center">
                       <div className="flex items-center justify-center gap-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                        Loading FAQs...
+                        <Loading />
                       </div>
                     </TableCell>
                   </TableRow>
@@ -334,10 +348,10 @@ function FaqDialog({ isOpen, onClose, faq, isEdit }: FaqDialogProps) {
           },
           onError: (error: Error) => {
             toast.error(
-              error instanceof Error ? error.message : "Failed to create FAQ",
+              error instanceof Error ? error.message : "Failed to create FAQ"
             );
           },
-        },
+        }
       );
     } else {
       createFaq(
@@ -350,10 +364,10 @@ function FaqDialog({ isOpen, onClose, faq, isEdit }: FaqDialogProps) {
           },
           onError: (error: Error) => {
             toast.error(
-              error instanceof Error ? error.message : "Failed to create FAQ",
+              error instanceof Error ? error.message : "Failed to create FAQ"
             );
           },
-        },
+        }
       );
     }
   };
@@ -415,10 +429,15 @@ function FaqDialog({ isOpen, onClose, faq, isEdit }: FaqDialogProps) {
           </div>
 
           <DialogFooter className="gap-2">
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="cursor-pointer"
+            >
               Cancel
             </Button>
-            <Button type="submit" className="gap-2">
+            <Button type="submit" className="gap-2 cursor-pointer">
               {isEdit ? (
                 <>
                   <Pencil className="h-4 w-4" />

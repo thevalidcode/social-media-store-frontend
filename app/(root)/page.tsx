@@ -7,8 +7,8 @@ export default function Home() {
     <>
       <HeroSection />
       <Wrapper className="mt-8 ax-w-[90rem]">
-        {/* <ImageSection /> */}
-        {/* <FaqSection /> */}
+        <>{/* <ImageSection /> */}
+        {/* <FaqSection /> */}</>
       </Wrapper>
     </>
   );

@@ -85,7 +85,7 @@ export default function GeneralSettingsForm() {
   };
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 rounded-lg">
+    <div className="p-2 md:p-8 rounded-lg">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold">General Settings</h1>
         <Button onClick={handleSave} className="mt-4 sm:mt-0">

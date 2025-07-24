@@ -215,18 +215,20 @@ export const useDeleteASingleUser = () => {
   const { api } = useAppContext();
   return useMutation({
     mutationFn: async (data: DeleteUserProps) => {
-      try {
-        const res = await api.delete(`/user`, {
-          data: { uid: data.uid },
-        });
-        if (!res.data) throw new Error("Failed to delete user");
-        return res.data;
-      } catch (error) {
-        if (error instanceof AxiosError) {
-          throw new Error(
-            error.response?.data?.error || "Failed to delete user",
-          );
-        }
+      const res = await api.delete(`/user`, {
+        data: { uid: data.uid },
+      });
+      if (!res.data) throw new Error("Failed to delete user");
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("User deleted successfully");
+    },
+    onError: (error: unknown) => {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data?.error || "Failed to delete user");
+      } else {
+        toast.error("Failed to delete user");
       }
     },
   });
