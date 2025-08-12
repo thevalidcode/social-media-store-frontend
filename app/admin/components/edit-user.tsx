@@ -12,7 +12,7 @@ import { useUpdateUser } from "@/hooks/use-user";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 // Props now include open, onOpenChange, formData, and onFormDataChange
 interface UpdateUserProps {
@@ -39,19 +39,29 @@ export function EditUser({
   const queryClient = useQueryClient();
   const { mutate: updateUser } = useUpdateUser();
 
-  // Handle input changes and propagate up
+  // Internal state to make the component responsive
+  const [internalFormData, setInternalFormData] = useState<UpdateUserProps>(formData);
+
+  // Sync with parent state when it changes
+  useEffect(() => {
+    setInternalFormData(formData);
+  }, [formData]);
+
+  // Handle input changes locally and propagate up
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    onFormDataChange({
-      ...formData,
-      [name]: name === "balance" ? parseFloat(value) : value,
-    });
+    const newFormData = {
+      ...internalFormData,
+      [name]: name === "balance" ? parseFloat(value) || 0 : value,
+    };
+    setInternalFormData(newFormData);
+    onFormDataChange(newFormData); // Also notify parent
   };
 
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateUser(formData, {
+    updateUser(internalFormData, {
       onSuccess: () => {
         toast.success("User updated successfully");
         queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -67,7 +77,7 @@ export function EditUser({
     });
   };
 
-  // Dialog is now controlled by parent
+  // Dialog is controlled by parent, but form state is handled internally for responsiveness
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px] backdrop-blur-xs bg-background/80">
@@ -83,7 +93,7 @@ export function EditUser({
               id="uid"
               name="uid"
               type="text"
-              value={formData.uid}
+              value={internalFormData.uid}
               readOnly
               disabled
             />
@@ -97,7 +107,7 @@ export function EditUser({
               name="full_name"
               type="text"
               placeholder="Enter your full name"
-              value={formData.full_name}
+              value={internalFormData.full_name}
               onChange={handleInputChange}
               required
             />
@@ -111,7 +121,7 @@ export function EditUser({
               name="username"
               type="text"
               placeholder="Enter your username"
-              value={formData.username}
+              value={internalFormData.username}
               onChange={handleInputChange}
               required
             />
@@ -125,7 +135,7 @@ export function EditUser({
               name="email"
               type="email"
               placeholder="Enter your email"
-              value={formData.email}
+              value={internalFormData.email}
               onChange={handleInputChange}
               required
             />
@@ -139,7 +149,7 @@ export function EditUser({
               name="balance"
               type="number"
               placeholder="Enter the balance"
-              value={formData.balance}
+              value={internalFormData.balance}
               onChange={handleInputChange}
               required
             />

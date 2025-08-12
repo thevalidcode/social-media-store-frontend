@@ -157,7 +157,6 @@ export function useGetUsers() {
   const { api } = useAppContext();
   return useQuery({
     queryKey: ["users"],
-    // Fetches all users.
     queryFn: async () => {
       // The 'withCredentials' option is now set globally in the API context.
       const res = await api.get(`/user`, {});

@@ -7,6 +7,7 @@ interface BlogProps {
   uid?: string,
   content?: string,
   description?: string,
+  conver_image?: string,
   title?: string,
 }
 export const useCreateblog = () => {
@@ -14,7 +15,7 @@ export const useCreateblog = () => {
   return useMutation({
     mutationKey: ["createBlog"],
     mutationFn: async (data: BlogProps) => {
-      const res = await api.post(`/blog`, { data })
+      const res = await api.post(`/blog`, data)
       if (!res.data) {
         throw new Error("failed to createBlog")
       }
@@ -38,6 +39,7 @@ export const useGetBlogs = () => {
   })
 }
 
+
 export const usePatchBlog = () => {
   const { api } = useAppContext()
   return useMutation({
@@ -53,12 +55,16 @@ export const usePatchBlog = () => {
 }
 
 
-export const useGetBlogById = (id: string) => {
+export const useGetBlogById = (blog_id: string) => {
   const { api, store_id } = useAppContext()
   return useQuery({
-    queryKey: ["blog_id", id],
+    queryKey: ["blog_id", blog_id],
     queryFn: async () => {
-      const res = await api.get(`/blog?store_id=${store_id}&blog_id=${id}`)
+      const res = await api.get(`/blog/${blog_id}?store_id=${store_id}`)
+      if (!res.data) {
+        throw new Error("an error occurred, failed to get blog data")
+        return res.data
+      }
     }
   })
 }
