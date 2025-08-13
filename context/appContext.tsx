@@ -34,9 +34,10 @@ const getDomain = () => {
 };
 
 const domain = getDomain();
+console.log(domain);
 const API_URL =
   process.env.NODE_ENV === "development"
-    ? "https://validpanel.com:6060"
+    ? `${process.env.NEXT_PUBLIC_DEV_API_URL}/api/v1`
     : `https://${domain}/sys/api`;
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -62,14 +63,18 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const handleSetUserInfo = (user: UserProps) => {
     setUserInfo(user);
   };
+
+  //mapped the store_id to use the same key (storeId) in the backend
+
   const { error, isLoading } = useQuery({
     queryKey: ["store_id", domain],
     queryFn: async () => {
       const res = await axios.get(`${API_URL}/store/data?domain=${domain}`);
-      if (!res.data || !res.data.store_id) {
+      const store_id = res.data?.store_id ?? res.data?.storeId; // Used the nullish coalescing operator (??) so it works whether the backend sends store_id or storeId.
+      if (!store_id) {
         throw new Error("No store_id found for this domain");
       }
-      const { store_id } = res.data;
+
       setStoreId(store_id);
       return store_id;
     },
@@ -90,8 +95,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         domain,
         isLoading,
         error,
-      }}
-    >
+      }}>
       {children}
     </AppContext.Provider>
   );
