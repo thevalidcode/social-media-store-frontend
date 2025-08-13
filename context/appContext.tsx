@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 interface UserProps {
   id?: number;
@@ -34,7 +34,7 @@ const getDomain = () => {
 };
 
 const domain = getDomain();
-console.log(domain);
+
 const API_URL =
   process.env.NODE_ENV === "development"
     ? `${process.env.NEXT_PUBLIC_DEV_API_URL}/api/v1`
