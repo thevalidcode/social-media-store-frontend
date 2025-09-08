@@ -8,16 +8,16 @@ interface FaqProps {
   answer: string;
 }
 export function useCreateFaq() {
-  const { api, store_id } = useAppContext();
+  const { api, storeId } = useAppContext();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: ["addFaqs"],
     mutationFn: async (data: FaqProps) => {
-      if (!store_id) throw new Error("Store ID is required");
+      if (!storeId) throw new Error("Store ID is required");
       const response = await api.post("/faq", {
         ...data,
-        store_id: Number(store_id),
+        storeId: Number(storeId),
       });
       return response.data;
     },
@@ -28,11 +28,11 @@ export function useCreateFaq() {
 }
 
 export function useGetFaqs() {
-  const { api, store_id } = useAppContext();
+  const { api, storeId } = useAppContext();
   return useQuery({
     queryKey: ["faqs"],
     queryFn: async () => {
-      const res = await api.get(`/faq?store_id=${store_id}`);
+      const res = await api.get(`/faq?storeId=${storeId}`);
       if (res.data && Array.isArray(res.data)) {
         return res.data;
       }
@@ -102,11 +102,11 @@ export const useUpdateFaqs = () => {
 };
 
 export const useGetFaqsById = (uid: string) => {
-  const { api, store_id } = useAppContext();
+  const { api, storeId } = useAppContext();
   return useQuery({
     queryKey: ["faqs", uid],
     queryFn: async () => {
-      const res = await api.get(`/faq?store_id=${store_id}&faq_id=${uid}`);
+      const res = await api.get(`/faq?storeId=${storeId}&faq_id=${uid}`);
       if (!res.data) {
         throw new Error("Invalid response data");
       }

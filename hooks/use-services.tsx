@@ -44,13 +44,11 @@ interface UpdateServiceProps {
 
 // get services by the public
 export const useGetServicesByPublic = (service_id: string) => {
-  const { panel_id, apiUrl } = useAppContext();
+  const { storeId, api } = useAppContext();
   return useQuery({
     queryKey: ["servicesByPublic", service_id],
     queryFn: async () => {
-      const res = await axios.get(
-        `${apiUrl}/service/${service_id}?panel_id=${panel_id}`,
-      );
+      const res = await api.get(`/services/${service_id}?storeId=${storeId}`);
       return res.data;
     },
     enabled: !!service_id,
@@ -59,11 +57,11 @@ export const useGetServicesByPublic = (service_id: string) => {
 
 // get services by admin
 export const useGetServicesByAdmin = (service_id: string) => {
-  const { apiUrl } = useAppContext();
+  const { api } = useAppContext();
   return useQuery({
     queryKey: ["servicesByAdmin", service_id],
     queryFn: async () => {
-      const res = await axios.get(`${apiUrl}/service/${service_id}`);
+      const res = await api.get(`/services/${service_id}`);
       return res.data;
     },
     enabled: !!service_id,
@@ -72,11 +70,11 @@ export const useGetServicesByAdmin = (service_id: string) => {
 
 // get service by provider_id
 export const useGetServicesByProviderId = (provider_id: string) => {
-  const { apiUrl } = useAppContext();
+  const { api } = useAppContext();
   return useQuery({
     queryKey: ["servicesByProvider", provider_id],
     queryFn: async () => {
-      const res = await axios.get(`${apiUrl}/service/${provider_id}`);
+      const res = await api.get(`/services/${provider_id}`);
       return res.data;
     },
     enabled: !!provider_id,
@@ -85,11 +83,11 @@ export const useGetServicesByProviderId = (provider_id: string) => {
 
 // get all services for the admin
 export const useGetAllServices = () => {
-  const { apiUrl } = useAppContext();
+  const { api } = useAppContext();
   return useQuery({
     queryKey: ["services"],
     queryFn: async () => {
-      const res = await axios.get(`${apiUrl}/service/admin`);
+      const res = await api.get(`/services/admin`);
       if (!res.data) {
         throw new Error("Failed to fetch services");
       }
@@ -100,10 +98,10 @@ export const useGetAllServices = () => {
 
 //  creating a new service
 export const useCreateService = () => {
-  const { apiUrl } = useAppContext();
+  const { api } = useAppContext();
   return useMutation({
     mutationFn: async (service: ServiceProps) => {
-      const res = await axios.post(`${apiUrl}/services`, service);
+      const res = await axios.post(`/services`, service);
       return res.data;
     },
     onSuccess: () => {
@@ -121,10 +119,10 @@ export const useCreateService = () => {
 
 // updating a service
 export const useUpdateService = () => {
-  const { apiUrl } = useAppContext();
+  const { api } = useAppContext();
   return useMutation({
     mutationFn: async (service: UpdateServiceProps) => {
-      const res = await axios.patch(`${apiUrl}/services`, service);
+      const res = await axios.patch(`/services`, service);
       if (!res.data) {
         throw new Error(res.data.message || "Failed to update service");
       }
@@ -148,12 +146,12 @@ interface ServiceDeleteProps {
   uid: string;
 }
 export const useDeleteService = () => {
-  const { apiUrl } = useAppContext();
+  const { api } = useAppContext();
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ["deleteService"],
     mutationFn: async (uid: ServiceDeleteProps) => {
-      const res = await axios.delete(`${apiUrl}/services`, {
+      const res = await axios.delete(`/services`, {
         params: { uid: uid.uid },
       });
       if (!res.data) {
@@ -173,12 +171,12 @@ interface DeleteMultipleServicesProps {
   uids: string[];
 }
 export const useDeleteMultipleServices = () => {
-  const { apiUrl } = useAppContext();
+  const { api } = useAppContext();
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ["deleteMultipleServices"],
     mutationFn: async (uids: DeleteMultipleServicesProps) => {
-      const res = await axios.delete(`${apiUrl}/service/multiple`, {
+      const res = await axios.delete(`/services/multiple`, {
         params: { uiods: uids.uids },
         withCredentials: true,
       });

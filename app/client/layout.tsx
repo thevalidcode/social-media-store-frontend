@@ -14,20 +14,20 @@ export default function SidebarLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // const { apiUrl, panel_id } = useAppContext();
+  // const { apiUrl, storeId } = useAppContext();
   //
   // const { isLoading, error } = useQuery({
   //   queryKey: ["site_styles"],
   //   queryFn: async () => {
   //     const res = await axios.get(
-  //       `${apiUrl}/panel/styles?panel_id=${panel_id}`
+  //       `${apiUrl}/store/styles?storeId=${storeId}`
   //     );
   //     if (!res.data) {
   //       return;
   //     }
   //     localStorage.setItem("site_styles", res.data);
   //   },
-  //   enabled: typeof window !== "undefined" && !panel_id,
+  //   enabled: typeof window !== "undefined" && !storeId,
   // });
   //
   const renderLayout = useCallback(

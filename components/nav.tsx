@@ -36,7 +36,7 @@ export default function Nav() {
                 fill="#D41C1C"
               ></path>
             </svg>
-            <span className="font-medium text-xl">Valid Plug</span>
+            <span className="font-medium text-xl">Social Store</span>
           </Link>
         </div>
         <nav className="hidden md:flex items-center gap-8">

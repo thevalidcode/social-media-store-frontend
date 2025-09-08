@@ -72,7 +72,7 @@ interface User {
   username: string;
   role?: string;
   status: string;
-  store_id?: number;
+  storeId?: number;
   balance: number;
   spent: number;
   timestamp?: string;

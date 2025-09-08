@@ -20,6 +20,8 @@ import {
   ListTodo,
   XCircle,
 } from "lucide-react";
+import { useAppContext } from "@/context/appContext";
+import { AxiosInstance } from "axios";
 
 // Order status types
 type OrderStatus =
@@ -40,57 +42,59 @@ interface Order {
   quantity: number;
   price: string;
   status: string;
-  start_count: number;
+  startCount: number;
   remains: number;
   currency: string;
 }
 
 // Fetch orders based on status
-async function fetchOrders(status: OrderStatus): Promise<Order[]> {
-  const response = await fetch(
-    `/api/v2?action=status&key=${process.env.NEXT_PUBLIC_API_KEY}`
-  );
-  const data = (await response.json()) as Record<string, Order>;
+async function fetchOrders(
+  api: AxiosInstance,
+  status: OrderStatus
+): Promise<Order[]> {
+  const response = await api.get(`/orders?status=${status}`);
+  const data = (await response.data) as Record<string, Order>;
   return Object.values(data).filter((order): order is Order =>
     status === "all" ? true : order.status.toLowerCase() === status
   );
 }
 
 export function OrdersTab() {
+  const { api } = useAppContext();
   // Query for each tab
   const { data: allOrders, isLoading: allLoading } = useQuery({
     queryKey: ["orders", "all"],
-    queryFn: () => fetchOrders("all"),
+    queryFn: () => fetchOrders(api, "all"),
   });
 
   const { data: activeOrders, isLoading: activeLoading } = useQuery({
     queryKey: ["orders", "active"],
-    queryFn: () => fetchOrders("active"),
+    queryFn: () => fetchOrders(api, "active"),
   });
 
   const { data: pendingOrders, isLoading: pendingLoading } = useQuery({
     queryKey: ["orders", "pending"],
-    queryFn: () => fetchOrders("pending"),
+    queryFn: () => fetchOrders(api, "pending"),
   });
 
   const { data: partialOrders, isLoading: partialLoading } = useQuery({
     queryKey: ["orders", "partial"],
-    queryFn: () => fetchOrders("partial"),
+    queryFn: () => fetchOrders(api, "partial"),
   });
 
   const { data: failedOrders, isLoading: failedLoading } = useQuery({
     queryKey: ["orders", "failed"],
-    queryFn: () => fetchOrders("failed"),
+    queryFn: () => fetchOrders(api, "failed"),
   });
 
   const { data: cancelledOrders, isLoading: cancelledLoading } = useQuery({
     queryKey: ["orders", "cancelled"],
-    queryFn: () => fetchOrders("cancelled"),
+    queryFn: () => fetchOrders(api, "cancelled"),
   });
 
   const { data: completedOrders, isLoading: completedLoading } = useQuery({
     queryKey: ["orders", "completed"],
-    queryFn: () => fetchOrders("completed"),
+    queryFn: () => fetchOrders(api, "completed"),
   });
 
   // Loading state component

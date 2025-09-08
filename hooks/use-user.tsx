@@ -11,22 +11,18 @@ interface NewUser {
   email: string;
   password: string;
   username: string;
-  store_id: number;
+  storeId: number;
   ref?: number;
 }
 
 export function useCreateUser() {
-  const { api, store_id } = useAppContext();
+  const { api, storeId } = useAppContext();
   return useMutation({
     mutationKey: ["createUser"],
     mutationFn: async (newUser: NewUser) => {
-      if (!store_id) {
+      if (!storeId) {
         throw new Error(
-<<<<<<< HEAD
           "Store configuration not found. Please contact support.",
-=======
-          "Panel configuration not found. Please contact support."
->>>>>>> afdede3 (added the functionality of for the faq admin actions)
         );
       }
 
@@ -34,13 +30,13 @@ export function useCreateUser() {
       const payload: {
         email: string;
         password: string;
-        store_id: number;
+        storeId: number;
         username: string;
         ref?: number;
       } = {
         email: newUser.email,
         password: newUser.password,
-        store_id: Number(store_id), // Ensure store_id is a number
+        storeId: Number(storeId), // Ensure storeId is a number
         username: newUser.username,
       };
 
@@ -49,7 +45,7 @@ export function useCreateUser() {
         payload.ref = Number(newUser.ref);
       }
 
-      const res = await api.post(`/user`, payload);
+      const res = await api.post(`/users`, payload);
 
       if (!res.data.user) {
         // Log the response for debugging
@@ -90,7 +86,7 @@ export function useCreateUser() {
 interface LoginProps {
   email: string;
   password: string;
-  store_id: number;
+  storeId: number;
 }
 export function useUserLogin() {
   const { api, setUserInfo } = useAppContext();
@@ -98,10 +94,10 @@ export function useUserLogin() {
   return useMutation({
     mutationKey: ["userLogins"],
     mutationFn: async (data: LoginProps) => {
-      const res = await api.post(`/user/me`, {
+      const res = await api.post(`/users/me`, {
         email: data.email,
         password: data.password,
-        store_id: data.store_id,
+        storeId: data.storeId,
       });
 
       if (!res.data) {
@@ -159,7 +155,7 @@ export function useGetUsers() {
     queryKey: ["users"],
     queryFn: async () => {
       // The 'withCredentials' option is now set globally in the API context.
-      const res = await api.get(`/user`, {});
+      const res = await api.get(`/users`, {});
       if (!res.data) throw new Error("Failed to fetch user");
       return res.data;
     },
@@ -172,7 +168,7 @@ export function useGetUserById(id: string) {
   return useQuery({
     queryKey: ["user", id],
     queryFn: async () => {
-      const res = await api.get(`/user/${id}`);
+      const res = await api.get(`/users/${id}`);
       if (!res.data) throw new Error("Failed to fetch user");
       return res.data;
     },
@@ -188,7 +184,7 @@ export function useDeleteMultipleUsers() {
   const { api } = useAppContext();
   return useMutation({
     mutationFn: async (data: DeleteUsersProps) => {
-      const res = await api.delete(`/user/multiple`, { data });
+      const res = await api.delete(`/users/multiple`, { data });
       if (!res.data) throw new Error("Failed to delete users");
       return res.data;
     },
@@ -214,7 +210,7 @@ export const useDeleteASingleUser = () => {
   const { api } = useAppContext();
   return useMutation({
     mutationFn: async (data: DeleteUserProps) => {
-      const res = await api.delete(`/user`, {
+      const res = await api.delete(`/users`, {
         data: { uid: data.uid },
       });
       if (!res.data) throw new Error("Failed to delete user");
@@ -246,7 +242,7 @@ export function useUpdateUser() {
   const { api } = useAppContext();
   return useMutation({
     mutationFn: async (data: UpdateUserProps) => {
-      const res = await api.patch(`/user`, data);
+      const res = await api.patch(`/users`, data);
       if (!res.data) throw new Error("Failed to update user");
       return res.data;
     },

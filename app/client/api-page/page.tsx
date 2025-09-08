@@ -2,9 +2,9 @@ import APISection from "@/app/(root)/components/APIPage";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "valid panel api",
+  title: "Social Media Store API",
   description: "API",
-  keywords: ["api", "valid panel api", "valid panel", "api"],
+  keywords: ["api", "social media store api", "stores", "api"],
 };
 export default function ApiPage() {
   return (

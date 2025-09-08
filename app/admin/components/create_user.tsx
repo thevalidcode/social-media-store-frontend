@@ -36,7 +36,7 @@ export function CreateUser() {
   };
 
   const { mutate } = useCreateUser();
-  const { store_id } = useAppContext();
+  const { storeId } = useAppContext();
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
@@ -69,7 +69,7 @@ export function CreateUser() {
           password: formData.password,
           username: formData.name,
           email: formData.email,
-          store_id: Number(store_id),
+          storeId: Number(storeId),
         },
         {
           onSuccess: () => {

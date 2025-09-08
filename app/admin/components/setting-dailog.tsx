@@ -96,7 +96,7 @@ export function SettingsDialog() {
             size="sm"
           >
             <Settings />
-            <span>control panel</span>
+            <span>Control Panel</span>
           </Button>
         </DialogTrigger>
         <DialogContent className="w-full h-full sm:max-w-[85%] sm:max-h-[85vh] flex flex-col border lg:ml-5">

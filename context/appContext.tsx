@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import axios, { AxiosInstance } from "axios";
-import { createContext, useContext, useState, useEffect, useMemo } from "react";
+import { createContext, useContext, useState, useMemo } from "react";
 
 interface UserProps {
   id?: number;
@@ -14,7 +14,7 @@ interface UserProps {
   api_key?: string;
   last_seen?: string;
   image?: string;
-  store_id?: number;
+  storeId?: number;
   uid?: string;
 }
 
@@ -23,12 +23,10 @@ interface AppContextType {
   domain: string;
   userInfo: UserProps | null;
   setUserInfo: (user: UserProps | null) => void; // Allow setting to null for logout
-  store_id: number | null;
-  setStoreId: (panelId: number) => void;
+  storeId: number | null;
+  setStoreId: (storeId: number) => void;
   isLoading: boolean;
-  isCsrfLoading: boolean;
   error: Error | null;
-  csrfError: Error | null;
 }
 
 const getDomain = () => {
@@ -43,37 +41,32 @@ const getDomain = () => {
 const domain = getDomain();
 const API_URL =
   process.env.NODE_ENV === "development"
-    ? "https://validpanel.com:6060"
-    : `https://${domain}/sys/api`;
+    ? "https://validpanel.com/social-media-store/backend/api/v1"
+    : `https://${domain}/social-media-store/backend/api/v1`;
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
-  const [store_id, setStoreId] = useState<number | null>(() => {
+  const [storeId, setStoreId] = useState<number | null>(() => {
     if (typeof window === "undefined") return null;
-    const storedStoreId = localStorage.getItem("store_id");
+    const storedStoreId = localStorage.getItem("storeId");
     const parsedId =
       storedStoreId && !isNaN(parseInt(storedStoreId, 10))
         ? parseInt(storedStoreId, 10)
         : null;
     if (storedStoreId && !parsedId) {
-      localStorage.removeItem("store_id");
+      localStorage.removeItem("storeId");
     }
     return parsedId;
   });
 
-  const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [userInfo, setUserInfo] = useState<UserProps | null>(null);
 
   const handleSetStoreId = (storeId: number) => {
     setStoreId(storeId);
     if (typeof window !== "undefined") {
-      localStorage.setItem("store_id", storeId.toString());
+      localStorage.setItem("storeId", storeId.toString());
     }
-  };
-
-  const handleSetCsrfToken = (token: string) => {
-    setCsrfToken(token);
   };
 
   const handleSetUserInfo = (user: UserProps | null) => {
@@ -91,63 +84,35 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         },
         withCredentials: true,
       }),
-    [],
+    []
   );
 
-  useEffect(() => {
-    // Dynamically set the CSRF token on the API instance after it's fetched.
-    if (csrfToken) {
-      api.defaults.headers.common["X-CSRF-Token"] = csrfToken;
-    }
-  }, [csrfToken, api]);
-
   const { error, isLoading } = useQuery({
-    queryKey: ["store_id", domain],
+    queryKey: ["storeId", domain],
     queryFn: async () => {
-      const res = await axios.get(`${API_URL}/store/data?domain=${domain}`);
-      if (!res.data || !res.data.store_id) {
-        throw new Error("No store_id found for this domain");
+      const res = await axios.get(`${API_URL}/stores/data?domain=${domain}`);
+      if (!res.data || !res.data.storeId) {
+        throw new Error("No storeId found for this domain");
       }
-      const { store_id } = res.data;
-      handleSetStoreId(store_id);
-      return store_id;
+      const { storeId } = res.data;
+      handleSetStoreId(storeId);
+      return storeId;
     },
-    enabled: typeof window !== "undefined" && store_id === null,
+    enabled: typeof window !== "undefined" && storeId === null,
     retry: false,
-  });
-
-  const { error: csrfError, isLoading: isCsrfLoading } = useQuery({
-    queryKey: ["csrfToken"],
-    queryFn: async () => {
-      const res = await axios.get(
-        `${API_URL}/store/csrf-token?domain=${domain}`,
-        {
-          withCredentials: true,
-        },
-      );
-      if (!res.data || !res.data.csrfToken) {
-        throw new Error("No CSRF token found");
-      }
-      const { csrfToken } = res.data;
-      handleSetCsrfToken(csrfToken);
-      return csrfToken;
-    },
-    retry: 3,
   });
 
   return (
     <AppContext.Provider
       value={{
         userInfo,
-        store_id,
+        storeId,
         api,
         setUserInfo: handleSetUserInfo,
         setStoreId: handleSetStoreId,
         domain,
         isLoading,
-        isCsrfLoading,
         error,
-        csrfError,
       }}
     >
       {children}

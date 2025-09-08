@@ -21,7 +21,7 @@ export default function Signin() {
     password: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { store_id, domain } = useAppContext();
+  const { storeId, domain } = useAppContext();
   const { mutate, isPending } = useUserLogin();
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -56,7 +56,7 @@ export default function Signin() {
         {
           email: formData.email,
           password: formData.password,
-          store_id: store_id || 0, // Ensure store_id is a number
+          storeId: storeId || 0, // Ensure storeId is a number
         },
         {
           onError: (error) => {
@@ -81,7 +81,7 @@ export default function Signin() {
   const handleGoogleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     router.push(
-      `https://auth.validpanel.com/api/auth/store/google?store_id=${store_id}&redirect=https://${domain}/client/dashboard`,
+      `https://auth.validpanel.com/api/auth/store/google?storeId=${storeId}&redirect=https://${domain}/client/dashboard`,
     );
   };
 

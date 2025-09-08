@@ -16,7 +16,7 @@ export function HeroSection() {
           transition={{ duration: 0.8, ease: "easeOut", type: "spring", stiffness: 100 }}
           className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4"
         >
-          Premier SMM Panel
+          Premier Social Media Store 
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 30 }}

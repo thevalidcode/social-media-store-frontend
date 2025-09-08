@@ -26,17 +26,17 @@ export default function Signup() {
 
   const domain = window.location.hostname;
   const { mutate, isPending } = useCreateUser();
-  const { store_id } = useAppContext();
+  const { storeId } = useAppContext();
   const queryClient = useQueryClient();
   const router = useRouter();
-  if (!store_id) {
+  if (!storeId) {
     return (
       <div className="h-[calc(100vh-4rem)] flex items-center justify-center p-4 md:p-8 mt-16">
         <Card className="w-full max-w-md shadow-xl mx-auto">
           <CardContent className="space-y-8 p-6 sm:p-8">
             <div className="text-center">
               <p className="text-destructive">
-                Panel configuration not found. Please try again later.
+                Store configuration not found. Please try again later.
               </p>
             </div>
           </CardContent>
@@ -107,7 +107,7 @@ export default function Signup() {
   const handleGoogleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     router.push(
-      `https://auth.validpanel.com/api/auth/store/google?store_id=${store_id}&redirect=${domain}/client/dashboard`,
+      `https://auth.validpanel.com/api/auth/social-media-store/google?storeId=${storeId}&redirect=${domain}/client/dashboard`,
     );
   };
   const handleSubmit = (e: React.FormEvent) => {
@@ -117,7 +117,7 @@ export default function Signup() {
         {
           email: formData.email,
           password: formData.password,
-          store_id: store_id,
+          storeId: storeId,
           username: formData.username,
           ref: formData.ref ? Number(formData.ref) : undefined,
         },

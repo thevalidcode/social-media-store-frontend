@@ -56,11 +56,11 @@ export const usePatchBlog = () => {
 
 
 export const useGetBlogById = (blog_id: string) => {
-  const { api, store_id } = useAppContext()
+  const { api, storeId } = useAppContext()
   return useQuery({
     queryKey: ["blog_id", blog_id],
     queryFn: async () => {
-      const res = await api.get(`/blog/${blog_id}?store_id=${store_id}`)
+      const res = await api.get(`/blog/${blog_id}?storeId=${storeId}`)
       if (!res.data) {
         throw new Error("an error occurred, failed to get blog data")
         return res.data

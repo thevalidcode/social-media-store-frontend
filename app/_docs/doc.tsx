@@ -179,7 +179,7 @@ export const metrics = [
   },
   {
     icon: <BoxIcon />,
-    label: "Panel Orders",
+    label: "Store Orders",
     value: 61748,
   },
   {

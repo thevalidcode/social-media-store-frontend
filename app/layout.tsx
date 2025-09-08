@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "valid panel",
-  description: "social media panel",
+  title: "Social Media Store",
+  description: "The best social media services resellers",
 };
 
 export default function RootLayout({

@@ -9,13 +9,15 @@ interface WithAuthProps<P extends object> {
 
 const withAuth = <P extends object>({ WrappedComponent }: WithAuthProps<P>) => {
   const AuthenticatedComponent = (props: P) => {
-    const { userInfo, isLoading, isCsrfLoading } = useAppContext();
+    const { userInfo, isLoading } = useAppContext();
 
     // While loading, return null or a loading indicator.
     // The middleware handles redirection for unauthorized access.
-    if (isLoading || isCsrfLoading || !userInfo) {
-      return null; // Or a loading spinner/component
-    }
+
+    // Uncomment the code below when fixing the authentication flow.
+    // if (isLoading || !userInfo) {
+    //   return null; // Or a loading spinner/component
+    // }
 
     // If authenticated and authorized (middleware already handled server-side check),
     // render the wrapped component.
