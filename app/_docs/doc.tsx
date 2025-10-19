@@ -1,10 +1,12 @@
+import { ChartConfig } from "@/components/ui/chart";
+import { Blog, SupportTicket, SupportTicketAdmin } from "@/types";
 import { BoxIcon, DollarSignIcon, ShoppingCartIcon, XIcon } from "lucide-react";
 
 export const sortBy = [
-  { value: "default", label: "sort by default" },
-  { value: "alphabetical", label: "sort by alphabetical" },
-  { value: "id", label: "sort by id" },
-  { value: "date", label: "sort by date" },
+  { value: "default", label: "Sort by default" },
+  { value: "alphabetical", label: "Sort by alphabet" },
+  { value: "id", label: "Sort by id" },
+  { value: "date", label: "Sort by date" },
 ];
 
 // Service categories array. Each category contains a title and an array of services.
@@ -186,6 +188,197 @@ export const metrics = [
     icon: <DollarSignIcon />,
     label: "You've Spent",
     value: "$0",
+  },
+];
+
+export const ordersData = [
+  { month: "January", orders: 186, completed: 80 },
+  { month: "February", orders: 305, completed: 200 },
+  { month: "March", orders: 237, completed: 120 },
+  { month: "April", orders: 73, completed: 190 },
+  { month: "May", orders: 209, completed: 130 },
+  { month: "June", orders: 214, completed: 140 },
+];
+
+export const ordersConfig = {
+  orders: {
+    label: "Orders",
+    color: "#3b82f6",
+  },
+  completed: {
+    label: "Completed",
+    color: "#f97316",
+  },
+} satisfies ChartConfig;
+
+export const paymentsData = [
+  { month: "January", successful: 12000, failed: 2000 },
+  { month: "February", successful: 19000, failed: 3500 },
+  { month: "March", successful: 15000, failed: 2800 },
+  { month: "April", successful: 8000, failed: 2200 },
+  { month: "May", successful: 14000, failed: 2500 },
+  { month: "June", successful: 16000, failed: 3000 },
+];
+
+export const paymentsConfig = {
+  successful: {
+    label: "Successful",
+    color: "#10b981",
+  },
+  failed: {
+    label: "Failed",
+    color: "#ef4444",
+  },
+} satisfies ChartConfig;
+
+export const POSTS: Blog[] = [
+  {
+    id: 1,
+    slug: "state-of-validflow-in-2025",
+    title: "State of ValidFlow in 2025",
+    excerpt:
+      "Major UI improvements, smarter file rules, and faster local indexing. A short overview of the roadmap and priorities for the year.",
+    content: `
+      <p>ValidFlow is evolving rapidly in 2025. The focus is on improving performance, automation, and usability. 
+      The new version introduces smarter file classification, near-instant indexing, and enhanced desktop integration.</p>
+      <p>Our roadmap includes better rule-based actions, deeper system file hooks, and a cleaner dashboard 
+      built around real user feedback. Expect a faster, smarter, and more intuitive ValidFlow experience.</p>
+    `,
+    status: "active",
+    createdAt: "2025-09-30",
+    updatedAt: "2025-09-30",
+    img: "https://picsum.photos/seed/p1/800/600",
+  },
+  {
+    id: 2,
+    slug: "how-drip-feed-orders-improve-delivery-reliability",
+    title: "How drip-feed orders improve delivery reliability",
+    excerpt:
+      "A technical deep dive into drip-feed scheduling and how staggered deliveries reduce throttling risks for high-volume services.",
+    content: `
+      <p>Drip-feed delivery ensures consistent performance by spreading out actions over time rather than delivering in bursts.
+      This reduces platform throttling, improves order success rates, and maintains a natural growth pattern for social metrics.</p>
+      <p>Our infrastructure optimizes timing automatically, ensuring your deliveries remain both fast and reliable.</p>
+    `,
+    status: "active",
+    createdAt: "2025-08-22",
+    updatedAt: "2025-08-22",
+    img: "https://picsum.photos/seed/p2/800/600",
+  },
+  {
+    id: 3,
+    slug: "design-patterns-for-modern-admin-panels",
+    title: "Design patterns for modern admin panels",
+    excerpt:
+      "Practical UX patterns and layout choices that make admin panels intuitive and maintainable without sacrificing power.",
+    content: `
+      <p>Modern admin panels succeed when they balance simplicity with functionality. 
+      Key principles include predictable navigation, visual hierarchy, and consistent spacing.</p>
+      <p>At Valid, our admin templates follow atomic design principles, providing reusable UI blocks and adaptive layouts 
+      that look great across screen sizes.</p>
+    `,
+    status: "active",
+    createdAt: "2025-07-15",
+    updatedAt: "2025-07-15",
+    img: "https://picsum.photos/seed/p3/800/600",
+  },
+  {
+    id: 4,
+    slug: "quick-wins-shaving-milliseconds-off-page-load",
+    title: "Quick wins: shaving milliseconds off page load",
+    excerpt:
+      "Simple changes that have outsized impact on first contentful paint and perceived speed for web apps.",
+    content: `
+      <p>Optimizing web performance doesn’t always require a full rebuild. 
+      Minifying assets, lazy-loading components, and caching API responses can yield dramatic speed improvements.</p>
+      <p>Even reducing blocking scripts or compressing images properly can shave hundreds of milliseconds off load times.</p>
+    `,
+    status: "active",
+    createdAt: "2025-06-05",
+    updatedAt: "2025-06-05",
+    img: "https://picsum.photos/seed/p4/800/600",
+  },
+  {
+    id: 5,
+    slug: "why-clear-pricing-beats-gimmicks",
+    title: "Why clear pricing beats gimmicks",
+    excerpt:
+      "A short editorial on transparency and how per-unit pricing builds trust with customers and reduces disputes.",
+    content: `
+      <p>Transparency is the cornerstone of long-term trust. 
+      Clear per-unit pricing eliminates confusion and builds confidence between providers and customers.</p>
+      <p>Instead of hiding behind flashy discounts or vague bundles, Valid Plug prioritizes clarity and fairness in every transaction.</p>
+    `,
+    status: "active",
+    createdAt: "2025-05-01",
+    updatedAt: "2025-05-01",
+    img: "https://picsum.photos/seed/p5/800/600",
+  },
+];
+
+export const mockTickets: SupportTicketAdmin[] = [
+  {
+    id: 1,
+    subject: "Unable to access my account",
+    status: "open",
+    user: { name: "John Smith", email: "john.smith@example.com" },
+    messages: [
+      {
+        sender: "user",
+        text: "I made a payment but it’s not showing yet.",
+        time: "10:00 AM",
+      },
+      {
+        sender: "support",
+        text: "We’re checking this for you.",
+        time: "10:05 AM",
+      },
+    ],
+    message: "I made a payment but it’s not showing yet.",
+    createdAt: "2025-10-10T10:30:00Z",
+    priority: "high",
+  },
+  {
+    id: 2,
+    subject: "Billing issue with subscription",
+    status: "in-progress",
+    user: { name: "Sarah Johnson", email: "sarah.j@company.com" },
+    messages: [
+      {
+        sender: "user",
+        text: "I made a payment but it’s not showing yet.",
+        time: "10:00 AM",
+      },
+      {
+        sender: "support",
+        text: "We’re checking this for you.",
+        time: "10:05 AM",
+      },
+    ],
+    message: "I made a payment but it’s not showing yet.",
+    createdAt: "2025-10-09T09:15:00Z",
+    priority: "medium",
+  },
+  {
+    id: 3,
+    subject: "Feature request: custom reports",
+    status: "closed",
+    user: { name: "Mike Chen", email: "mike.chen@tech.io" },
+    messages: [
+      {
+        sender: "user",
+        text: "I made a payment but it’s not showing yet.",
+        time: "10:00 AM",
+      },
+      {
+        sender: "support",
+        text: "We’re checking this for you.",
+        time: "10:05 AM",
+      },
+    ],
+    message: "I made a payment but it’s not showing yet.",
+    createdAt: "2025-10-08T11:45:00Z",
+    priority: "low",
   },
 ];
 

@@ -1,0 +1,122 @@
+// UserTable.tsx
+"use client";
+
+import React from "react";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import UserStatusBadge from "./UserStatusBadge";
+import UserActionsMenu from "./UserActionsMenu";
+import { User } from "@/types";
+
+export default function UserTable({
+  users,
+  selected,
+  onSelectAll,
+  onSelect,
+  onSort,
+  sortField,
+  sortDirection,
+  onEdit,
+  onDelete,
+  onToggleBan,
+  onActivate,
+}: {
+  users: User[];
+  selected: number[];
+  onSelectAll: (checked: boolean) => void;
+  onSelect: (id: number, checked: boolean) => void;
+  onSort: (field: keyof User) => void;
+  sortField: string;
+  sortDirection: "asc" | "desc";
+  onEdit: (u: User) => void;
+  onDelete: (id: number) => void;
+  onToggleBan: (id: number) => void;
+  onActivate: (id: number) => void;
+}) {
+  return (
+    <div className="rounded-md border overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-12">
+              <Checkbox
+                checked={
+                  selected.length > 0 && selected.length === users.length
+                }
+                onCheckedChange={onSelectAll}
+              />
+            </TableHead>
+            <TableHead>ID</TableHead>
+            <TableHead>Username</TableHead>
+            <TableHead>Balance</TableHead>
+            <TableHead>Spent</TableHead>
+            <TableHead>Registered</TableHead>
+            <TableHead>Last Seen</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {users.map((u) => (
+            <TableRow key={u.id}>
+              <TableCell>
+                <Checkbox
+                  checked={selected.includes(u.id)}
+                  onCheckedChange={(v) => onSelect(u.id, v as boolean)}
+                />
+              </TableCell>
+              <TableCell className="font-medium">{u.id}</TableCell>
+              <TableCell>
+                <div className="flex items-center gap-3 min-w-0">
+                  <img
+                    src={u.image ?? `/avatar.png`}
+                    alt={u.username}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                  <div className="min-w-0">
+                    <div className="font-medium truncate">{u.username}</div>
+                    <div className="text-sm text-muted-foreground truncate">
+                      {u.email}
+                    </div>
+                  </div>
+                </div>
+              </TableCell>
+              <TableCell className="font-medium">
+                ${u.balance.toFixed(2)}
+              </TableCell>
+              <TableCell>${u.spent.toFixed(2)}</TableCell>
+              <TableCell className="text-sm text-muted-foreground">
+                {u.timestamp
+                  ? new Date(u.timestamp).toLocaleDateString()
+                  : "N/A"}
+              </TableCell>
+              <TableCell className="text-sm text-muted-foreground">
+                {u.lastSeen ? new Date(u.lastSeen).toLocaleString() : "N/A"}
+              </TableCell>
+              <TableCell>
+                <UserStatusBadge status={u.status} />
+              </TableCell>
+              <TableCell className="text-right">
+                <UserActionsMenu
+                  user={u}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  onToggleBan={onToggleBan}
+                  onActivate={onActivate}
+                />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}

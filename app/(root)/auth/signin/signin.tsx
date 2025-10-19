@@ -73,7 +73,7 @@ export default function Signin() {
               setErrors({ email: errorMsg, password: "" });
             }
           },
-        },
+        }
       );
     }
   };
@@ -81,7 +81,7 @@ export default function Signin() {
   const handleGoogleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     router.push(
-      `https://auth.validpanel.com/api/auth/store/google?storeId=${storeId}&redirect=https://${domain}/client/dashboard`,
+      `https://auth.validpanel.com/api/auth/store/google?storeId=${storeId}&redirect=https://${domain}/auth/signin`
     );
   };
 

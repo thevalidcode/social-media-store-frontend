@@ -40,7 +40,7 @@ function FileInputRow({ id, label, onFileChange }: FileInputProps) {
       </Label>
       <div className="flex items-center gap-2">
         <Button variant="outline" size="sm" className="relative">
-          <input
+          <Input
             type="file"
             id={id}
             name={id}

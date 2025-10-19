@@ -10,14 +10,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // async rewrites() {
-  //   return [
-  //     {
-  //       source: "/sys/api/:path*",
-  //       destination: "https://validpanel.com:6060/sys/api/:path*",
-  //     },
-  //   ];
-  // },
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination:
+          "https://validpanel.com/social-media-store/backend/api/v1/:path*",
+      },
+    ];
+  },
 };
 
 export default nextConfig;

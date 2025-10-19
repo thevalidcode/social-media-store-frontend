@@ -10,63 +10,62 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 
 interface RecentActivity {
   id: string;
   serviceName: string;
-  description: string;
+  type: string;
   price: string;
-  status: string;
+  icon: string;
+  category: string;
   date: string;
-  serviceUrl: string;
 }
 
 const sampleActivities: RecentActivity[] = [
   {
     id: "11082",
     serviceName: "YouTube Views",
-    description: "YouTube Views - [ Speed: 10K/...",
+    type: "Default",
     price: "$3.01",
-    status: "Default",
     date: "Jun 9th, 2025",
-    serviceUrl: "/services/11082",
+    icon: "",
+    category: "YouTube Views",
   },
   {
     id: "11081",
     serviceName: "YouTube Views [NEW]",
-    description: "YouTube Views - [ Speed: 20K-...",
+    type: "Default",
     price: "$3.046",
-    status: "Default",
     date: "Jun 9th, 2025",
-    serviceUrl: "/services/11081",
+    icon: "",
+    category: "YouTube Views",
   },
   {
     id: "11080",
     serviceName: "YouTube Views [NEW]",
-    description: "YouTube Views - [ Speed: 1000...",
+    type: "Default",
     price: "$2.73",
-    status: "Default",
     date: "Jun 9th, 2025",
-    serviceUrl: "/services/11080",
+    icon: "",
+    category: "YouTube Views",
   },
   {
     id: "11079",
     serviceName: "YouTube Views [NEW]",
-    description: "YouTube Views - [ Speed: 4K-7...",
+    type: "Default",
     price: "$4.396",
-    status: "Default",
     date: "Jun 9th, 2025",
-    serviceUrl: "/services/11079",
+    icon: "",
+    category: "YouTube Views",
   },
   {
     id: "11078",
     serviceName: "YouTube Views [NEW]",
-    description: "YouTube Views - [ Speed: 50K/...",
+    type: "Default",
     price: "$2.582",
-    status: "Default",
     date: "Jun 7th, 2025",
-    serviceUrl: "/services/11078",
+    icon: "",
+    category: "YouTube Views",
   },
 ];
 
@@ -88,11 +87,10 @@ export default function RecentActivity({
           <TableHeader>
             <TableRow>
               <TableHead className="font-medium px-6">ID</TableHead>
-              <TableHead className="font-medium">Service Name</TableHead>
-              <TableHead className="font-medium">Description</TableHead>
+              <TableHead className="font-medium">Name</TableHead>
+              <TableHead className="font-medium">Category</TableHead>
+              <TableHead className="font-medium">Type</TableHead>
               <TableHead className="font-medium">Price</TableHead>
-              <TableHead className="font-medium">Status</TableHead>
-              <TableHead className="font-medium">Date</TableHead>
               <TableHead className="font-medium">Action</TableHead>
             </TableRow>
           </TableHeader>
@@ -105,17 +103,16 @@ export default function RecentActivity({
                 <TableCell className="font-medium">
                   {activity.serviceName}
                 </TableCell>
+                <TableCell className="font-medium">
+                  {activity.category}
+                </TableCell>
                 <TableCell className="max-w-xs truncate">
-                  {activity.description}
+                  {activity.type}
                 </TableCell>
                 <TableCell className="font-medium">{activity.price}</TableCell>
                 <TableCell>
-                  <Badge variant="secondary">{activity.status}</Badge>
-                </TableCell>
-                <TableCell>{activity.date}</TableCell>
-                <TableCell>
                   <Link
-                    href={activity.serviceUrl}
+                    href={`/client/services/${activity.id}`}
                     className="text-primary hover:underline font-medium"
                   >
                     View Service

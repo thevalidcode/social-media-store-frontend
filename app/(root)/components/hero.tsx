@@ -122,7 +122,7 @@ export function HeroSection() {
             , and
             <span className="text-primary font-semibold">
               {" "}
-              genuine engagement
+              genuine engagement{" "}
             </span>
             across all major platforms. Start growing today!
           </motion.p>

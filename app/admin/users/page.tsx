@@ -1,57 +1,296 @@
 "use client";
-import GridCard from "@/app/client/component/referralCard";
-import { UserCheck, UserX, Users, UsersRound } from "lucide-react";
-import UserDataTable from "../components/user-table";
-import { useGetUsers } from "@/hooks/use-user";
 
-// Create a separate component for user stats that handles loading/error states
-function UserStatsGrid() {
-  const { data, isLoading, error } = useGetUsers();
-  if (isLoading) {
-    return <div>Loading user stats...</div>;
-  }
-  if (error) {
-    return <div>Error loading user stats: {error.message}</div>;
-  }
-  if (!data || !Array.isArray(data)) {
-    return <div>No user data available</div>;
-  }
-  const activeUsers = data.filter((user) => user.status === "active").length;
-
-  const bannedUsers = data.filter((user) => user.status === "banned").length;
-  const newUsers = data.filter((user) => user.status === "newUsers").length;
-  const totalUsers = data.length;
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <GridCard
-        title="Total Users"
-        value={totalUsers}
-        icon={<UsersRound className="h-5 w-5" />}
-      />
-      <GridCard
-        title="Active Users"
-        value={activeUsers}
-        icon={<UserCheck className="h-5 w-5" />}
-      />
-      <GridCard
-        title="Banned Users"
-        value={bannedUsers}
-        icon={<UserX className="h-5 w-5" />}
-      />
-      <GridCard
-        title="New Users"
-        value={newUsers}
-        icon={<Users className="h-5 w-5" />}
-      />
-    </div>
-  );
-}
+import React, { useMemo, useState } from "react";
+import UserTable from "./components/UserTable";
+import UserCardList from "./components/UserCardList";
+import DeleteDialog from "./components/DeleteDialog";
+import { mockUsers } from "./mockUsers";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
+import { useIsMobile } from "@/hooks/use-mobile"; // your hook
+import { User } from "@/types";
+import Pagination from "@/components/pagination";
+import EditUserModal from "./components/EditUserModal";
 
 export default function UsersPage() {
+  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [selected, setSelected] = useState<number[]>([]);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | User["status"]>(
+    "all"
+  );
+  const [sortField, setSortField] = useState<keyof User>("id");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteIds, setDeleteIds] = useState<number[]>([]);
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
+  const isMobile = useIsMobile();
+
+  // derived lists
+  const filtered = useMemo(() => {
+    return users.filter((u) => {
+      if (statusFilter !== "all" && u.status !== statusFilter) return false;
+      if (!search) return true;
+      const q = search.toLowerCase();
+      return (
+        u.username.toLowerCase().includes(q) ||
+        u.email.toLowerCase().includes(q)
+      );
+    });
+  }, [users, search, statusFilter]);
+
+  const sorted = useMemo(() => {
+    const arr = [...filtered];
+    arr.sort((a, b) => {
+      const av = a[sortField];
+      const bv = b[sortField];
+      if (typeof av === "string" && typeof bv === "string") {
+        return sortDirection === "asc"
+          ? av.localeCompare(bv)
+          : bv.localeCompare(av);
+      }
+      if (typeof av === "number" && typeof bv === "number") {
+        return sortDirection === "asc" ? av - bv : bv - av;
+      }
+      return 0;
+    });
+    return arr;
+  }, [filtered, sortField, sortDirection]);
+
+  const current = sorted.slice((page - 1) * pageSize, page * pageSize);
+
+  // handlers
+  const toggleSelect = (id: number, checked: boolean) => {
+    setSelected((prev) =>
+      checked ? [...prev, id] : prev.filter((x) => x !== id)
+    );
+  };
+  const selectAllCurrent = (checked: boolean) => {
+    if (checked) setSelected(current.map((u) => u.id));
+    else setSelected([]);
+  };
+  const handleSort = (field: keyof User) => {
+    if (sortField === field)
+      setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+    else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
+  const handleEdit = (user: User) => {
+    setEditingUser(user);
+    setIsEditOpen(true);
+  };
+
+  const handleSaveUser = (updatedUser: any) => {
+    setUsers((prev: any[]) =>
+      prev.map((u) => (u.id === updatedUser.id ? updatedUser : u))
+    );
+  };
+
+  const handleDeleteSingle = (id: number) => {
+    setDeleteIds([id]);
+    setDeleteOpen(true);
+  };
+  const handleDeleteConfirm = () => {
+    setUsers((prev) => prev.filter((u) => !deleteIds.includes(u.id)));
+    setSelected((prev) => prev.filter((id) => !deleteIds.includes(id)));
+    setDeleteIds([]);
+  };
+
+  const handleDeleteSelected = () => {
+    if (selected.length === 0) return;
+    setDeleteIds(selected);
+    setDeleteOpen(true);
+  };
+
+  const handleToggleBan = (id: number) => {
+    setUsers((prev) =>
+      prev.map((u) =>
+        u.id === id
+          ? { ...u, status: u.status === "banned" ? "active" : "banned" }
+          : u
+      )
+    );
+  };
+
+  const handleActivate = (id: number) => {
+    setUsers((prev) =>
+      prev.map((u) => (u.id === id ? { ...u, status: "active" } : u))
+    );
+  };
+
+  const namesForDelete = users
+    .filter((u) => deleteIds.includes(u.id))
+    .map((u) => u.username);
+
   return (
-    <main className="space-y-6">
-      <UserStatsGrid />
-      <UserDataTable />
+    <main className="p-6 space-y-6">
+      {/* Header / controls */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <Input
+            placeholder="Search users..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="w-full md:w-72"
+          />
+          <Select
+            value={statusFilter}
+            onValueChange={(v) => {
+              setStatusFilter(v as any);
+              setPage(1);
+            }}
+          >
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="offline">Offline</SelectItem>
+              <SelectItem value="away">Away</SelectItem>
+              <SelectItem value="banned">Banned</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setUsers(mockUsers);
+              setSelected([]);
+              setSearch("");
+              setStatusFilter("all");
+              setPage(1);
+            }}
+          >
+            Reset
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleDeleteSelected}
+            disabled={selected.length === 0}
+          >
+            Delete Selected
+          </Button>
+        </div>
+      </div>
+
+      {/* Bulk selection bar */}
+      {selected.length > 0 && (
+        <div className="flex items-center justify-between bg-muted p-3 rounded-lg">
+          <div className="text-sm text-muted-foreground">
+            {selected.length} selected
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() =>
+                setUsers((prev) =>
+                  prev.map((u) =>
+                    selected.includes(u.id) ? { ...u, status: "active" } : u
+                  )
+                )
+              }
+            >
+              Activate
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() =>
+                setUsers((prev) =>
+                  prev.map((u) =>
+                    selected.includes(u.id) ? { ...u, status: "banned" } : u
+                  )
+                )
+              }
+            >
+              Ban
+            </Button>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={handleDeleteSelected}
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Responsive content */}
+      {!isMobile ? (
+        <UserTable
+          users={current}
+          selected={selected}
+          onSelectAll={selectAllCurrent}
+          onSelect={toggleSelect}
+          onSort={handleSort}
+          sortField={String(sortField)}
+          sortDirection={sortDirection}
+          onEdit={handleEdit}
+          onDelete={handleDeleteSingle}
+          onToggleBan={handleToggleBan}
+          onActivate={handleActivate}
+        />
+      ) : (
+        <UserCardList
+          users={current}
+          selected={selected}
+          onSelect={toggleSelect}
+          onEdit={handleEdit}
+          onDelete={handleDeleteSingle}
+          onToggleBan={handleToggleBan}
+          onActivate={handleActivate}
+        />
+      )}
+
+      {/* Pagination */}
+      <Pagination
+        page={page}
+        pageSize={pageSize}
+        totalItems={sorted.length}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+        pageSizeOptions={[10, 20, 50]}
+      />
+
+      {/* Delete dialog */}
+      <DeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onConfirm={handleDeleteConfirm}
+        count={deleteIds.length}
+        names={namesForDelete}
+      />
+
+      {/* Edit user modal */}
+      <EditUserModal
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        user={editingUser}
+        onSave={handleSaveUser}
+      />
     </main>
   );
 }

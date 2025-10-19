@@ -20,8 +20,7 @@ function AdminLayoutComponent({ children }: { children: React.ReactNode }) {
       <MemoizedSidebar />
       <SidebarInset>
         <SidebarTrigger />
-
-        <Wrapper className="max-w-[90rem] md:py-5 ">{children}</Wrapper>
+        <Wrapper className="max-w-[90rem] md:py-5">{children}</Wrapper>
       </SidebarInset>
     </SidebarProvider>
   );
@@ -30,5 +29,5 @@ function AdminLayoutComponent({ children }: { children: React.ReactNode }) {
 // Export the wrapped component as the default export for the layout
 export default withAuth({
   WrappedComponent: AdminLayoutComponent,
-  allowedRoles: ["admin"],
+  userType: "admin",
 });

@@ -1,5 +1,7 @@
 "use client";
 
+import React from "react";
+import { motion } from "framer-motion";
 import { TypographyH2, TypographyP } from "@/components/typography";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -12,13 +14,9 @@ export default function ReferralComponent() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast.success("Link copied to clipboard", {
-      position: "top-center",
-      richColors: true,
-    });
+    toast.success("Referral link copied successfully");
   };
 
-  // Mock data - replace with actual data from your API
   const referralStats = {
     totalReferrals: 12,
     totalEarnings: 2450.75,
@@ -27,22 +25,33 @@ export default function ReferralComponent() {
   };
 
   return (
-    <div className=" space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35 }}
+      className="space-y-8 w-full max-w-5xl mx-auto"
+    >
       {/* Main Referral Card */}
-      <Card className="w-full max-w-4xl mx-auto shadow-none">
-        <CardHeader className="text-center">
-          <TypographyH2>
+      <Card className="border border-border bg-card rounded-2xl shadow-sm overflow-hidden">
+        <CardHeader className="text-center space-y-3 pt-8">
+          <div className="flex justify-center items-center gap-2 text-primary">
             <TrendingUp className="h-6 w-6" />
-            Join Our Affiliate Program
-          </TypographyH2>
-          <TypographyP>
-            Earn 10% commission for every order placed by your referral. Start
-            earning today!
+            <TypographyH2>Join Our Affiliate Program</TypographyH2>
+          </div>
+          <TypographyP className="text-sm text-muted-foreground max-w-xl mx-auto">
+            Earn <strong>10% commission</strong> for every order placed by your
+            referrals. Share your link and start earning instantly.
           </TypographyP>
         </CardHeader>
-        <CardContent className="space-y-6">
+
+        <CardContent className="p-6 sm:p-8 space-y-6">
           {/* Referral Link Section */}
-          <div className="flex flex-col sm:flex-row gap-3 p-4 border rounded-lg bg-muted/50">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-col sm:flex-row gap-3 p-4 border rounded-xl bg-muted/40"
+          >
             <div className="flex-1">
               <p className="text-sm font-medium mb-1">Your Referral Link</p>
               <p className="text-sm text-muted-foreground font-mono break-all">
@@ -51,41 +60,47 @@ export default function ReferralComponent() {
             </div>
             <Button
               onClick={() => copyToClipboard(referralLink)}
-              className="shrink-0"
               size="sm"
+              variant="default"
+              className="sm:w-auto w-full"
             >
               <Copy className="h-4 w-4 mr-2" />
               Copy Link
             </Button>
-          </div>
+          </motion.div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.15, duration: 0.4 }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+          >
             <GridCard
-              icon={<Users className="h-5 w-5" />}
+              icon={<Users className="h-5 w-5 text-primary" />}
               title="Total Referrals"
               value={referralStats.totalReferrals}
             />
             <GridCard
-              icon={<DollarSign className="h-5 w-5" />}
+              icon={<DollarSign className="h-5 w-5 text-primary" />}
               title="Total Earnings"
               value={referralStats.totalEarnings}
-              valueFormatter={(val) => `$${val.toFixed(2)}`}
+              valueFormatter={(v) => `$${v.toFixed(2)}`}
             />
             <GridCard
-              icon={<Users className="h-5 w-5" />}
+              icon={<Users className="h-5 w-5 text-primary" />}
               title="Active Referrals"
               value={referralStats.activeReferrals}
             />
             <GridCard
-              icon={<TrendingUp className="h-5 w-5" />}
+              icon={<TrendingUp className="h-5 w-5 text-primary" />}
               title="This Month"
               value={referralStats.monthlyEarnings}
-              valueFormatter={(val) => `$${val.toFixed(2)}`}
+              valueFormatter={(v) => `$${v.toFixed(2)}`}
             />
-          </div>
+          </motion.div>
         </CardContent>
       </Card>
-    </div>
+    </motion.div>
   );
 }

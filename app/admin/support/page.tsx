@@ -1,5 +1,5 @@
-import AdminSupportTable from "../components/support";
+import SupportList from "./components/SupportList";
 
 export default function SupportPage() {
-  return <AdminSupportTable />;
+  return <SupportList />;
 }

@@ -2,27 +2,59 @@
 
 import { useQuery } from "@tanstack/react-query";
 import axios, { AxiosInstance } from "axios";
-import { createContext, useContext, useState, useMemo } from "react";
+import { createContext, useContext, useState, useMemo, useEffect } from "react";
+import Cookies from "js-cookie";
+import { get, set } from "idb-keyval";
 
 interface UserProps {
   id?: number;
   role?: string;
   username?: string;
+  fullName?: string;
   email?: string;
   status?: string;
   timeStamp: string;
-  api_key?: string;
-  last_seen?: string;
+  apiKey?: string;
+  balance?: string;
+  lastSeen?: string;
   image?: string;
   storeId?: number;
   uid?: string;
 }
 
+interface AdminProps {
+  id?: number;
+  role?: string;
+  username?: string;
+  fullName?: string;
+  email?: string;
+  status?: string;
+  timeStamp: string;
+  apiKey?: string;
+  lastSeen?: string;
+  image?: string;
+  storeId?: number;
+  uid?: string;
+}
+
+interface GeneralSettingProps {
+  storeName?: string;
+  logoUrl?: string;
+  storeDescription?: string;
+  storeId?: string;
+  faviconUrl?: string;
+  defaultClientCurrency?: string;
+}
+
 interface AppContextType {
   api: AxiosInstance;
+  generalSetting: GeneralSettingProps | null;
+  isStoreGeneralSettingsLoading: boolean;
   domain: string;
   userInfo: UserProps | null;
+  adminInfo: AdminProps | null;
   setUserInfo: (user: UserProps | null) => void; // Allow setting to null for logout
+  setAdminInfo: (user: AdminProps | null) => void; // Allow setting to null for logout
   storeId: number | null;
   setStoreId: (storeId: number) => void;
   isLoading: boolean;
@@ -41,7 +73,7 @@ const getDomain = () => {
 const domain = getDomain();
 const API_URL =
   process.env.NODE_ENV === "development"
-    ? "https://validpanel.com/social-media-store/backend/api/v1"
+    ? "/api" // ← local proxy path
     : `https://${domain}/social-media-store/backend/api/v1`;
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -61,6 +93,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   const [userInfo, setUserInfo] = useState<UserProps | null>(null);
+  const [adminInfo, setAdminInfo] = useState<AdminProps | null>(null);
+  const [generalSetting, setGeneralSetting] =
+    useState<GeneralSettingProps | null>(null);
 
   const handleSetStoreId = (storeId: number) => {
     setStoreId(storeId);
@@ -69,23 +104,78 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const handleSetUserInfo = (user: UserProps | null) => {
-    // Update user info in both state and localStorage.
+  // Load user from IndexedDB on mount
+  useEffect(() => {
+    const loadUserInfo = async () => {
+      try {
+        const storedUser = await get<UserProps | null>("userInfo");
+        if (storedUser) setUserInfo(storedUser);
+        const storedAdmin = await get<AdminProps | null>("adminInfo");
+        if (storedAdmin) setAdminInfo(storedAdmin);
+      } catch (err) {
+        console.error("Failed to load user info from IndexedDB:", err);
+      }
+    };
+    loadUserInfo();
+  }, []);
+
+  useEffect(() => {
+    const saveAuthInfo = async () => {
+      try {
+        const key = userInfo ? "userInfo" : adminInfo ? "adminInfo" : null;
+        if (key) {
+          await set(key, userInfo || adminInfo);
+        } else {
+          await set("userInfo", null);
+          await set("adminInfo", null);
+        }
+      } catch (err) {
+        console.error("Failed to save auth info:", err);
+      }
+    };
+    saveAuthInfo();
+  }, [userInfo, adminInfo]);
+
+  const handleSetUserInfo = async (user: UserProps | null) => {
+    // Update state
     setUserInfo(user);
   };
 
+  const handleSetAdminInfo = async (admin: AdminProps | null) => {
+    // Update state
+    setAdminInfo(admin);
+  };
+
   // Memoize the api instance to avoid re-creating it on every render.
-  const api = useMemo(
-    () =>
-      axios.create({
-        baseURL: API_URL,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      }),
-    []
-  );
+  const api = useMemo(() => {
+    const newAxios = axios.create({
+      baseURL: API_URL,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+
+    // Request interceptor → attach CSRF token
+    newAxios.interceptors.request.use((config) => {
+      const csrfToken = Cookies.get("csrf_token");
+      if (csrfToken) {
+        config.headers["X-CSRF-Token"] = csrfToken;
+      }
+      return config;
+    });
+
+    // Response interceptor → refresh CSRF token if server sends a new one
+    newAxios.interceptors.response.use((response) => {
+      const newToken = response.headers["x-csrf-token"];
+      if (newToken) {
+        Cookies.set("csrf_token", newToken);
+      }
+      return response;
+    });
+
+    return newAxios; // ✅ return it so api is usable
+  }, [API_URL]);
 
   const { error, isLoading } = useQuery({
     queryKey: ["storeId", domain],
@@ -102,16 +192,32 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     retry: false,
   });
 
+  const { isLoading: isStoreGeneralSettingsLoading } = useQuery({
+    queryKey: ["storeSettings", storeId],
+    queryFn: async () => {
+      const res = await api.get(`/stores/${storeId}/general-data`);
+      if (!res.data) {
+        throw new Error("No General Settings found for this store");
+      }
+      setGeneralSetting(res.data);
+      return res.data;
+    },
+  });
+
   return (
     <AppContext.Provider
       value={{
         userInfo,
+        adminInfo,
         storeId,
         api,
         setUserInfo: handleSetUserInfo,
+        setAdminInfo: handleSetAdminInfo,
         setStoreId: handleSetStoreId,
         domain,
         isLoading,
+        generalSetting,
+        isStoreGeneralSettingsLoading,
         error,
       }}
     >

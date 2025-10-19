@@ -22,7 +22,7 @@ export function useCreateUser() {
     mutationFn: async (newUser: NewUser) => {
       if (!storeId) {
         throw new Error(
-          "Store configuration not found. Please contact support.",
+          "Store configuration not found. Please contact support."
         );
       }
 
@@ -109,21 +109,13 @@ export function useUserLogin() {
       return res.data;
     },
     onSuccess: async (data) => {
-      if (!data.role) {
-        throw new Error("Login failed: User role is missing in response.");
-      }
-
-      const storeEndPoint =
-        data.role === "admin" ? `/store/current-admin` : `/store/current-user`;
-
-      // The 'withCredentials' option is now set globally in the API context.
-      const res = await api.get(`${storeEndPoint}`);
-      // Set user info in context, which also persists it to localStorage.
+      const res = await api.get(`/stores/current-user`);
+      // Set user info in context, which also persists it to IndexedDB.
       setUserInfo({
         ...res.data,
       });
       // Redirect to the appropriate dashboard. The user session is now active.
-      router.push(data.role === "admin" ? "/admin/users" : "/client/dashboard");
+      router.push("/client/dashboard");
     },
     onError: (error: unknown) => {
       // Enhanced error extraction for better user feedback

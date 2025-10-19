@@ -4,10 +4,12 @@ import {
   BarChart,
   Bell,
   BookOpen,
+  CreditCard,
   HelpCircle,
   LogIn,
   Menu,
-  Search,
+  MessageCircle,
+  Network,
   Settings,
   Shield,
   ShoppingCart,
@@ -15,8 +17,6 @@ import {
   Users,
 } from "lucide-react";
 import type * as React from "react";
-
-import { TypographyInlineCode } from "@/components/typography";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -34,27 +34,25 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
-  SidebarInput,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { SettingsDialog } from "./setting-dailog";
+import { usePathname, useRouter } from "next/navigation";
+import { useAppContext } from "@/context/appContext";
 
 // Admin navigation data
 const adminNavigationItems = [
   {
-    title: "Control Panel",
+    title: "Management",
     items: [
       {
         title: "Users",
         url: "/admin/users",
         icon: Users,
       },
-
       {
         title: "Orders",
         url: "/admin/orders",
@@ -65,21 +63,48 @@ const adminNavigationItems = [
         url: "/admin/services",
         icon: Shield,
       },
+      { title: "Providers", url: "/admin/providers", icon: Network },
+    ],
+  },
+  {
+    title: "Content",
+    items: [
       {
         title: "Blogs",
         url: "/admin/blogs",
         icon: BookOpen,
       },
       {
+        title: "Support",
+        url: "/admin/support",
+        icon: MessageCircle,
+      },
+      {
+        title: "FAQs",
+        url: "/admin/faqs",
+        icon: HelpCircle,
+      },
+    ],
+  },
+  {
+    title: "Reports",
+    items: [
+      {
         title: "Analytics",
         url: "/admin/analytics",
         icon: BarChart,
       },
+    ],
+  },
+  {
+    title: "System",
+    items: [
       {
-        title: "Support",
-        icon: HelpCircle,
-        url: "/admin/support",
+        title: "Payment Methods",
+        url: "/admin/payment-methods",
+        icon: CreditCard,
       },
+      { title: "Settings", url: "/admin/settings", icon: Settings },
     ],
   },
 ];
@@ -92,6 +117,22 @@ export function AdminSidebar({
     return pathname === path;
   };
 
+  const router = useRouter();
+
+  const {
+    generalSetting,
+    isStoreGeneralSettingsLoading,
+    adminInfo,
+    setAdminInfo,
+  } = useAppContext();
+
+  if (isStoreGeneralSettingsLoading) return <div>Loading...</div>;
+
+  const handleAuthAction = () => {
+    setAdminInfo(null);
+    router.push("/admin/auth/signin");
+  };
+
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
@@ -100,30 +141,18 @@ export function AdminSidebar({
             <SidebarMenuButton size="md" asChild>
               <Link href="/admin/users">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  {/* Store Logo */}
                   <Menu className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">
-                    <TypographyInlineCode>Admin Panel</TypographyInlineCode>
+                  <span className="truncate text-xs">
+                    {generalSetting?.storeName || "Social Media Store"}
                   </span>
-                  <span className="truncate text-xs">Control Center</span>
                 </div>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        <form>
-          <SidebarGroup className="py-0">
-            <SidebarGroupContent className="relative">
-              <SidebarInput
-                id="search"
-                placeholder="Search..."
-                className="pl-8"
-              />
-              <Search className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 select-none opacity-50" />
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </form>
       </SidebarHeader>
       <SidebarContent>
         {adminNavigationItems.map((group) => (
@@ -148,7 +177,6 @@ export function AdminSidebar({
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
-                <SettingsDialog />
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -171,8 +199,12 @@ export function AdminSidebar({
                     <AvatarFallback className="rounded-lg">AD</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">Admin User</span>
-                    <span className="truncate text-xs">admin@example.com</span>
+                    <span className="truncate font-semibold">
+                      {adminInfo?.fullName || " Admin User"}
+                    </span>
+                    <span className="truncate text-xs">
+                      {adminInfo?.email || "admin@validpanel.com"}
+                    </span>
                   </div>
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
@@ -192,28 +224,22 @@ export function AdminSidebar({
                       <AvatarFallback className="rounded-lg">AD</AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">Admin User</span>
+                      <span className="truncate font-semibold">
+                        {adminInfo?.fullName || "Admin User"}
+                      </span>
                       <span className="truncate text-xs">
-                        admin@example.com
+                        {adminInfo?.email || "admin@validpanel.com"}
                       </span>
                     </div>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/admin/profile")}>
                   <User />
                   Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings />
-                  Settings
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Bell />
-                  Notifications
-                </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleAuthAction}>
                   <LogIn />
                   Log out
                 </DropdownMenuItem>

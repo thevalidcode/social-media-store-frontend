@@ -5,31 +5,12 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Wrapper from "@/components/wrapper";
 import { memo, useCallback } from "react";
 import { TopNav } from "./component/nav";
+import withAuth from "@/lib/withAuth";
 
 // Memoize the sidebar to prevent re-renders
 const MemoizedSidebar = memo(AppSidebar);
 
-export default function SidebarLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  // const { apiUrl, storeId } = useAppContext();
-  //
-  // const { isLoading, error } = useQuery({
-  //   queryKey: ["site_styles"],
-  //   queryFn: async () => {
-  //     const res = await axios.get(
-  //       `${apiUrl}/store/styles?storeId=${storeId}`
-  //     );
-  //     if (!res.data) {
-  //       return;
-  //     }
-  //     localStorage.setItem("site_styles", res.data);
-  //   },
-  //   enabled: typeof window !== "undefined" && !storeId,
-  // });
-  //
+export function SidebarLayout({ children }: { children: React.ReactNode }) {
   const renderLayout = useCallback(
     () => (
       <SidebarProvider>
@@ -40,9 +21,21 @@ export default function SidebarLayout({
         </SidebarInset>
       </SidebarProvider>
     ),
-    [children],
+    [children]
   );
 
   // Check loading state after all hooks have been called
   return renderLayout();
 }
+
+// Export the wrapped component as the default export for the layout
+export default withAuth({
+  WrappedComponent: SidebarLayout,
+  userType: "user",
+  excludePaths: [
+    "/client/services",
+    "/client/faq",
+    "/client/blog",
+    "/client/api-docs",
+  ],
+});

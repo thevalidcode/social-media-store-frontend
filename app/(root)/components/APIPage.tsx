@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import { ApiEndpoint } from "./ApiEndpoint";
+import { useAppContext } from "@/context/appContext";
 
 // All example data for API documentation
 const servicesValue = [
@@ -66,6 +69,7 @@ const statusesValue = {
 const balanceValue = { balance: 6543.8373, currency: "USD" };
 
 export default function APISection() {
+  const { domain } = useAppContext();
   return (
     <div className="relative py-24 bg-background overflow-hidden">
       <div
@@ -91,7 +95,7 @@ export default function APISection() {
           title="API Info"
           description="Basic information about our API."
           method="POST"
-          endpoint="https://validplug.com.ng/api/v2"
+          endpoint={`https://${domain}/api/v2`}
           parameters={[["Response Format", "JSON"]]}
           exampleResponse=""
         />
@@ -100,7 +104,7 @@ export default function APISection() {
           title="Services List"
           description="Retrieve a list of all available services."
           method="POST"
-          endpoint="https://validplug.com.ng/api/v2"
+          endpoint={`https://${domain}/api/v2`}
           parameters={[
             ["key", "Your API key"],
             ["action", "services"],
@@ -112,7 +116,7 @@ export default function APISection() {
           title="Add Order"
           description="Place a new order for a service."
           method="POST"
-          endpoint="https://validplug.com.ng/api/v2"
+          endpoint={`https://${domain}/api/v2`}
           parameters={[
             ["key", "Your API key"],
             ["action", "add"],
@@ -129,7 +133,7 @@ export default function APISection() {
           title="Order Status"
           description="Check the status of a single order."
           method="POST"
-          endpoint="https://validplug.com.ng/api/v2"
+          endpoint={`https://${domain}/api/v2`}
           parameters={[
             ["key", "Your API key"],
             ["action", "status"],
@@ -142,7 +146,7 @@ export default function APISection() {
           title="Multiple Order Status"
           description="Check the status of multiple orders at once."
           method="POST"
-          endpoint="https://validplug.com.ng/api/v2"
+          endpoint={`https://${domain}/api/v2`}
           parameters={[
             ["key", "Your API key"],
             ["action", "status"],
@@ -155,7 +159,7 @@ export default function APISection() {
           title="User Balance"
           description="Check your account balance."
           method="POST"
-          endpoint="https://validplug.com.ng/api/v2"
+          endpoint={`https://${domain}/api/v2`}
           parameters={[
             ["key", "Your API key"],
             ["action", "balance"],

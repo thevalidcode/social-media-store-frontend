@@ -1,6 +1,7 @@
 "use client";
 
 import { TypographySmall } from "@/components/typography";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -10,6 +11,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
@@ -43,6 +46,12 @@ interface Order {
   start_count: number;
   remains: number;
   currency: string;
+}
+
+interface OrderTableProps {
+  orders?: Order[];
+  isLoading: boolean;
+  rowClassName?: string;
 }
 
 // Fetch orders based on status
@@ -101,50 +110,150 @@ export function OrdersTab() {
   );
 
   // Order table component
+
   const OrderTable = ({
     orders,
     isLoading,
     rowClassName = "",
-  }: {
-    orders?: Order[];
-    isLoading: boolean;
-    rowClassName?: string;
-  }) => {
+  }: OrderTableProps) => {
     if (isLoading) return <LoadingState />;
+
     if (!orders?.length)
       return (
         <div className="flex items-center justify-center min-h-[50dvh] w-full">
-          <p className="text-muted-foreground">No orders found</p>
+          <p className="text-muted-foreground text-sm">No orders found</p>
         </div>
       );
 
     return (
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Order ID</TableHead>
-            <TableHead>Service</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Quantity</TableHead>
-            <TableHead>Price</TableHead>
-            <TableHead>Status</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {orders.map((order) => (
-            <TableRow key={order.order} className={rowClassName}>
-              <TableCell>{order.order}</TableCell>
-              <TableCell>{order.service}</TableCell>
-              <TableCell>{order.category}</TableCell>
-              <TableCell>{order.quantity}</TableCell>
-              <TableCell>
-                {order.price} {order.currency}
-              </TableCell>
-              <TableCell>{order.status}</TableCell>
-            </TableRow>
+      <div className="space-y-6">
+        {/* --- Desktop Table --- */}
+        <div className="hidden md:block">
+          <Table className="border border-border bg-card rounded-lg overflow-hidden shadow-sm">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-28">Order ID</TableHead>
+                <TableHead>Service</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead className="text-center">Quantity</TableHead>
+                <TableHead className="text-center">Price</TableHead>
+                <TableHead className="text-center">Status</TableHead>
+              </TableRow>
+            </TableHeader>
+
+            <TableBody>
+              {orders.map((order, idx) => (
+                <TableRow
+                  key={order.order}
+                  className={cn(
+                    "hover:bg-muted/40 transition-colors",
+                    rowClassName
+                  )}
+                >
+                  <TableCell className="font-mono text-sm">
+                    {order.order}
+                  </TableCell>
+
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={`https://picsum.photos/seed/service-${idx}/64`}
+                        alt={order.service}
+                        className="w-9 h-9 rounded-md object-cover"
+                      />
+                      <span className="font-medium truncate">
+                        {order.service}
+                      </span>
+                    </div>
+                  </TableCell>
+
+                  <TableCell className="text-sm">{order.category}</TableCell>
+
+                  <TableCell className="text-center text-sm font-medium">
+                    {order.quantity.toLocaleString()}
+                  </TableCell>
+
+                  <TableCell className="text-center text-sm font-medium">
+                    {order.price} {order.currency}
+                  </TableCell>
+
+                  <TableCell className="text-center">
+                    <Badge
+                      variant={
+                        order.status.toLowerCase().includes("completed")
+                          ? "default"
+                          : order.status.toLowerCase().includes("pending")
+                          ? "secondary"
+                          : "outline"
+                      }
+                      className="capitalize"
+                    >
+                      {order.status}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* --- Mobile View --- */}
+        <div className="md:hidden space-y-4">
+          {orders.map((order, idx) => (
+            <motion.div
+              key={order.order}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25, delay: idx * 0.02 }}
+              className="bg-card border border-border rounded-xl p-4 shadow-sm"
+            >
+              <div className="flex items-start gap-3">
+                <img
+                  src={`https://picsum.photos/seed/order-${idx}/100`}
+                  alt={order.service}
+                  className="w-16 h-16 rounded-md object-cover"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold truncate">{order.service}</h3>
+                    <span className="text-xs text-muted-foreground">
+                      #{order.order}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground mt-1 truncate">
+                    {order.category}
+                  </p>
+
+                  <div className="mt-2 flex flex-wrap gap-2 text-sm">
+                    <span className="font-medium">
+                      {order.quantity.toLocaleString()} units
+                    </span>
+                    <span className="ml-auto font-medium">
+                      {order.price} {order.currency}
+                    </span>
+                  </div>
+
+                  <div className="mt-3">
+                    <Badge
+                      variant={
+                        order.status.toLowerCase().includes("completed")
+                          ? "default"
+                          : order.status.toLowerCase().includes("pending")
+                          ? "secondary"
+                          : "outline"
+                      }
+                      className="capitalize"
+                    >
+                      {order.status}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           ))}
-        </TableBody>
-      </Table>
+        </div>
+      </div>
     );
   };
 

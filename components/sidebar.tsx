@@ -1,20 +1,15 @@
 "use client";
 
 import {
-  Bell,
   BookOpen,
   Code,
   CreditCard,
   HelpCircle,
   LayoutDashboard,
   LogIn,
-  // Mail,
   Menu,
   PlusIcon,
-  //  MessageSquare,
-  Search,
   Server,
-  Settings,
   ShoppingCart,
   User,
   UserPlus,
@@ -38,117 +33,96 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
-  SidebarInput,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { TypographyInlineCode } from "./typography";
+import { usePathname, useRouter } from "next/navigation";
+import { useAppContext } from "@/context/appContext";
 
-// Navigation data
-const navigationItems = [
+// Full navigation definition
+const baseNavigation = [
   {
     title: "Overview",
     items: [
-      {
-        title: "Dashboard",
-        url: "/client/dashboard",
-        icon: LayoutDashboard,
-      },
-
-      {
-        title: "Services",
-        url: "/client/services",
-        icon: Server,
-      },
-      {
-        title: "New Order",
-        url: "/client/new-order",
-        icon: PlusIcon,
-      },
-      {
-        title: "My Orders",
-        url: "/client/orders",
-        icon: ShoppingCart,
-      },
+      { title: "Dashboard", url: "/client/dashboard", icon: LayoutDashboard },
+      { title: "Services", url: "/client/services", icon: Server },
+      { title: "New Order", url: "/client/new-order", icon: PlusIcon },
+      { title: "My Orders", url: "/client/orders", icon: ShoppingCart },
     ],
   },
   {
     title: "Blogs",
-    items: [
-      {
-        title: "Blogs",
-        url: "/client/blog",
-        icon: BookOpen,
-      },
-    ],
-  },
-  {
-    title: "Account",
-    items: [
-      {
-        title: "Sign In",
-        url: "/auth/signin",
-        icon: LogIn,
-      },
-      {
-        title: "Sign Up",
-        url: "/auth/signup",
-        icon: UserPlus,
-      },
-      {
-        title: "My Profile",
-        url: "/client/profile",
-        icon: User,
-      },
-    ],
+    items: [{ title: "Blog", url: "/client/blog", icon: BookOpen }],
   },
   {
     title: "Payments",
     items: [
-      {
-        title: "Deposit",
-        url: "/client/add-funds",
-        icon: CreditCard,
-      },
-      {
-        title: "Invite Friends",
-        url: "/client/referral",
-        icon: UserPlus,
-      },
+      { title: "Deposit", url: "/client/add-funds", icon: CreditCard },
+      { title: "Invite Friends", url: "/client/referral", icon: UserPlus },
     ],
   },
   {
     title: "Help & Support",
     items: [
-      {
-        title: "FAQ",
-        url: "/client/faq",
-        icon: HelpCircle,
-      },
-      {
-        title: "Contact Support",
-        url: "/client/support",
-        icon: HelpCircle,
-      },
-
-      {
-        title: "API Docs",
-        url: "/client/api-page",
-        icon: Code,
-      },
+      { title: "FAQ", url: "/client/faq", icon: HelpCircle },
+      { title: "Contact Support", url: "/client/support", icon: HelpCircle },
+      { title: "API Docs", url: "/client/api-docs", icon: Code },
     ],
   },
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
-  const isActive = (path: string) => {
-    return pathname === path;
+  const router = useRouter();
+  const {
+    generalSetting,
+    isStoreGeneralSettingsLoading,
+    userInfo,
+    setUserInfo,
+  } = useAppContext();
+
+  const isActive = (path: string) => pathname === path;
+
+  // Routes to hide when userInfo is falsy
+  // Routes to show only when user is NOT logged in
+  const publicRoutes = [
+    "/client/services",
+    "/client/faq",
+    "/client/blog",
+    "/client/api-docs",
+  ];
+
+  // Compute authentication status explicitly
+  const isAuthenticated = !!userInfo;
+
+  // Filter navigation dynamically
+  const navigationItems = baseNavigation
+    .map((group) => {
+      const filteredItems = group.items.filter((item) => {
+        // Hide private-only routes when user is NOT authenticated
+        if (!isAuthenticated && !publicRoutes.includes(item.url)) {
+          return false;
+        }
+        return true;
+      });
+      return { ...group, items: filteredItems };
+    })
+    .filter((group) => group.items.length > 0); // Remove empty groups
+
+  if (isStoreGeneralSettingsLoading) return <div>Loading...</div>;
+
+  const handleAuthAction = () => {
+    if (userInfo) {
+      setUserInfo(null);
+      router.push("/");
+    } else {
+      router.push("/auth/signin");
+    }
   };
+
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
@@ -160,30 +134,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <Menu className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold text-sm">
-                    <TypographyInlineCode>My App</TypographyInlineCode>
-                  </span>
-                  <span className="truncate text-sm text-muted-foreground">
-                    Dashboard
+                  <span className="truncate font-semibold text-md">
+                    {generalSetting?.storeName || "Social Media Store"}
                   </span>
                 </div>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        <form>
-          <SidebarGroup className="py-0">
-            <SidebarGroupContent className="relative">
-              <SidebarInput
-                id="search"
-                placeholder="Search..."
-                className="pl-8"
-              />
-              <Search className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 select-none opacity-50" />
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </form>
       </SidebarHeader>
+
       <SidebarContent>
         {navigationItems.map((group) => (
           <SidebarGroup key={group.title}>
@@ -212,6 +172,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroup>
         ))}
       </SidebarContent>
+
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -230,14 +191,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold text-sm">
-                      John Doe
+                      {userInfo?.fullName || "Guest User"}
                     </span>
                     <span className="truncate text-sm text-muted-foreground">
-                      john@example.com
+                      {userInfo?.email || "Not signed in"}
                     </span>
                   </div>
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
+
               <DropdownMenuContent
                 className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
                 side="bottom"
@@ -255,37 +217,36 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-semibold text-sm">
-                        John Doe
+                        {userInfo?.fullName || "Guest User"}
                       </span>
                       <span className="truncate text-sm text-muted-foreground">
-                        john@example.com
+                        {userInfo?.email || "Not signed in"}
                       </span>
                     </div>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <User />
-                  Account
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings />
-                  Settings
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Bell />
-                  Notifications
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                {userInfo && (
+                  <>
+                    <DropdownMenuItem
+                      onClick={() => router.push("/client/profile")}
+                    >
+                      <User />
+                      Account
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                <DropdownMenuItem onClick={handleAuthAction}>
                   <LogIn />
-                  Log out
+                  {userInfo ? "Log out" : "Sign in"}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+
       <SidebarRail />
     </Sidebar>
   );
