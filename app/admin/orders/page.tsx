@@ -1,4 +1,4 @@
-import { OrdersTab } from "../components/admin-order-tabs";
+import { OrdersTab } from "./components/OrderTabs";
 
 export default function AdminOrderPage() {
   return <OrdersTab />;

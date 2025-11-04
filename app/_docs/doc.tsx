@@ -1,5 +1,5 @@
 import { ChartConfig } from "@/components/ui/chart";
-import { Blog, SupportTicket, SupportTicketAdmin } from "@/types";
+import { Blog, ServiceCategory, SupportTicketAdmin } from "@/types";
 import { BoxIcon, DollarSignIcon, ShoppingCartIcon, XIcon } from "lucide-react";
 
 export const sortBy = [
@@ -9,127 +9,215 @@ export const sortBy = [
   { value: "date", label: "Sort by date" },
 ];
 
-// Service categories array. Each category contains a title and an array of services.
-export const serviceCategories = [
+// Service categories array. Each category contains a title, icon and an array of services.
+export const serviceCategories: ServiceCategory[] = [
   {
-    // Category title for the select dropdown
     title: "YouTube Comments [GEO]",
-    // Array of service objects for this category
+    icon: "https://picsum.photos/seed/service-1/64",
     services: [
       {
-        id: 1181, // Unique service ID
-        name: "YouTube Custom Comments [Japan]", // Service name with region
-        pricePer1000: 201.6, // Price per 1000 units
-        min: 10, // Minimum order quantity
-        max: 250, // Maximum order quantity
-        description: "Custom YouTube comments from Japan.", // Service description
+        id: 1181,
+        name: "YouTube Custom Comments [Japan]",
+        icon: "https://picsum.photos/seed/youtube-japan/64",
+        category: "YouTube Comments [GEO]",
+        type: "Custom Comments",
+        price: 201.6,
+        min: 10,
+        currency: "USD",
+        max: 250,
+        status: "active",
+        uid: "acddtive",
+        description:
+          "Custom YouTube comments from Japan, written naturally in Japanese.",
+        timestamp: "2023-10-01T10:00:00Z",
       },
       {
         id: 1182,
         name: "YouTube Custom Comments [South-Korea]",
-        pricePer1000: 190.512,
+        icon: "https://picsum.photos/seed/youtube-korea/64",
+        category: "YouTube Comments [GEO]",
+        type: "Custom Comments",
+        price: 190.512,
         min: 10,
+        uid: "acddteive",
         max: 85,
-        description: "Custom YouTube comments from South Korea.",
+        currency: "USD",
+        status: "active",
+        description: "Realistic YouTube comments from South Korean accounts.",
+        timestamp: "2023-10-01T10:00:00Z",
       },
       {
         id: 1183,
         name: "YouTube Custom Comments [USA] [S2]",
-        pricePer1000: 218.4,
+        icon: "https://picsum.photos/seed/youtube-usa/64",
+        category: "YouTube Comments [GEO]",
+        type: "Custom Comments",
+        currency: "USD",
+        price: 218.4,
         min: 10,
         max: 2000,
-        description: "Custom YouTube comments from USA.",
+        status: "disabled",
+        uid: "acddetive",
+        description:
+          "Customized YouTube comments from verified USA-based users.",
+        timestamp: "2023-10-01T10:00:00Z",
       },
     ],
   },
   {
     title: "Instagram Followers [GEO]",
+    icon: "https://picsum.photos/seed/service-2/64",
     services: [
       {
         id: 2101,
         name: "Instagram Followers [USA]",
-        pricePer1000: 15.99,
+        icon: "https://picsum.photos/seed/ig-usa/64",
+        category: "Instagram Followers [GEO]",
+        type: "Default",
+        price: 15.99,
         min: 50,
+        uid: "acddtieve",
         max: 5000,
-        description: "Real Instagram followers from the USA.",
+        currency: "USD",
+        status: "active",
+        description: "High-quality real Instagram followers from the USA.",
+        timestamp: "2023-10-01T10:00:00Z",
       },
       {
         id: 2102,
         name: "Instagram Followers [India]",
-        pricePer1000: 7.49,
+        icon: "https://picsum.photos/seed/ig-india/64",
+        category: "Instagram Followers [GEO]",
+        type: "Default",
+        price: 7.49,
+        uid: "acd233dtive",
+        currency: "USD",
         min: 100,
         max: 10000,
-        description: "Real Instagram followers from India.",
+        status: "active",
+        description:
+          "Affordable Instagram followers sourced from Indian profiles.",
+        timestamp: "2023-10-01T10:00:00Z",
       },
       {
         id: 2103,
         name: "Instagram Followers [Brazil]",
-        pricePer1000: 9.99,
+        icon: "https://picsum.photos/seed/ig-brazil/64",
+        category: "Instagram Followers [GEO]",
+        currency: "USD",
+        uid: "acddti3ve",
+        type: "Default",
+        price: 9.99,
         min: 100,
         max: 8000,
-        description: "Real Instagram followers from Brazil.",
+        status: "disabled",
+        description: "Real Instagram followers from Brazilian accounts.",
+        timestamp: "2023-10-01T10:00:00Z",
       },
     ],
   },
   {
     title: "TikTok Likes [GEO]",
+    icon: "https://picsum.photos/seed/service-3/64",
     services: [
       {
         id: 3101,
         name: "TikTok Likes [USA]",
-        pricePer1000: 12.5,
+        icon: "https://picsum.photos/seed/tiktok-usa/64",
+        currency: "USD",
+        category: "TikTok Likes [GEO]",
+        type: "Default",
+        price: 12.5,
+        uid: "acddtieve",
         min: 20,
         max: 3000,
-        description: "High-quality TikTok likes from the USA.",
+        status: "active",
+        description: "High-quality TikTok likes from active USA users.",
+        timestamp: "2023-10-01T10:00:00Z",
       },
       {
         id: 3102,
         name: "TikTok Likes [UK]",
-        pricePer1000: 11.0,
+        currency: "USD",
+        icon: "https://picsum.photos/seed/tiktok-uk/64",
+        category: "TikTok Likes [GEO]",
+        type: "Default",
+        price: 11.0,
         min: 20,
         max: 2500,
-        description: "High-quality TikTok likes from the UK.",
+        uid: "aceddtive",
+        status: "active",
+        description: "Authentic TikTok likes from verified UK accounts.",
+        timestamp: "2023-10-01T10:00:00Z",
       },
       {
         id: 3103,
         name: "TikTok Likes [Germany]",
-        pricePer1000: 10.5,
+        currency: "USD",
+        icon: "https://picsum.photos/seed/tiktok-germany/64",
+        category: "TikTok Likes [GEO]",
+        type: "Default",
+        price: 10.5,
+        uid: "acddtwive",
         min: 20,
         max: 2000,
-        description: "High-quality TikTok likes from Germany.",
+        status: "disabled",
+        description: "Real TikTok likes from German-based users.",
+        timestamp: "2023-10-01T10:00:00Z",
       },
     ],
   },
   {
     title: "Twitter Followers [GEO]",
+    icon: "https://picsum.photos/seed/service-4/64",
     services: [
       {
         id: 4101,
         name: "Twitter Followers [USA]",
-        pricePer1000: 19.99,
+        icon: "https://picsum.photos/seed/twitter-usa/64",
+        category: "Twitter Followers [GEO]",
+        type: "Default",
+        price: 19.99,
         min: 50,
         max: 4000,
-        description: "Genuine Twitter followers from the USA.",
+        uid: "acddti43ve",
+        currency: "USD",
+        status: "active",
+        description: "Real Twitter followers from the United States.",
+        timestamp: "2023-10-01T10:00:00Z",
       },
       {
         id: 4102,
         name: "Twitter Followers [Canada]",
-        pricePer1000: 18.5,
+        icon: "https://picsum.photos/seed/twitter-canada/64",
+        category: "Twitter Followers [GEO]",
+        type: "Default",
+        price: 18.5,
+        uid: "acddti323ve",
         min: 50,
         max: 3500,
-        description: "Genuine Twitter followers from Canada.",
+        status: "active",
+        currency: "USD",
+        description: "Genuine Twitter followers from Canadian users.",
+        timestamp: "2023-10-01T10:00:00Z",
       },
       {
         id: 4103,
         name: "Twitter Followers [Australia]",
-        pricePer1000: 20.0,
+        icon: "https://picsum.photos/seed/twitter-australia/64",
+        category: "Twitter Followers [GEO]",
+        currency: "USD",
+        type: "Default",
+        uid: "acd32dtive",
+        price: 20.0,
         min: 50,
         max: 3000,
-        description: "Genuine Twitter followers from Australia.",
+        status: "disabled",
+        description: "High-quality Twitter followers from Australian profiles.",
+        timestamp: "2023-10-01T10:00:00Z",
       },
     ],
   },
-  // ... Add more categories as needed
 ];
 
 export const services = [
@@ -165,29 +253,6 @@ export const services = [
       EU: { price: 10.99, delivery: "12-24h" },
       ASIA: { price: 9.99, delivery: "12-24h" },
     },
-  },
-];
-
-export const metrics = [
-  {
-    icon: <ShoppingCartIcon />,
-    label: "Your Orders",
-    value: 0,
-  },
-  {
-    icon: <XIcon />,
-    label: "Failed Orders",
-    value: 0,
-  },
-  {
-    icon: <BoxIcon />,
-    label: "Store Orders",
-    value: 61748,
-  },
-  {
-    icon: <DollarSignIcon />,
-    label: "You've Spent",
-    value: "$0",
   },
 ];
 
@@ -230,6 +295,86 @@ export const paymentsConfig = {
     color: "#ef4444",
   },
 } satisfies ChartConfig;
+
+import { Service } from "@/types"; // adjust path if needed
+
+export const sampleServices: Service[] = [
+  {
+    id: 11082,
+    name: "YouTube Views",
+    icon: "",
+    category: "YouTube Views",
+    type: "Default",
+    price: 3.01,
+    currency: "USD",
+    uid: "acdd3tive",
+    min: 100,
+    max: 100000,
+    status: "active",
+    description: "Boost your YouTube video visibility with real views.",
+    timestamp: "2025-06-09T00:00:00Z",
+  },
+  {
+    id: 11081,
+    name: "YouTube Views [NEW]",
+    icon: "",
+    category: "YouTube Views",
+    uid: "acddt3fdive",
+    type: "Default",
+    price: 3.046,
+    min: 100,
+    currency: "USD",
+    max: 100000,
+    status: "active",
+    description: "High-quality YouTube views from organic sources.",
+    timestamp: "2025-06-09T00:00:00Z",
+  },
+  {
+    id: 11080,
+    name: "YouTube Views [NEW]",
+    icon: "",
+    category: "YouTube Views",
+    uid: "awwcddtive",
+    type: "Default",
+    currency: "USD",
+    price: 2.73,
+    min: 100,
+    max: 100000,
+    status: "active",
+    description: "Affordable and fast YouTube views delivery.",
+    timestamp: "2025-06-09T00:00:00Z",
+  },
+  {
+    id: 11079,
+    name: "YouTube Views [NEW]",
+    icon: "",
+    category: "YouTube Views",
+    type: "Default",
+    price: 4.396,
+    uid: "acddti33frfgve",
+    min: 100,
+    currency: "USD",
+    max: 100000,
+    status: "disabled",
+    description: "Premium YouTube views for faster ranking growth.",
+    timestamp: "2025-06-09T00:00:00Z",
+  },
+  {
+    id: 11078,
+    name: "YouTube Views [NEW]",
+    icon: "",
+    category: "YouTube Views",
+    type: "Default",
+    price: 2.582,
+    currency: "USD",
+    uid: "acd222dtive",
+    min: 100,
+    max: 100000,
+    status: "active",
+    description: "Reliable service to increase YouTube engagement.",
+    timestamp: "2025-06-07T00:00:00Z",
+  },
+];
 
 export const POSTS: Blog[] = [
   {

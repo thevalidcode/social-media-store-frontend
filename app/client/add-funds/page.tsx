@@ -8,54 +8,67 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
-
-type PaymentMethod = {
-  id: string;
-  name: string;
-  icon: string;
-  feePercent: number;
-};
-
-const PAYMENT_METHODS: PaymentMethod[] = [
-  {
-    id: "bank",
-    name: "Bank Transfer",
-    icon: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-    feePercent: 0,
-  },
-  {
-    id: "card",
-    name: "Debit/Credit Card",
-    icon: "https://cdn-icons-png.flaticon.com/512/217/217425.png",
-    feePercent: 2.5,
-  },
-  {
-    id: "crypto",
-    name: "Crypto (USDT)",
-    icon: "https://cdn-icons-png.flaticon.com/512/825/825454.png",
-    feePercent: 1.5,
-  },
-];
+import { useCurrencyConverter } from "@/lib/currencyConverter";
+import { useAppContext } from "@/context/appContext";
+import { getCurrencySymbol } from "@/app/_docs/doc";
+import { useGetAllPaymentGateways } from "@/hooks/use-paymentGateway";
+import Loading from "@/app/loading";
+import { EmptyState } from "@/components/empty-state";
+import { useRouter } from "next/navigation";
+import { CreditCard } from "lucide-react";
+import { useCreatePayment } from "@/hooks/use-payment";
+import { toast } from "sonner";
 
 export default function AddFunds() {
   const [amount, setAmount] = useState<number>(0);
-  const [method, setMethod] = useState<string>("bank");
-  const [balance, setBalance] = useState<number>(6500);
+  const [method, setMethod] = useState<string>("manual");
+  const convert = useCurrencyConverter();
+  const { userCurrency, userInfo } = useAppContext();
 
-  const selectedMethod = PAYMENT_METHODS.find((m) => m.id === method)!;
-  const fee = (amount * selectedMethod.feePercent) / 100;
+  const { mutate } = useCreatePayment();
+  const router = useRouter();
+
+  const { data: PAYMENT_METHODS, isLoading } = useGetAllPaymentGateways();
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (!PAYMENT_METHODS || PAYMENT_METHODS.length === 0) {
+    return (
+      <EmptyState
+        icon={CreditCard}
+        title="No Payment Method Found"
+        description="No payment method has been created for this store yet."
+      />
+    );
+  }
+
+  const selectedMethod = PAYMENT_METHODS?.find((m) => m.platform === method)!;
+  const fee = (amount * selectedMethod?.feePercent!) / 100;
   const total = amount + fee;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (amount <= 0) return alert("Enter a valid amount");
-    console.log({
-      method,
-      amount,
-      fee,
-      total,
-    });
-    alert(`You’re adding ₦${total.toLocaleString()} via ${selectedMethod.name}`);
+
+    mutate(
+      {
+        storeId: userInfo?.storeId!,
+        platform: selectedMethod.platform,
+        currency: userCurrency,
+        amount: total,
+        redirect_url: `${window.location.origin}/client/add-funds`,
+      },
+      {
+        onSuccess: (data) => {
+          router.push(data.url);
+        },
+        onError: (error: any) => {
+          toast.error(error.message || "Failed to create payment");
+        },
+      }
+    );
   };
 
   return (
@@ -71,22 +84,74 @@ export default function AddFunds() {
           </CardHeader>
           <CardContent className="space-y-8">
             {/* Balance Summary */}
-            <div className="flex items-center justify-between bg-gray-50 p-4 rounded-xl border">
-              <p className="text-sm text-gray-600">Available Balance</p>
-              <p className="text-xl font-semibold text-green-600">
-                ₦{balance.toLocaleString()}
+            <div className="flex items-center justify-between p-4 rounded-xl border">
+              <p className="text-sm">Available Balance</p>
+              <p className="text-xl font-semibold text-primary">
+                {
+                  convert("USD", userCurrency, userInfo?.balance!, true, true)
+                    .formatted
+                }
               </p>
+            </div>
+
+            {/* Payment Methods */}
+            <div className="space-y-3">
+              <Label>Select Payment Method</Label>
+              <RadioGroup
+                value={method}
+                onValueChange={setMethod}
+                className="grid sm:grid-cols-3 gap-4"
+              >
+                {PAYMENT_METHODS.map((m) => (
+                  <Label
+                    key={m.id}
+                    htmlFor={String(m.id)}
+                    className={`flex flex-col items-center gap-2 p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md ${
+                      method === m.platform ? "border-primary" : "border-accent"
+                    }`}
+                  >
+                    <RadioGroupItem
+                      id={String(m.id)}
+                      value={m.platform}
+                      className="sr-only"
+                    />
+                    <img
+                      src={m.image}
+                      alt={m.name}
+                      className="w-10 h-10 object-contain"
+                    />
+                    <span className="font-medium text-sm text-center">
+                      {m.name}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      Fee: {m.feePercent}%
+                    </span>
+                  </Label>
+                ))}
+              </RadioGroup>
             </div>
 
             {/* Amount Input */}
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid gap-2">
-                <Label htmlFor="amount">Enter Amount (₦)</Label>
+                <Label htmlFor="amount">
+                  Enter Amount ({getCurrencySymbol(userCurrency)})
+                </Label>
                 <Input
                   id="amount"
                   type="number"
-                  min="100"
-                  placeholder="e.g. 5000"
+                  min={
+                    convert("USD", userCurrency, selectedMethod.min, true, true)
+                      .amount
+                  }
+                  max={
+                    convert("USD", userCurrency, selectedMethod.max, true, true)
+                      .amount
+                  }
+                  placeholder={`e.g. ${
+                    convert("USD", userCurrency, selectedMethod.min, true, true)
+                      .formatted
+                  }`}
                   value={amount || ""}
                   onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
                   required
@@ -95,59 +160,38 @@ export default function AddFunds() {
 
               <Separator />
 
-              {/* Payment Methods */}
-              <div className="space-y-3">
-                <Label>Select Payment Method</Label>
-                <RadioGroup
-                  value={method}
-                  onValueChange={setMethod}
-                  className="grid sm:grid-cols-3 gap-4"
-                >
-                  {PAYMENT_METHODS.map((m) => (
-                    <Label
-                      key={m.id}
-                      htmlFor={m.id}
-                      className={`flex flex-col items-center gap-2 p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md ${
-                        method === m.id ? "border-primary" : "border-gray-200"
-                      }`}
-                    >
-                      <RadioGroupItem id={m.id} value={m.id} className="sr-only" />
-                      <img
-                        src={m.icon}
-                        alt={m.name}
-                        className="w-10 h-10 object-contain"
-                      />
-                      <span className="font-medium text-sm text-center">{m.name}</span>
-                      <span className="text-xs text-gray-500">
-                        Fee: {m.feePercent}%
-                      </span>
-                    </Label>
-                  ))}
-                </RadioGroup>
-              </div>
-
               <Separator />
 
               {/* Summary */}
-              <div className="bg-gray-50 p-4 rounded-xl border space-y-2">
-                <div className="flex justify-between text-sm text-gray-600">
+              <div className="p-4 rounded-xl border space-y-2">
+                <div className="flex justify-between text-sm">
                   <span>Amount</span>
-                  <span>₦{amount.toLocaleString()}</span>
+                  <span>
+                    {getCurrencySymbol(userCurrency)}
+                    {amount.toLocaleString()}
+                  </span>
                 </div>
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between text-sm">
                   <span>Fee ({selectedMethod.feePercent}%)</span>
-                  <span>₦{fee.toFixed(2)}</span>
+                  <span>
+                    {getCurrencySymbol(userCurrency)}
+                    {fee.toLocaleString()}
+                  </span>
                 </div>
                 <div className="flex justify-between font-semibold text-lg mt-2">
                   <span>Total</span>
-                  <span>₦{total.toFixed(2)}</span>
+                  <span>
+                    {getCurrencySymbol(userCurrency)}
+                    {total.toLocaleString()}
+                  </span>
                 </div>
               </div>
 
               {/* Submit */}
               <div className="flex justify-end">
                 <Button type="submit" size="lg" disabled={amount <= 0}>
-                  Add ₦{total > 0 ? total.toLocaleString() : "0"}
+                  Add {getCurrencySymbol(userCurrency)}
+                  {total.toLocaleString()}
                 </Button>
               </div>
             </form>

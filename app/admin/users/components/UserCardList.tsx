@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import UserStatusBadge from "./UserStatusBadge";
 import UserActionsMenu from "./UserActionsMenu";
 import { User } from "@/types";
+import { useCurrencyConverter } from "@/lib/currencyConverter";
+import { useAppContext } from "@/context/appContext";
 
 export default function UserCardList({
   users,
@@ -30,14 +32,16 @@ export default function UserCardList({
   onToggleBan: (id: number) => void;
   onActivate: (id: number) => void;
 }) {
+  const convert = useCurrencyConverter();
+  const { userCurrency } = useAppContext();
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {users.map((u) => (
-        <Card key={u.id} className="rounded-2xl overflow-hidden">
+        <Card key={u.storeScopedId} className="rounded-2xl overflow-hidden">
           <CardHeader className="flex items-start gap-3 p-4">
             <Checkbox
-              checked={selected.includes(u.id)}
-              onCheckedChange={(v) => onSelect(u.id, v as boolean)}
+              checked={selected.includes(u.storeScopedId)}
+              onCheckedChange={(v) => onSelect(u.storeScopedId, v as boolean)}
             />
             <img
               src={u.image ?? `/avatar.png`}
@@ -58,11 +62,21 @@ export default function UserCardList({
           <CardContent className="p-4 text-sm space-y-2">
             <div className="flex justify-between">
               <div className="text-muted-foreground">Balance</div>
-              <div className="font-medium">${u.balance.toFixed(2)}</div>
+              <div className="font-medium">
+                {
+                  convert(u.currency, userCurrency, u.balance, true, true)
+                    .formatted
+                }
+              </div>
             </div>
             <div className="flex justify-between">
               <div className="text-muted-foreground">Spent</div>
-              <div className="font-medium">${u.spent.toFixed(2)}</div>
+              <div className="font-medium">
+                {
+                  convert(u.currency, userCurrency, u.spent, true, true)
+                    .formatted
+                }
+              </div>
             </div>
             <div className="text-xs text-muted-foreground">
               Last seen:{" "}
@@ -78,9 +92,9 @@ export default function UserCardList({
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => onToggleBan(u.id)}
+                onClick={() => onToggleBan(u.storeScopedId)}
               >
-                {u.status === "banned" ? "Unban" : "Ban"}
+                {u.status === "BANNED" ? "Unban" : "Ban"}
               </Button>
             </div>
             <div className="flex items-center gap-2">

@@ -1,78 +1,80 @@
 "use client";
 
 import { useAppContext } from "@/context/appContext";
+import { CurrencyCode } from "@/lib/currencyConverter";
+import { Service, ServicePublic } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
 import { toast } from "sonner";
 
-interface ServiceProps {
+interface CreateServiceProps {
   name: string;
-  category: string;
   type: string;
   min: number;
   max: number;
-  price: number;
-  provider_price: number;
-  provider_id: number;
-  description: string;
-  position: number;
-  refill_days: number;
-  sync_quantity: boolean;
-  sync_cat_and_name: boolean;
-  drip_feed: boolean;
-  network: string;
-  refill: boolean;
-  cancel: boolean;
+  refillDays?: number;
+  syncQuantity?: boolean;
+  network?: string | null;
+  synCatAndName?: boolean;
+  dripFeed?: boolean;
+  icon?: string;
+  providerUid?: string;
+  category: string;
+  currency: CurrencyCode;
+  description?: string;
+  price?: string;
 }
 
 interface UpdateServiceProps {
-  uid: string;
-  name: string;
-  type: string;
-  status: string;
-  min: number;
-  max: number;
-  refill_days: number;
-  sync_quantity: boolean;
-  sync_cat_and_name: boolean;
-  drip_feed: boolean;
-  category: string;
-  description: string;
-  price: number;
-  position: number;
+  name?: string;
+  type?: string;
+  status?: string;
+  min?: number;
+  max?: number;
+  icon?: string;
+  refillDays?: number;
+  syncQuantity?: boolean;
+  synCatAndName?: boolean;
+  currency: CurrencyCode;
+  dripFeed?: boolean;
+  category?: string;
+  description?: string;
+  price?: number;
+  position?: number;
 }
 
 // get services by the public
-export const useGetServicesByPublic = (service_id: string) => {
+export const useGetServicesByPublic = () => {
   const { storeId, api } = useAppContext();
   return useQuery({
-    queryKey: ["servicesByPublic", service_id],
+    queryKey: ["servicesByPublic", storeId],
     queryFn: async () => {
-      const res = await api.get(`/services/${service_id}?storeId=${storeId}`);
+      const res = await api.get<ServicePublic[]>(
+        `/services?storeId=${storeId}`
+      );
       return res.data;
     },
-    enabled: !!service_id,
+    enabled: !!storeId,
   });
 };
 
 // get services by admin
-export const useGetServicesByAdmin = (service_id: string) => {
-  const { api } = useAppContext();
+export const useGetServicesByAdmin = () => {
+  const { api, storeId } = useAppContext();
   return useQuery({
-    queryKey: ["servicesByAdmin", service_id],
+    queryKey: ["servicesByAdmin", storeId],
     queryFn: async () => {
-      const res = await api.get(`/services/${service_id}`);
+      const res = await api.get<Service[]>(`/services/admin`);
       return res.data;
     },
-    enabled: !!service_id,
+    enabled: !!storeId,
   });
 };
 
 // get service by provider_id
 export const useGetServicesByProviderId = (provider_id: string) => {
-  const { api } = useAppContext();
+  const { api, storeId } = useAppContext();
   return useQuery({
-    queryKey: ["servicesByProvider", provider_id],
+    queryKey: ["servicesByProvider", storeId, provider_id],
     queryFn: async () => {
       const res = await api.get(`/services/${provider_id}`);
       return res.data;
@@ -81,34 +83,21 @@ export const useGetServicesByProviderId = (provider_id: string) => {
   });
 };
 
-// get all services for the admin
-export const useGetAllServices = () => {
-  const { api } = useAppContext();
-  return useQuery({
-    queryKey: ["services"],
-    queryFn: async () => {
-      const res = await api.get(`/services/admin`);
-      if (!res.data) {
-        throw new Error("Failed to fetch services");
-      }
-      return res.data;
-    },
-  });
-};
-
 //  creating a new service
 export const useCreateService = () => {
-  const { api } = useAppContext();
+  const { api, storeId } = useAppContext();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (service: ServiceProps) => {
-      const res = await axios.post(`/services`, service);
+    mutationFn: async (service: CreateServiceProps) => {
+      const res = await api.post(`/services`, service);
       return res.data;
     },
     onSuccess: () => {
       toast.success("Service created successfully");
+      queryClient.invalidateQueries({ queryKey: ["servicesByAdmin", storeId] });
     },
-    onError: (error) => {
-      if (error instanceof AxiosError) {
+    onError: (error: any) => {
+      if (error) {
         toast.error(error.response?.data.message || "Failed to create service");
       } else {
         toast.error("An unexpected error occurred while creating the service");
@@ -122,7 +111,7 @@ export const useUpdateService = () => {
   const { api } = useAppContext();
   return useMutation({
     mutationFn: async (service: UpdateServiceProps) => {
-      const res = await axios.patch(`/services`, service);
+      const res = await api.patch(`/services`, service);
       if (!res.data) {
         throw new Error(res.data.message || "Failed to update service");
       }
@@ -131,8 +120,8 @@ export const useUpdateService = () => {
     onSuccess: () => {
       toast.success("Service updated successfully");
     },
-    onError: (error) => {
-      if (error instanceof AxiosError) {
+    onError: (error: any) => {
+      if (error) {
         toast.error(error.response?.data.message || "Failed to update service");
       } else {
         toast.error("An unexpected error occurred while updating the service");
@@ -145,50 +134,52 @@ export const useUpdateService = () => {
 interface ServiceDeleteProps {
   uid: string;
 }
+interface DeleteMultipleServicesProps {
+  uids: string[];
+}
+
+// Delete a single service
 export const useDeleteService = () => {
-  const { api } = useAppContext();
+  const { api, storeId } = useAppContext();
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: ["deleteService"],
-    mutationFn: async (uid: ServiceDeleteProps) => {
-      const res = await axios.delete(`/services`, {
-        params: { uid: uid.uid },
-      });
-      if (!res.data) {
-        throw new Error(res.data.message || "Failed to delete service");
+    mutationFn: async ({ uid }: ServiceDeleteProps) => {
+      const res = await api.delete(`/services`, { data: { uid } });
+
+      if (!res.data || res.status !== 200) {
+        throw new Error(res.data?.message || "Failed to delete service");
       }
+
       return res.data;
     },
     onSuccess: () => {
       toast.success("Service deleted successfully");
-      queryClient.invalidateQueries({ queryKey: ["services"] });
+      queryClient.invalidateQueries({ queryKey: ["servicesByAdmin", storeId] });
     },
   });
 };
 
-// delete multiple services
-interface DeleteMultipleServicesProps {
-  uids: string[];
-}
+// Delete multiple services
 export const useDeleteMultipleServices = () => {
-  const { api } = useAppContext();
+  const { api, storeId } = useAppContext();
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationKey: ["deleteMultipleServices"],
-    mutationFn: async (uids: DeleteMultipleServicesProps) => {
-      const res = await axios.delete(`/services/multiple`, {
-        params: { uiods: uids.uids },
-        withCredentials: true,
-      });
-      if (!res.data) {
-        throw new Error(res.data.message || "Failed to delete services");
+    mutationFn: async ({ uids }: DeleteMultipleServicesProps) => {
+      const res = await api.delete(`/services/multiple`, { data: { uids } });
+
+      if (!res.data || res.status !== 200) {
+        throw new Error(res.data?.message || "Failed to delete services");
       }
 
       return res.data;
     },
     onSuccess: () => {
       toast.success("Services deleted successfully");
-      queryClient.invalidateQueries({ queryKey: ["services"] });
+      queryClient.invalidateQueries({ queryKey: ["servicesByAdmin", storeId] });
     },
   });
 };

@@ -43,7 +43,7 @@ export default function UserActionsMenu({
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => onToggleBan(user.id)}>
           <BanIcon className="mr-2 h-4 w-4" />{" "}
-          {user.status === "banned" ? "Unban" : "Ban"}
+          {user.status === "BANNED" ? "Unban" : "Ban"}
         </DropdownMenuItem>
         <DropdownMenuItem
           className="text-destructive"

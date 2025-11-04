@@ -1,70 +1,124 @@
-"use client"
+"use client";
 
-import { useAppContext } from "@/context/appContext"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useAppContext } from "@/context/appContext";
+import { Blog, BlogStatus } from "@/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface BlogProps {
-  uid?: string,
-  content?: string,
-  description?: string,
-  conver_image?: string,
-  title?: string,
+  uid?: string;
+  slug?: string;
+  status?: BlogStatus;
+  content?: string;
+  description?: string;
+  coverImage?: string;
+  excerpt?: string;
+  title?: string;
 }
 export const useCreateblog = () => {
-  const { api } = useAppContext()
+  const { api } = useAppContext();
   return useMutation({
     mutationKey: ["createBlog"],
     mutationFn: async (data: BlogProps) => {
-      const res = await api.post(`/blog`, data)
+      const res = await api.post(`/blogs`, data);
       if (!res.data) {
-        throw new Error("failed to createBlog")
+        throw new Error("failed to createBlog");
       }
       return res.data;
-    }
-  })
-}
-
+    },
+  });
+};
 
 export const useGetBlogs = () => {
-  const { api } = useAppContext()
+  const { api, storeId } = useAppContext();
   return useQuery({
-    queryKey: ["blogs"],
+    queryKey: ["blogs", storeId],
     queryFn: async () => {
-      const res = await api.get("/blog")
+      const res = await api.get<Blog[]>(`/blogs?storeId=${storeId}`);
       if (!res.data) {
-        throw new Error("failed to get blog data")
+        throw new Error("failed to get blog data");
       }
-      return res.data || []
-    }
-  })
-}
+      return res.data || [];
+    },
+  });
+};
 
+export const useGetBlogById = (blogUid: string) => {
+  const { api, storeId } = useAppContext();
+  return useQuery({
+    queryKey: ["blogUid", storeId, blogUid],
+    queryFn: async () => {
+      const res = await api.get(`/blogs/${blogUid}?storeId=${storeId}`);
+      if (!res.data) {
+        throw new Error("an error occurred, failed to get blog data");
+        return res.data;
+      }
+    },
+  });
+};
+export const useUpdateBlog = () => {
+  const { api } = useAppContext();
+  const queryClient = useQueryClient();
 
-export const usePatchBlog = () => {
-  const { api } = useAppContext()
   return useMutation({
-    mutationKey: ["patch_blog"],
+    mutationKey: ["updateBlog"],
     mutationFn: async (data: BlogProps) => {
-      const res = await api.patch("/blog", data)
+      const res = await api.patch("/blogs", data);
       if (!res.data) {
-        throw new Error("an error occurred when we tried updating the blog")
+        throw new Error("an error occurred when we tried updating the blog");
       }
-      return res.data
-    }
-  })
+      return res.data;
+    },
+    onSuccess: () => {
+      // Invalidate the user's support tickets query so it refetches
+      queryClient.invalidateQueries({ queryKey: ["userSupportTickets"] });
+    },
+  });
+};
+
+interface DeleteBlogProps {
+  uid: string;
 }
 
+export const useDeleteBlog = () => {
+  const { api } = useAppContext();
+  const queryClient = useQueryClient();
 
-export const useGetBlogById = (blog_id: string) => {
-  const { api, storeId } = useAppContext()
-  return useQuery({
-    queryKey: ["blog_id", blog_id],
-    queryFn: async () => {
-      const res = await api.get(`/blog/${blog_id}?storeId=${storeId}`)
+  return useMutation({
+    mutationKey: ["deleteBlog"],
+    mutationFn: async (data: DeleteBlogProps) => {
+      const res = await api.delete(`/blogs`, { data });
       if (!res.data) {
-        throw new Error("an error occurred, failed to get blog data")
-        return res.data
+        throw new Error("failed to delete blog");
       }
-    }
-  })
+      return res.data;
+    },
+    onSuccess: () => {
+      // Invalidate the user's support tickets query so it refetches
+      queryClient.invalidateQueries({ queryKey: ["userSupportTickets"] });
+    },
+  });
+};
+
+interface DeleteMultipleBlogProps {
+  uids: string[];
 }
+
+export const useDeleteMultipleBlogs = () => {
+  const { api } = useAppContext();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["deleteMultipleBlog"],
+    mutationFn: async (data: DeleteMultipleBlogProps) => {
+      const res = await api.delete(`/blogs/multiple`, { data });
+      if (!res.data) {
+        throw new Error("failed to delete blogs");
+      }
+      return res.data;
+    },
+    onSuccess: () => {
+      // Invalidate the user's support tickets query so it refetches
+      queryClient.invalidateQueries({ queryKey: ["userSupportTickets"] });
+    },
+  });
+};

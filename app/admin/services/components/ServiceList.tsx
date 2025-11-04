@@ -1,11 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ServiceDetailsModal from "./ServiceDetailsModal";
 import ServiceCard from "./ServiceCard";
 import ServiceTable from "./ServiceTable";
 import { Service } from "@/types";
 import ServiceFilters from "./ServiceFilters";
+import {
+  useDeleteService,
+  useDeleteMultipleServices,
+  useGetServicesByAdmin,
+} from "@/hooks/use-services";
+import Loading from "@/app/loading";
+import { EmptyState } from "@/components/empty-state";
+import { Shield } from "lucide-react";
+import Pagination from "@/components/pagination";
+import DeleteDialog from "../../users/components/DeleteDialog";
 
 export default function ServiceList() {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
@@ -16,46 +26,21 @@ export default function ServiceList() {
     search: "",
     status: "All",
   });
+  const [selected, setSelected] = useState<number[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteIds, setDeleteIds] = useState<number[]>([]);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const { data: servicesData, isLoading } = useGetServicesByAdmin();
+  const { mutate: deleteService } = useDeleteService();
+  const { mutate: deleteMultipleServices } = useDeleteMultipleServices();
 
-  const [services] = useState<Service[]>([
-    {
-      id: 1,
-      name: "Instagram Followers",
-      icon: "https://images.unsplash.com/photo-1520975919757-6a7a1f0b8f62?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder",
-      category: "Instagram",
-      type: "Default",
-      price: 12.5,
-      min: 100,
-      max: 10000,
-      status: "active",
-      description: "Real followers with refill guarantee.",
-    },
-    {
-      id: 2,
-      name: "YouTube Views",
-      icon: "https://images.unsplash.com/photo-1520975919757-6a7a1f0b8f62?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&s=placeholder",
-      category: "YouTube",
-      type: "Package",
-      price: 20.0,
-      min: 500,
-      max: 50000,
-      status: "disabled",
-      description: "High retention views with drip feed support.",
-    },
-  ]);
-
-  const handleEdit = (service: Service) => {
-    setSelectedService(service);
-    setIsModalOpen(true);
-    setIsEditing(true);
-  };
-
-  const handleDelete = () => {};
-  const onToggleStatus = () => {};
-
-  const handleFilterChange = (newFilters: typeof filters) => {
-    setFilters(newFilters);
-  };
+  useEffect(() => {
+    if (servicesData) {
+      setServices(servicesData);
+    }
+  }, [servicesData]);
 
   const filteredServices = services.filter((s) => {
     const matchesCategory =
@@ -68,6 +53,64 @@ export default function ServiceList() {
     return matchesCategory && matchesSearch && matchesStatus;
   });
 
+  const sorted = useMemo(() => {
+    const arr = [...filteredServices];
+    return arr;
+  }, [filteredServices]);
+
+  const current = sorted.slice((page - 1) * pageSize, page * pageSize);
+
+  if (isLoading) return <Loading />;
+
+  if (!services || services.length === 0) {
+    return (
+      <EmptyState
+        icon={Shield}
+        title="No Service Found"
+        description="No services have been placed yet."
+      />
+    );
+  }
+
+  const handleEdit = (service: Service) => {
+    setIsModalOpen(true);
+    setIsEditing(true);
+    setSelectedService(service);
+  };
+
+  const handleDeleteSingle = (id: number) => {
+    setDeleteIds([id]);
+    setDeleteOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    const usersUids = current
+      .filter((u) => deleteIds.includes(u.storeScopedId))
+      .map((u) => u.uid);
+    deleteMultipleServices({ uids: usersUids });
+    setServices((prev) =>
+      prev.filter((u) => !deleteIds.includes(u.storeScopedId))
+    );
+    setSelected((prev) => prev.filter((id) => !deleteIds.includes(id)));
+    setDeleteIds([]);
+  };
+
+  const handleDeleteSelected = () => {
+    if (selected.length === 0) return;
+    setDeleteIds(selected);
+    setDeleteOpen(true);
+  };
+
+  const namesForDelete = current
+    .filter((u) => deleteIds.includes(u.storeScopedId))
+    .map((u) => u.name);
+
+  const onToggleStatus = () => {};
+
+  const handleFilterChange = (newFilters: typeof filters) => {
+    setFilters(newFilters);
+  };
+
   const categories = Array.from(new Set(services.map((s) => s.category)));
 
   return (
@@ -79,9 +122,9 @@ export default function ServiceList() {
       {/* Desktop Table */}
       <div className="hidden md:block">
         <ServiceTable
-          services={filteredServices}
+          services={current}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onDeleteSingle={handleDeleteSingle}
           onToggleStatus={onToggleStatus}
         />
       </div>
@@ -89,9 +132,9 @@ export default function ServiceList() {
       {/* Mobile Card View */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden">
         <ServiceCard
-          services={filteredServices}
+          services={current}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onDeleteSingle={handleDeleteSingle}
           onToggleStatus={onToggleStatus}
         />
       </div>
@@ -106,6 +149,26 @@ export default function ServiceList() {
           onClose={() => setIsModalOpen(false)}
         />
       )}
+
+      {/* Pagination */}
+      <Pagination
+        page={page}
+        pageSize={pageSize}
+        totalItems={sorted.length}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+        pageSizeOptions={[10, 20, 50]}
+      />
+
+      {/* Delete dialog */}
+      <DeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onConfirm={handleDeleteConfirm}
+        count={deleteIds.length}
+        names={namesForDelete}
+        entityName="service"
+      />
     </div>
   );
 }

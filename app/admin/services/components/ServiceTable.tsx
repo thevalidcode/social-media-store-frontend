@@ -15,22 +15,27 @@ import { Switch } from "@/components/ui/switch";
 import { ArrowUpDown, Edit, Trash2 } from "lucide-react";
 import { Service } from "@/types";
 import Image from "next/image";
+import { useCurrencyConverter } from "@/lib/currencyConverter";
+import { useAppContext } from "@/context/appContext";
 
 interface ServiceTableProps {
   services: Service[];
   onEdit: (service: Service) => void;
-  onDelete: (service: Service) => void;
+  onDeleteSingle: (id: number) => void;
   onToggleStatus: (serviceId: number, newStatus: "active" | "disabled") => void;
 }
 
 export default function ServiceTable({
   services,
   onEdit,
-  onDelete,
+  onDeleteSingle,
   onToggleStatus,
 }: ServiceTableProps) {
   const [sortKey, setSortKey] = useState<keyof Service>("name");
   const [sortAsc, setSortAsc] = useState(true);
+
+  const convert = useCurrencyConverter();
+  const { userCurrency } = useAppContext();
 
   const handleSort = (key: keyof Service) => {
     if (sortKey === key) setSortAsc(!sortAsc);
@@ -91,7 +96,7 @@ export default function ServiceTable({
           <AnimatePresence>
             {sortedServices.map((service) => (
               <motion.tr
-                key={service.id}
+                key={service.storeScopedId}
                 initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
@@ -123,15 +128,26 @@ export default function ServiceTable({
                   </span>
                 </TableCell>
                 <TableCell>{service.type}</TableCell>
-                <TableCell>${service.price.toFixed(2)}</TableCell>
+                <TableCell>
+                  {" "}
+                  {
+                    convert(
+                      service.currency,
+                      userCurrency,
+                      service.price,
+                      true,
+                      true
+                    ).formatted
+                  }
+                </TableCell>
                 <TableCell>{service.min}</TableCell>
                 <TableCell>{service.max}</TableCell>
                 <TableCell>
                   <Switch
-                    checked={service.status === "active"}
+                    checked={service.status === "ACTIVE"}
                     onCheckedChange={(checked) =>
                       onToggleStatus(
-                        service.id,
+                        service.storeScopedId,
                         checked ? "active" : "disabled"
                       )
                     }
@@ -147,8 +163,9 @@ export default function ServiceTable({
                   </Button>
                   <Button
                     size="icon"
+                    type="button"
                     variant="destructive"
-                    onClick={() => onDelete(service)}
+                    onClick={() => onDeleteSingle(service.storeScopedId)}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>

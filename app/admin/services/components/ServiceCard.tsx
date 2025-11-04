@@ -11,20 +11,24 @@ import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
 import { Service } from "@/types";
 import Image from "next/image";
+import { useCurrencyConverter } from "@/lib/currencyConverter";
+import { useAppContext } from "@/context/appContext";
 
 interface ServiceCardProps {
   services: Service[];
   onEdit: (service: Service) => void;
-  onDelete: (service: Service) => void;
+  onDeleteSingle: (id: number) => void;
   onToggleStatus: (serviceId: number, newStatus: "active" | "disabled") => void;
 }
 
 export default function ServiceCard({
   services,
   onEdit,
-  onDelete,
+  onDeleteSingle,
   onToggleStatus,
 }: ServiceCardProps) {
+  const convert = useCurrencyConverter();
+  const { userCurrency, storeId } = useAppContext();
   return (
     <motion.div
       layout
@@ -34,8 +38,18 @@ export default function ServiceCard({
       transition={{ duration: 0.25 }}
     >
       {services.map((service) => {
-        const { id, name, category, type, price, min, max, status, icon } =
-          service;
+        const {
+          storeScopedId,
+          name,
+          category,
+          type,
+          price,
+          min,
+          max,
+          status,
+          icon,
+          currency,
+        } = service;
 
         return (
           <motion.div
@@ -69,9 +83,12 @@ export default function ServiceCard({
                   </div>
 
                   <Switch
-                    checked={status === "active"}
+                    checked={status === "ACTIVE"}
                     onCheckedChange={(checked) =>
-                      onToggleStatus(id, checked ? "active" : "disabled")
+                      onToggleStatus(
+                        storeScopedId,
+                        checked ? "active" : "disabled"
+                      )
                     }
                   />
                 </div>
@@ -88,7 +105,13 @@ export default function ServiceCard({
                   <span className="block text-muted-foreground text-xs">
                     Price
                   </span>
-                  <span className="font-medium">${price.toFixed(2)}</span>
+                  <span className="font-medium">
+                    {" "}
+                    {
+                      convert(currency, userCurrency, price, true, true)
+                        .formatted
+                    }
+                  </span>
                 </div>
                 <div>
                   <span className="block text-muted-foreground text-xs">
@@ -117,7 +140,7 @@ export default function ServiceCard({
                   size="icon"
                   variant="destructive"
                   className="rounded-xl"
-                  onClick={() => onDelete(service)}
+                  onClick={() => onDeleteSingle(service.storeScopedId)}
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>

@@ -5,22 +5,8 @@ import axios, { AxiosInstance } from "axios";
 import { createContext, useContext, useState, useMemo, useEffect } from "react";
 import Cookies from "js-cookie";
 import { get, set } from "idb-keyval";
-
-interface UserProps {
-  id?: number;
-  role?: string;
-  username?: string;
-  fullName?: string;
-  email?: string;
-  status?: string;
-  timeStamp: string;
-  apiKey?: string;
-  balance?: string;
-  lastSeen?: string;
-  image?: string;
-  storeId?: number;
-  uid?: string;
-}
+import { CurrencyCode } from "@/lib/currencyConverter";
+import { User } from "@/types";
 
 interface AdminProps {
   id?: number;
@@ -46,18 +32,26 @@ interface GeneralSettingProps {
   defaultClientCurrency?: string;
 }
 
+interface CurrencyRates {
+  [key: string]: number;
+}
+
 interface AppContextType {
   api: AxiosInstance;
   generalSetting: GeneralSettingProps | null;
   isStoreGeneralSettingsLoading: boolean;
   domain: string;
-  userInfo: UserProps | null;
+  userInfo: User | null;
   adminInfo: AdminProps | null;
-  setUserInfo: (user: UserProps | null) => void; // Allow setting to null for logout
+  setUserInfo: (user: User | null) => void; // Allow setting to null for logout
   setAdminInfo: (user: AdminProps | null) => void; // Allow setting to null for logout
   storeId: number | null;
   setStoreId: (storeId: number) => void;
   isLoading: boolean;
+  isRatesLoading: boolean;
+  rates?: CurrencyRates;
+  userCurrency: CurrencyCode;
+  setUserCurrency: (currency: string) => void;
   error: Error | null;
 }
 
@@ -92,11 +86,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     return parsedId;
   });
 
-  const [userInfo, setUserInfo] = useState<UserProps | null>(null);
-  const [adminInfo, setAdminInfo] = useState<AdminProps | null>(null);
-  const [generalSetting, setGeneralSetting] =
-    useState<GeneralSettingProps | null>(null);
-
   const handleSetStoreId = (storeId: number) => {
     setStoreId(storeId);
     if (typeof window !== "undefined") {
@@ -104,11 +93,18 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const [userInfo, setUserInfo] = useState<User | null>(null);
+  const [rates, setRates] = useState<CurrencyRates | {}>();
+  const [adminInfo, setAdminInfo] = useState<AdminProps | null>(null);
+  const [userCurrency, setUserCurrencyState] = useState<CurrencyCode>("USD");
+  const [generalSetting, setGeneralSetting] =
+    useState<GeneralSettingProps | null>(null);
+
   // Load user from IndexedDB on mount
   useEffect(() => {
     const loadUserInfo = async () => {
       try {
-        const storedUser = await get<UserProps | null>("userInfo");
+        const storedUser = await get<User | null>("userInfo");
         if (storedUser) setUserInfo(storedUser);
         const storedAdmin = await get<AdminProps | null>("adminInfo");
         if (storedAdmin) setAdminInfo(storedAdmin);
@@ -122,21 +118,40 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const saveAuthInfo = async () => {
       try {
-        const key = userInfo ? "userInfo" : adminInfo ? "adminInfo" : null;
-        if (key) {
-          await set(key, userInfo || adminInfo);
-        } else {
-          await set("userInfo", null);
-          await set("adminInfo", null);
+        if (userInfo !== undefined) {
+          await set("userInfo", userInfo ?? null);
+        }
+        if (adminInfo !== undefined) {
+          await set("adminInfo", adminInfo ?? null);
         }
       } catch (err) {
         console.error("Failed to save auth info:", err);
       }
     };
+
     saveAuthInfo();
   }, [userInfo, adminInfo]);
 
-  const handleSetUserInfo = async (user: UserProps | null) => {
+  // Ensure it syncs with localStorage
+  useEffect(() => {
+    const savedCurrency = localStorage.getItem("userCurrency");
+    if (savedCurrency) {
+      const upperCurrency = savedCurrency.toUpperCase() as CurrencyCode;
+      setUserCurrencyState(upperCurrency);
+    } else {
+      localStorage.setItem("userCurrency", "USD");
+      setUserCurrencyState("USD");
+    }
+  }, []);
+
+  // Wrap setter to automatically persist and normalize to uppercase
+  const setUserCurrency = (currency: string) => {
+    const upper = currency.toUpperCase();
+    setUserCurrencyState(upper as CurrencyCode);
+    localStorage.setItem("userCurrency", upper);
+  };
+
+  const handleSetUserInfo = async (user: User | null) => {
     // Update state
     setUserInfo(user);
   };
@@ -204,6 +219,18 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     },
   });
 
+  const { isLoading: isRatesLoading } = useQuery({
+    queryKey: ["rates"],
+    queryFn: async () => {
+      const res = await api.get(`/rates`);
+      if (!res.data) {
+        throw new Error("No rates data found");
+      }
+      setRates(res.data.rates as CurrencyRates);
+      return res.data;
+    },
+  });
+
   return (
     <AppContext.Provider
       value={{
@@ -214,10 +241,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         setUserInfo: handleSetUserInfo,
         setAdminInfo: handleSetAdminInfo,
         setStoreId: handleSetStoreId,
+        isRatesLoading,
+        rates,
         domain,
         isLoading,
         generalSetting,
         isStoreGeneralSettingsLoading,
+        userCurrency,
+        setUserCurrency,
         error,
       }}
     >

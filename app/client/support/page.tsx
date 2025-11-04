@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -16,74 +16,77 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageSquare, PlusCircle } from "lucide-react";
-import { SupportTicket } from "@/types";
+import { SupportTicketPublic } from "@/types";
+import { EmptyState } from "@/components/empty-state";
+import {
+  useCreateSupportMessage,
+  useCreateSupportTicket,
+  useGetUserSupportTicket,
+} from "@/hooks/use-support";
+import Loading from "@/app/loading";
 
 export default function SupportPage() {
-  const [tickets, setTickets] = useState<SupportTicket[]>([
-    {
-      id: 1,
-      subject: "Payment not reflecting",
-      status: "open",
-      lastUpdate: "2025-10-10",
-      messages: [
-        {
-          sender: "user",
-          text: "I made a payment but it’s not showing yet.",
-          time: "10:00 AM",
-        },
-        {
-          sender: "support",
-          text: "We’re checking this for you.",
-          time: "10:05 AM",
-        },
-      ],
-    },
-    {
-      id: 2,
-      subject: "Order delay issue",
-      status: "pending",
-      lastUpdate: "2025-10-09",
-      messages: [
-        {
-          sender: "user",
-          text: "My order has been pending for hours.",
-          time: "8:00 AM",
-        },
-        {
-          sender: "support",
-          text: "Please share your order ID.",
-          time: "8:10 AM",
-        },
-      ],
-    },
-  ]);
-
-  const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(
-    null
-  );
+  const [tickets, setTickets] = useState<SupportTicketPublic[] | null>();
+  const [selectedTicket, setSelectedTicket] =
+    useState<SupportTicketPublic | null>(null);
   const [reply, setReply] = useState("");
 
+  const { mutate } = useCreateSupportTicket();
+  const { mutate: sendReply } = useCreateSupportMessage(
+    selectedTicket ? selectedTicket.uid : ""
+  );
+
+  const { data: ticketsData, isLoading } = useGetUserSupportTicket();
+
+
+  React.useEffect(() => {
+    if (ticketsData) {
+      setTickets(ticketsData);
+    }
+  }, [ticketsData]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
+  
+  if (!tickets || tickets.length === 0) {
+    return (
+      <EmptyState
+        icon={MessageSquare}
+        title="No Ticket Found"
+        description="No ticket has been created yet."
+        actionLabel="Create Ticket."
+      />
+    );
+  }
   const handleSendReply = () => {
     if (!reply.trim() || !selectedTicket) return;
 
-    const newMessage = {
-      sender: "user" as const,
-      text: reply,
-      time: new Date().toLocaleTimeString(),
-    };
+    sendReply({
+      message: reply,
+    });
 
-    const updatedTickets: SupportTicket[] = tickets.map((t) =>
-      t.id === selectedTicket.id
-        ? { ...t, messages: [...t.messages, newMessage] }
-        : t
-    );
-
-    setTickets(updatedTickets);
     setSelectedTicket({
       ...selectedTicket,
-      messages: [...selectedTicket.messages, newMessage],
+      messages: [
+        ...selectedTicket.messages,
+        {
+          senderType: "USER",
+          message: reply,
+          createdAt: new Date().toISOString(),
+        },
+      ],
     });
     setReply("");
+  };
+
+  const handleCreateTicket = (e: React.FormEvent) => {
+    e.preventDefault();
+    mutate({
+      subject: (e.target as any).subject.value,
+      message: (e.target as any).message.value,
+    });
+    (e.target as any).reset();
   };
 
   return (
@@ -103,27 +106,7 @@ export default function SupportPage() {
             <DialogHeader>
               <DialogTitle>Create New Ticket</DialogTitle>
             </DialogHeader>
-            <form
-              className="space-y-4"
-              onSubmit={(e) => {
-                e.preventDefault();
-                const newTicket: SupportTicket = {
-                  id: Date.now(),
-                  subject: (e.target as any).subject.value,
-                  status: "open",
-                  lastUpdate: new Date().toISOString().split("T")[0],
-                  messages: [
-                    {
-                      sender: "user",
-                      text: (e.target as any).message.value,
-                      time: new Date().toLocaleTimeString(),
-                    },
-                  ],
-                };
-                setTickets([newTicket, ...tickets]);
-                (e.target as any).reset();
-              }}
-            >
+            <form className="space-y-4" onSubmit={handleCreateTicket}>
               <Input name="subject" placeholder="Subject" required />
               <Textarea
                 name="message"
@@ -156,9 +139,9 @@ export default function SupportPage() {
                 <h3 className="font-medium">{ticket.subject}</h3>
                 <Badge
                   variant={
-                    ticket.status === "open"
+                    ticket.status === "OPEN"
                       ? "default"
-                      : ticket.status === "pending"
+                      : ticket.status === "PENDING"
                       ? "secondary"
                       : "outline"
                   }
@@ -192,19 +175,21 @@ export default function SupportPage() {
                   <div
                     key={i}
                     className={`flex ${
-                      msg.sender === "user" ? "justify-end" : "justify-start"
+                      msg.senderType === "USER"
+                        ? "justify-end"
+                        : "justify-start"
                     }`}
                   >
                     <div
                       className={`max-w-[80%] rounded-lg p-3 text-sm ${
-                        msg.sender === "user"
+                        msg.senderType === "USER"
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted"
                       }`}
                     >
-                      <p>{msg.text}</p>
+                      <p>{msg.message}</p>
                       <span className="text-[10px] opacity-70 block mt-1 text-right">
-                        {msg.time}
+                        {msg.createdAt}
                       </span>
                     </div>
                   </div>

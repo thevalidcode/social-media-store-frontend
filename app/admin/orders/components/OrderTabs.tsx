@@ -1,16 +1,7 @@
 "use client";
 
 import { TypographySmall } from "@/components/typography";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
   Ban,
@@ -20,137 +11,29 @@ import {
   ListTodo,
   XCircle,
 } from "lucide-react";
-import { useAppContext } from "@/context/appContext";
-import { AxiosInstance } from "axios";
-
-// Order status types
-type OrderStatus =
-  | "all"
-  | "active"
-  | "pending"
-  | "partial"
-  | "failed"
-  | "cancelled"
-  | "completed";
-
-// Order interface based on API response
-interface Order {
-  order: number;
-  category: string;
-  service: string;
-  link: string;
-  quantity: number;
-  price: string;
-  status: string;
-  startCount: number;
-  remains: number;
-  currency: string;
-}
-
-// Fetch orders based on status
-async function fetchOrders(
-  api: AxiosInstance,
-  status: OrderStatus
-): Promise<Order[]> {
-  const response = await api.get(`/orders?status=${status}`);
-  const data = (await response.data) as Record<string, Order>;
-  return Object.values(data).filter((order): order is Order =>
-    status === "all" ? true : order.status.toLowerCase() === status
-  );
-}
+import { useGetAllOrders, useGetOrderByStatus } from "@/hooks/use-order";
+import { OrderTable } from "@/app/client/orders/components/OrderTable";
 
 export function OrdersTab() {
-  const { api } = useAppContext();
-  // Query for each tab
-  const { data: allOrders, isLoading: allLoading } = useQuery({
-    queryKey: ["orders", "all"],
-    queryFn: () => fetchOrders(api, "all"),
-  });
+  const { data: allOrders, isLoading: allLoading } = useGetAllOrders();
 
-  const { data: activeOrders, isLoading: activeLoading } = useQuery({
-    queryKey: ["orders", "active"],
-    queryFn: () => fetchOrders(api, "active"),
-  });
+  const { data: activeOrders, isLoading: activeLoading } =
+    useGetOrderByStatus("ACTIVE");
 
-  const { data: pendingOrders, isLoading: pendingLoading } = useQuery({
-    queryKey: ["orders", "pending"],
-    queryFn: () => fetchOrders(api, "pending"),
-  });
+  const { data: pendingOrders, isLoading: pendingLoading } =
+    useGetOrderByStatus("PENDING");
 
-  const { data: partialOrders, isLoading: partialLoading } = useQuery({
-    queryKey: ["orders", "partial"],
-    queryFn: () => fetchOrders(api, "partial"),
-  });
+  const { data: partialOrders, isLoading: partialLoading } =
+    useGetOrderByStatus("PARTIAL");
 
-  const { data: failedOrders, isLoading: failedLoading } = useQuery({
-    queryKey: ["orders", "failed"],
-    queryFn: () => fetchOrders(api, "failed"),
-  });
+  const { data: failedOrders, isLoading: failedLoading } =
+    useGetOrderByStatus("FAILED");
 
-  const { data: cancelledOrders, isLoading: cancelledLoading } = useQuery({
-    queryKey: ["orders", "cancelled"],
-    queryFn: () => fetchOrders(api, "cancelled"),
-  });
+  const { data: cancelledOrders, isLoading: cancelledLoading } =
+    useGetOrderByStatus("CANCELED");
 
-  const { data: completedOrders, isLoading: completedLoading } = useQuery({
-    queryKey: ["orders", "completed"],
-    queryFn: () => fetchOrders(api, "completed"),
-  });
-
-  // Loading state component
-  const LoadingState = () => (
-    <div className="flex items-center justify-center p-4">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-    </div>
-  );
-
-  // Order table component
-  const OrderTable = ({
-    orders,
-    isLoading,
-    rowClassName = "",
-  }: {
-    orders?: Order[];
-    isLoading: boolean;
-    rowClassName?: string;
-  }) => {
-    if (isLoading) return <LoadingState />;
-    if (!orders?.length)
-      return (
-        <div className="flex items-center justify-center min-h-[50dvh] w-full">
-          <p className="text-muted-foreground">No orders found</p>
-        </div>
-      );
-
-    return (
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Order ID</TableHead>
-            <TableHead>Service</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Quantity</TableHead>
-            <TableHead>Price</TableHead>
-            <TableHead>Status</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {orders.map((order) => (
-            <TableRow key={order.order} className={rowClassName}>
-              <TableCell>{order.order}</TableCell>
-              <TableCell>{order.service}</TableCell>
-              <TableCell>{order.category}</TableCell>
-              <TableCell>{order.quantity}</TableCell>
-              <TableCell>
-                {order.price} {order.currency}
-              </TableCell>
-              <TableCell>{order.status}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    );
-  };
+  const { data: completedOrders, isLoading: completedLoading } =
+    useGetOrderByStatus("COMPLETED");
 
   const Trigger = [
     { value: "all", label: "All Orders", icon: ListTodo },

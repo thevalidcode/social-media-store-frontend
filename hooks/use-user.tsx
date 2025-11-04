@@ -1,7 +1,9 @@
 "use client";
 import { useAppContext } from "@/context/appContext";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { User } from "@/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import Decimal from "decimal.js";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 // Custom hook for user-related queries and mutations
@@ -142,12 +144,12 @@ export function useUserLogin() {
 
 // get users
 export function useGetUsers() {
-  const { api } = useAppContext();
+  const { api, storeId } = useAppContext();
   return useQuery({
-    queryKey: ["users"],
+    queryKey: ["users", storeId],
     queryFn: async () => {
       // The 'withCredentials' option is now set globally in the API context.
-      const res = await api.get(`/users`, {});
+      const res = await api.get<User[]>(`/users`, {});
       if (!res.data) throw new Error("Failed to fetch user");
       return res.data;
     },
@@ -162,6 +164,20 @@ export function useGetUserById(id: string) {
     queryFn: async () => {
       const res = await api.get(`/users/${id}`);
       if (!res.data) throw new Error("Failed to fetch user");
+      `
+        return res.data;`;
+    },
+  });
+}
+
+// ! get user affiliate data
+export function useGetUserAffiliateData() {
+  const { api, userInfo } = useAppContext();
+  return useQuery({
+    queryKey: ["userAffiliateData", userInfo?.uid],
+    queryFn: async () => {
+      const res = await api.get(`/users/affiliate`);
+      if (!res.data) throw new Error("Failed to fetch affiliate data");
       return res.data;
     },
   });
@@ -173,7 +189,8 @@ interface DeleteUsersProps {
 
 //! delete multiple users
 export function useDeleteMultipleUsers() {
-  const { api } = useAppContext();
+  const { api, storeId } = useAppContext();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: DeleteUsersProps) => {
       const res = await api.delete(`/users/multiple`, { data });
@@ -182,6 +199,7 @@ export function useDeleteMultipleUsers() {
     },
     onSuccess: () => {
       toast.success("Users deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["users", storeId] });
     },
     onError: (error: unknown) => {
       if (error instanceof AxiosError) {
@@ -223,15 +241,15 @@ export const useDeleteASingleUser = () => {
 
 // update user info
 interface UpdateUserProps {
-  uid: string;
-  username: string;
-  email: string;
-  full_name: string;
-  balance: number;
+  apiKey?: string;
+  username?: string;
+  email?: string;
+  fullName?: string;
 }
 
 export function useUpdateUser() {
   const { api } = useAppContext();
+
   return useMutation({
     mutationFn: async (data: UpdateUserProps) => {
       const res = await api.patch(`/users`, data);
@@ -240,6 +258,37 @@ export function useUpdateUser() {
     },
     onSuccess: () => {
       toast.success("User updated successfully");
+    },
+    onError: (error: unknown) => {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data?.error || "Failed to update user");
+      } else {
+        toast.error("Failed to update user");
+      }
+    },
+  });
+}
+
+interface UpdateUserByAdminProps {
+  apiKey?: string;
+  username?: string;
+  email?: string;
+  fullName?: string;
+  balance?: string;
+}
+
+export function useUpdateUserByAdmin() {
+  const { api, storeId } = useAppContext();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: UpdateUserByAdminProps) => {
+      const res = await api.patch(`/users/admin`, data);
+      if (!res.data) throw new Error("Failed to update user");
+      return res.data;
+    },
+    onSuccess: () => {
+      toast.success("User updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["users", storeId] });
     },
     onError: (error: unknown) => {
       if (error instanceof AxiosError) {

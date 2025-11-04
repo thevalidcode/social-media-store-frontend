@@ -30,7 +30,7 @@ export function useCreateFaq() {
 export function useGetFaqs() {
   const { api, storeId } = useAppContext();
   return useQuery({
-    queryKey: ["faqs"],
+    queryKey: ["faqs", storeId],
     queryFn: async () => {
       const res = await api.get(`/faq?storeId=${storeId}`);
       if (res.data && Array.isArray(res.data)) {

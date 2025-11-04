@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import UserStatusBadge from "./UserStatusBadge";
 import UserActionsMenu from "./UserActionsMenu";
 import { User } from "@/types";
+import { useCurrencyConverter } from "@/lib/currencyConverter";
+import { useAppContext } from "@/context/appContext";
 
 export default function UserTable({
   users,
@@ -41,6 +43,8 @@ export default function UserTable({
   onToggleBan: (id: number) => void;
   onActivate: (id: number) => void;
 }) {
+  const convert = useCurrencyConverter();
+  const { userCurrency } = useAppContext();
   return (
     <div className="rounded-md border overflow-x-auto">
       <Table>
@@ -66,14 +70,16 @@ export default function UserTable({
         </TableHeader>
         <TableBody>
           {users.map((u) => (
-            <TableRow key={u.id}>
+            <TableRow key={u.storeScopedId}>
               <TableCell>
                 <Checkbox
-                  checked={selected.includes(u.id)}
-                  onCheckedChange={(v) => onSelect(u.id, v as boolean)}
+                  checked={selected.includes(u.storeScopedId)}
+                  onCheckedChange={(v) =>
+                    onSelect(u.storeScopedId, v as boolean)
+                  }
                 />
               </TableCell>
-              <TableCell className="font-medium">{u.id}</TableCell>
+              <TableCell className="font-medium">{u.storeScopedId}</TableCell>
               <TableCell>
                 <div className="flex items-center gap-3 min-w-0">
                   <img
@@ -90,9 +96,18 @@ export default function UserTable({
                 </div>
               </TableCell>
               <TableCell className="font-medium">
-                ${u.balance.toFixed(2)}
+                {
+                  convert(u.currency, userCurrency, u.balance, true, true)
+                    .formatted
+                }
               </TableCell>
-              <TableCell>${u.spent.toFixed(2)}</TableCell>
+              <TableCell>
+                {" "}
+                {
+                  convert(u.currency, userCurrency, u.spent, true, true)
+                    .formatted
+                }
+              </TableCell>
               <TableCell className="text-sm text-muted-foreground">
                 {u.timestamp
                   ? new Date(u.timestamp).toLocaleDateString()

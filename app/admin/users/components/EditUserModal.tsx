@@ -13,12 +13,16 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { ArrowDown, ArrowUp, Save, X } from "lucide-react";
+import { useCurrencyConverter } from "@/lib/currencyConverter";
+import { useAppContext } from "@/context/appContext";
+import { User } from "@/types";
+import Decimal from "decimal.js";
 
 interface EditUserModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  user: any;
-  onSave: (updatedUser: any) => void;
+  user: User;
+  onSave: (updatedUser: User) => void;
 }
 
 export default function EditUserModal({
@@ -30,13 +34,15 @@ export default function EditUserModal({
   const [form, setForm] = useState({
     username: "",
     email: "",
-    balance: 0,
+    balance: "",
   });
 
   const [balanceAction, setBalanceAction] = useState<"add" | "remove" | null>(
     null
   );
   const [balanceChange, setBalanceChange] = useState<number>(0);
+  const convert = useCurrencyConverter();
+  const { userCurrency } = useAppContext();
 
   useEffect(() => {
     if (user) {
@@ -51,15 +57,16 @@ export default function EditUserModal({
   }, [user]);
 
   const handleSave = () => {
-    let newBalance = form.balance;
-    if (balanceAction === "add") newBalance += balanceChange;
-    if (balanceAction === "remove") newBalance -= balanceChange;
+    let newBalance = new Decimal(form.balance);
+    if (balanceAction === "add") newBalance = newBalance.plus(balanceChange);
+    if (balanceAction === "remove")
+      newBalance = newBalance.minus(balanceChange);
 
     const updatedUser = {
       ...user,
       username: form.username,
       email: form.email,
-      balance: newBalance < 0 ? 0 : newBalance,
+      balance: newBalance.lt(0) ? "0" : newBalance.toString(),
     };
 
     onSave(updatedUser);
@@ -117,7 +124,10 @@ export default function EditUserModal({
             <div className="flex items-center justify-between">
               <Label>Current Balance</Label>
               <span className="text-lg font-medium text-primary">
-                ₦{form.balance.toLocaleString()}
+                {
+                  convert(user.currency, userCurrency, form.balance, true, true)
+                    .formatted
+                }
               </span>
             </div>
 

@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Pencil, Trash2, Plus, Search } from "lucide-react";
+import { Pencil, Trash2, Plus, Search, BookOpen } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -16,15 +16,35 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Blog } from "@/types";
 import BlogForm from "./components/BlogForm";
-import { POSTS } from "@/app/_docs/doc";
+import {
+  useCreateblog,
+  useDeleteMultipleBlogs,
+  useGetBlogs,
+  useUpdateBlog,
+} from "@/hooks/use-blog";
+import DeleteDialog from "../users/components/DeleteDialog";
+import { EmptyState } from "@/components/empty-state";
 
-// -------------------- Component --------------------
 export default function AdminBlogsPage() {
-  const [blogs, setBlogs] = useState<Blog[]>(POSTS);
+  const [blogs, setBlogs] = useState<Blog[]>([]);
   const [search, setSearch] = useState("");
   const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleteIds, setDeleteIds] = useState<number[]>([]);
+  const [selected, setSelected] = useState<number[]>([]);
+
+  const { mutate: createBlog } = useCreateblog();
+  const { mutate: updateBlog } = useUpdateBlog();
+  const { mutate: deleteMultipleBlogs } = useDeleteMultipleBlogs();
+  const { data: storeBlogs } = useGetBlogs();
+
+  useEffect(() => {
+    if (storeBlogs) {
+      setBlogs(storeBlogs);
+    }
+  }, [storeBlogs]);
 
   // Filtered + sorted blogs (consistent with public BlogPage)
   const filteredBlogs = useMemo(() => {
@@ -38,18 +58,20 @@ export default function AdminBlogsPage() {
 
   // Create new blog
   const handleCreate = () => {
-    const now = new Date().toISOString();
-    setSelectedBlog({
-      id: Date.now(),
+    const newBlog: Blog = {
       title: "",
-      slug: "/new-blog-post-" + Date.now(),
+      slug: `/new-blog-post-${Date.now()}`,
       excerpt: "",
       content: "",
-      status: "active",
-      createdAt: now,
-      updatedAt: now,
-      img: "https://placehold.co/600x400?text=Blog+Image",
-    });
+      coverImage: "https://placehold.co/600x400?text=Blog+Image",
+      updatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      uid: "",
+      id: Date.now(), // temporary unique key for rendering
+      storeScopedId: Date.now(),
+      status: "ACTIVE",
+    };
+    setSelectedBlog({ ...newBlog }); // ensure new object reference
     setIsEditing(false);
     setIsDialogOpen(true);
   };
@@ -61,124 +83,167 @@ export default function AdminBlogsPage() {
     setIsDialogOpen(true);
   };
 
-  // Delete blog
-  const handleDelete = (id: number) => {
-    setBlogs((prev) => prev.filter((b) => b.id !== id));
-    toast.success("Blog deleted successfully");
+  const handleDeleteSingle = (storeScopedId: number) => {
+    setDeleteIds([storeScopedId]);
+    setDeleteOpen(true);
   };
 
+  const handleDeleteConfirm = () => {
+    const usersUids = filteredBlogs
+      .filter((u) => deleteIds.includes(u.storeScopedId))
+      .map((u) => u.uid);
+    deleteMultipleBlogs({ uids: usersUids });
+    setBlogs((prev) =>
+      prev.filter((u) => !deleteIds.includes(u.storeScopedId))
+    );
+    setSelected((prev) => prev.filter((id) => !deleteIds.includes(id)));
+    setDeleteIds([]);
+  };
+
+  const handleDeleteSelected = () => {
+    if (selected.length === 0) return;
+    setDeleteIds(selected);
+    setDeleteOpen(true);
+  };
   // Save (create or update)
   const handleSave = (updated: Blog) => {
     setBlogs((prev) =>
       isEditing
-        ? prev.map((b) => (b.id === updated.id ? updated : b))
+        ? prev.map((b) =>
+            b.storeScopedId === updated.storeScopedId ? updated : b
+          )
         : [updated, ...prev]
     );
 
+    const mutation = isEditing ? updateBlog : createBlog;
+    mutation(
+      isEditing
+        ? updated
+        : {
+            title: updated.title,
+            slug: updated.slug,
+            excerpt: updated.excerpt,
+            content: updated.content,
+            coverImage: updated.coverImage,
+          }
+    );
     toast.success(
       isEditing ? "Blog updated successfully" : "Blog created successfully"
     );
     setIsDialogOpen(false);
   };
 
+  const namesForDelete = blogs
+    .filter((u) => deleteIds.includes(u.storeScopedId))
+    .map((u) => u.title);
+
   return (
     <main className="max-w-7xl mx-auto p-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-3xl font-semibold leading-tight">Manage Blogs</h1>
-          <p className="text-sm text-gray-600 mt-1">
-            Create, edit, and manage your published posts.
-          </p>
-        </div>
-
-        <Button onClick={handleCreate} className="gap-2">
-          <Plus size={18} /> New Blog
-        </Button>
-      </div>
-
-      {/* Search */}
-      <div className="mb-8">
-        <Label htmlFor="search" className="sr-only">
-          Search blogs
-        </Label>
-        <div className="flex gap-2 w-full sm:w-96 relative">
-          <Search className="absolute left-3 top-3.5 w-4 h-4 text-muted-foreground" />
-          <Input
-            id="search"
-            placeholder="Search blogs by title or excerpt..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
-          />
-          {search && (
-            <Button variant="ghost" onClick={() => setSearch("")}>
-              Clear
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {/* Blog List */}
       {filteredBlogs.length === 0 ? (
-        <div className="py-12 text-center text-gray-600">No blogs found.</div>
+        <EmptyState
+          icon={BookOpen}
+          title="No Blog Found"
+          description="No blog have been created yet."
+          actionLabel="Create Blog"
+          onAction={handleCreate}
+        />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredBlogs.map((blog) => (
-            <Card
-              key={blog.id}
-              className="rounded-2xl hover:shadow-2xl transition-shadow duration-300 overflow-hidden"
-            >
-              <div className="relative">
-                <img
-                  src={blog.img}
-                  alt={blog.title}
-                  className="w-full h-44 object-cover"
-                  loading="lazy"
-                />
-              </div>
+        <>
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+              <h1 className="text-3xl font-semibold leading-tight">
+                Manage Blogs
+              </h1>
+              <p className="text-sm text-gray-600 mt-1">
+                Create, edit, and manage your published posts.
+              </p>
+            </div>
 
-              <CardContent className="flex flex-col gap-3 p-4">
-                <CardHeader className="p-0">
-                  <CardTitle className="text-lg font-semibold line-clamp-2">
-                    {blog.title || "Untitled Blog"}
-                  </CardTitle>
-                </CardHeader>
+            <Button onClick={handleCreate} className="gap-2">
+              <Plus size={18} /> New Blog
+            </Button>
+          </div>
 
-                <p className="text-sm text-gray-600 line-clamp-3">
-                  {blog.excerpt || "No excerpt available"}
-                </p>
+          {/* Search */}
+          <div className="mb-8">
+            <Label htmlFor="search" className="sr-only">
+              Search blogs
+            </Label>
+            <div className="flex gap-2 w-full sm:w-96 relative">
+              <Search className="absolute left-3 top-3.5 w-4 h-4 text-muted-foreground" />
+              <Input
+                id="search"
+                placeholder="Search blogs by title or excerpt..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9"
+              />
+              {search && (
+                <Button variant="ghost" onClick={() => setSearch("")}>
+                  Clear
+                </Button>
+              )}
+            </div>
+          </div>
 
-                <div className="mt-auto flex items-center justify-between text-xs text-gray-500">
-                  <time dateTime={blog.createdAt}>
-                    {format(new Date(blog.createdAt), "MMM d, yyyy")}
-                  </time>
-
-                  <div className="flex gap-2">
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      onClick={() => handleEdit(blog)}
-                      aria-label={`Edit ${blog.title}`}
-                    >
-                      <Pencil size={16} />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="destructive"
-                      onClick={() => handleDelete(blog.id)}
-                      aria-label={`Delete ${blog.title}`}
-                    >
-                      <Trash2 size={16} />
-                    </Button>
-                  </div>
+          {/* Blog List */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredBlogs.map((blog) => (
+              <Card
+                key={blog.id}
+                className="rounded-2xl hover:shadow-2xl transition-shadow duration-300 overflow-hidden"
+              >
+                <div className="relative">
+                  <img
+                    src={blog.coverImage}
+                    alt={blog.title}
+                    className="w-full h-44 object-cover"
+                    loading="lazy"
+                  />
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
 
+                <CardContent className="flex flex-col gap-3 p-4">
+                  <CardHeader className="p-0">
+                    <CardTitle className="text-lg font-semibold line-clamp-2">
+                      {blog.title || "Untitled Blog"}
+                    </CardTitle>
+                  </CardHeader>
+
+                  <p className="text-sm text-gray-600 line-clamp-3">
+                    {blog.excerpt || "No excerpt available"}
+                  </p>
+
+                  <div className="mt-auto flex items-center justify-between text-xs text-gray-500">
+                    <time dateTime={blog.createdAt}>
+                      {format(new Date(blog?.createdAt), "MMM d, yyyy")}
+                    </time>
+
+                    <div className="flex gap-2">
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={() => handleEdit(blog)}
+                        aria-label={`Edit ${blog.title}`}
+                      >
+                        <Pencil size={16} />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="destructive"
+                        onClick={() => handleDeleteSingle(blog.storeScopedId)}
+                        aria-label={`Delete ${blog.title}`}
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </>
+      )}
       {/* Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-4xl h-[85vh] overflow-y-auto">
@@ -195,6 +260,15 @@ export default function AdminBlogsPage() {
           )}
         </DialogContent>
       </Dialog>
+      {/* Delete dialog */}
+      <DeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onConfirm={handleDeleteConfirm}
+        count={deleteIds.length}
+        names={namesForDelete}
+        entityName="blog"
+      />
     </main>
   );
 }

@@ -13,60 +13,47 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RefreshCw } from "lucide-react";
-
-type UserProfile = {
-  id: string;
-  name: string;
-  username: string;
-  email: string;
-  role: string;
-  currency: string;
-  balance: number;
-  apiKey: string;
-  avatar: string;
-  joinedAt: string;
-};
-
-const mockUser: UserProfile = {
-  id: "u1",
-  name: "Valid User",
-  username: "validuser",
-  email: "user@validplug.com",
-  role: "Reseller",
-  currency: "NGN",
-  balance: 25000,
-  apiKey: "sk_live_abc123xyz",
-  avatar: "https://picsum.photos/seed/user/200",
-  joinedAt: "2024-01-03",
-};
+import { Eye, EyeOff, RefreshCw } from "lucide-react";
+import CurrencySelect from "@/components/CurrencySelect";
+import { useAppContext } from "@/context/appContext";
+import { useUpdateUser } from "@/hooks/use-user";
 
 export default function UserProfilePage() {
-  const [profile, setProfile] = useState<UserProfile>(mockUser);
   const [editing, setEditing] = useState(false);
+  const { userCurrency, userInfo, setUserInfo } = useAppContext();
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [btnApiKeyVisible, setBtnApiKeyVisible] = useState(false);
+  const { mutate } = useUpdateUser();
+
+  if (!userInfo) return null;
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
-    setProfile((prev) => ({ ...prev, [name]: value }));
-  }
-
-  function handleCurrencyChange(value: string) {
-    setProfile((prev) => ({ ...prev, currency: value }));
+    setUserInfo({ ...userInfo!, [name]: value });
   }
 
   function regenerateApiKey() {
     const newKey =
       "sk_live_" +
-      Math.random().toString(36).substring(2, 10) +
+      Math.random().toString(36).substring(2, 20) +
       Date.now().toString(36);
-    setProfile((prev) => ({ ...prev, apiKey: newKey }));
+    setUserInfo({ ...userInfo!, apiKey: newKey });
+    setBtnApiKeyVisible(true);
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    console.log("Updated User Profile:", profile);
+    mutate({
+      ...userInfo!,
+      fullName: userInfo?.fullName ?? "",
+    });
     setEditing(false);
   }
+
+  const maskedKey =
+    userInfo?.apiKey && userInfo.apiKey.length > 10
+      ? userInfo.apiKey.slice(0, 8) + "********"
+      : "********";
 
   return (
     <main className="min-h-screen w-full p-6">
@@ -79,16 +66,18 @@ export default function UserProfilePage() {
         <Card className="p-8 rounded-2xl shadow-sm">
           <div className="flex flex-col sm:flex-row gap-8 items-start">
             <img
-              src={profile.avatar}
-              alt={profile.name}
+              src={userInfo.image || "/default-avatar.png"}
+              alt={userInfo.fullName || userInfo.username}
               className="w-32 h-32 rounded-full object-cover border border-primary/40"
             />
 
             <div className="flex-1 space-y-2">
-              <h1 className="text-2xl font-semibold">{profile.name}</h1>
-              <p className="text-sm">@{profile.username}</p>
+              <h1 className="text-2xl font-semibold">
+                {userInfo.fullName || "Unnamed User"}
+              </h1>
+              <p className="text-sm">@{userInfo.username}</p>
               <p className="text-sm opacity-80">
-                Joined {new Date(profile.joinedAt).toLocaleDateString()}
+                Joined {new Date(userInfo.timestamp).toLocaleDateString()}
               </p>
 
               <div className="flex gap-3 mt-4">
@@ -107,8 +96,8 @@ export default function UserProfilePage() {
               <div className="grid gap-2">
                 <Label>Full Name</Label>
                 <Input
-                  name="name"
-                  value={profile.name}
+                  name="fullName"
+                  value={userInfo.fullName || ""}
                   onChange={handleChange}
                   required
                 />
@@ -118,7 +107,7 @@ export default function UserProfilePage() {
                 <Label>Username</Label>
                 <Input
                   name="username"
-                  value={profile.username}
+                  value={userInfo.username}
                   onChange={handleChange}
                   required
                 />
@@ -129,7 +118,7 @@ export default function UserProfilePage() {
                 <Input
                   name="email"
                   type="email"
-                  value={profile.email}
+                  value={userInfo.email}
                   onChange={handleChange}
                   required
                 />
@@ -137,52 +126,59 @@ export default function UserProfilePage() {
 
               <div className="grid gap-2">
                 <Label>Role</Label>
-                <Select disabled defaultValue={profile.role}>
+                <Select disabled defaultValue={userInfo.role}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
+                    <SelectValue placeholder="User Role" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Reseller">Reseller</SelectItem>
-                    <SelectItem value="User">User</SelectItem>
+                    <SelectItem value="BASIC">Basic</SelectItem>
+                    <SelectItem value="VIP">VIP</SelectItem>
+                    <SelectItem value="RESELLER">Reseller</SelectItem>
+                    <SelectItem value="PARTNER">Partner</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="grid gap-2">
                 <Label>Balance</Label>
-                <Input
-                  name="balance"
-                  value={profile.balance}
-                  onChange={handleChange}
-                  disabled
-                />
+                <Input name="balance" value={userInfo.balance} disabled />
               </div>
 
               <div className="grid gap-2">
                 <Label>Currency</Label>
-                <Select
-                  value={profile.currency}
-                  onValueChange={handleCurrencyChange}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select currency" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="USD">
-                      USD - United States Dollar
-                    </SelectItem>
-                    <SelectItem value="NGN">NGN - Nigerian Naira</SelectItem>
-                    <SelectItem value="GBP">GBP - British Pound</SelectItem>
-                  </SelectContent>
-                </Select>
+                <CurrencySelect />
+                <p className="text-sm text-muted-foreground">
+                  Selected currency: {userCurrency}
+                </p>
               </div>
 
               <div className="grid gap-2">
                 <Label>API Key</Label>
                 <div className="flex gap-2">
-                  <Input name="apiKey" value={profile.apiKey} readOnly />
+                  <Input
+                    name="apiKey"
+                    value={showApiKey ? userInfo?.apiKey : maskedKey}
+                    readOnly
+                  />
                   <Button
                     variant="secondary"
+                    type="button"
+                    onClick={() => {
+                      if (btnApiKeyVisible) {
+                        setShowApiKey(!showApiKey);
+                      }
+                    }}
+                    disabled={!btnApiKeyVisible}
+                  >
+                    {showApiKey ? (
+                      <EyeOff className="w-4 h-4 mr-1" />
+                    ) : (
+                      <Eye className="w-4 h-4 mr-1" />
+                    )}
+                    {showApiKey ? "Hide" : "Reveal"}
+                  </Button>
+                  <Button
+                    variant="default"
                     type="button"
                     onClick={regenerateApiKey}
                   >

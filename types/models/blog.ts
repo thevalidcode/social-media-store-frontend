@@ -1,11 +1,15 @@
+export type BlogStatus= "ACTIVE" | "DISABLED"
+
 export type Blog = {
   id: number;
-  slug: string; // slug or uid
+  uid: string;
+  slug: string;
   title: string;
-  img: string;
+  storeScopedId: number;
+  coverImage: string;
   excerpt: string;
-  content: string; // html
-  status: "active" | "draft" | "disabled";
-  createdAt: string; // ISO
-  updatedAt: string; // ISO
+  content: string;
+  status: BlogStatus;
+  createdAt: string;
+  updatedAt: string;
 };

@@ -1,18 +1,51 @@
-export interface SupportTicket {
-  id: number;
-  subject: string;
-  status: "open" | "closed" | "pending";
-  lastUpdate: string;
-  messages: { sender: "user" | "support"; text: string; time: string }[];
-}
+// src/types/models/supportTicket.ts
 
-export interface SupportTicketAdmin {
+// Enums (match Prisma enum identifiers, NOT mapped DB values)
+export type TicketStatus = "OPEN" | "PENDING" | "RESOLVED" | "CLOSED";
+export type TicketPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+export type MessageSenderType = "USER" | "ADMIN";
+
+/**
+ * Message model (matches Prisma's TicketMessage)
+ */
+export interface TicketMessage {
   id: number;
-  subject: string;
-  status: "open" | "in-progress" | "resolved" | "closed";
-  user: { name: string; email: string };
+  uid: string;
+  ticketUid: string;
+  senderUid: string;
+  senderType: MessageSenderType;
   message: string;
   createdAt: string;
-  messages: { sender: "user" | "support"; text: string; time: string }[];
-  priority: "low" | "medium" | "high";
+}
+
+/**
+ * Base Support Ticket model (internal use)
+ */
+export interface SupportTicket {
+  id: number;
+  uid: string;
+  description?: string | null;
+  storeId: number;
+  userUid: string;
+  storeScopedId: number;
+  subject: string;
+  status: TicketStatus;
+  priority: TicketPriority;
+  createdAt: string;
+  updatedAt: string;
+  messages: TicketMessage[];
+}
+
+/**
+ * Public-facing support ticket
+ * (For users viewing their own tickets)
+ */
+export interface SupportTicketPublic
+  extends Omit<SupportTicket, "storeId" | "userUid" | "messages"> {
+  lastUpdate: string;
+  messages: {
+    senderType: MessageSenderType;
+    message: string;
+    createdAt: string;
+  }[];
 }

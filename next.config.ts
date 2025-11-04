@@ -15,7 +15,8 @@ const nextConfig: NextConfig = {
       {
         source: "/api/:path*",
         destination:
-          "https://validpanel.com/social-media-store/backend/api/v1/:path*",
+          // "https://validpanel.com/social-media-store/backend/api/v1/:path*",
+          "http://localhost:6060/api/v1/:path*",
       },
     ];
   },

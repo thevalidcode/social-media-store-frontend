@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   LogIn,
   Menu,
+  MessageSquare,
   PlusIcon,
   Server,
   ShoppingCart,
@@ -68,7 +69,7 @@ const baseNavigation = [
     title: "Help & Support",
     items: [
       { title: "FAQ", url: "/client/faq", icon: HelpCircle },
-      { title: "Contact Support", url: "/client/support", icon: HelpCircle },
+      { title: "Contact Support", url: "/client/support", icon: MessageSquare },
       { title: "API Docs", url: "/client/api-docs", icon: Code },
     ],
   },

@@ -121,6 +121,12 @@ export default function WysiwygEditor({
     editorRef?.(editor ?? null);
   }, [editor, editorRef]);
 
+  useEffect(() => {
+    if (editor && initialContent !== editor.getHTML()) {
+      editor.commands.setContent(initialContent || "");
+    }
+  }, [initialContent, editor]);
+
   const execInsertImage = useCallback(
     (file: File) => {
       const reader = new FileReader();
@@ -211,6 +217,7 @@ export default function WysiwygEditor({
       <div className="flex flex-wrap gap-2 items-center bg-card p-2 rounded-md border border-border">
         {enable.bold && (
           <Button
+            type="button"
             size="sm"
             variant={editor.isActive("bold") ? "default" : "ghost"}
             onClick={() => handleToggleMark("bold")}
@@ -222,6 +229,7 @@ export default function WysiwygEditor({
 
         {enable.italic && (
           <Button
+            type="button"
             size="sm"
             variant={editor.isActive("italic") ? "default" : "ghost"}
             onClick={() => handleToggleMark("italic")}
@@ -232,6 +240,7 @@ export default function WysiwygEditor({
 
         {enable.code && (
           <Button
+            type="button"
             size="sm"
             variant={editor.isActive("code") ? "default" : "ghost"}
             onClick={() => handleToggleMark("code")}
@@ -263,6 +272,7 @@ export default function WysiwygEditor({
         {enable.lists && (
           <>
             <Button
+              type="button"
               size="sm"
               variant={editor.isActive("bulletList") ? "default" : "ghost"}
               onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -270,6 +280,7 @@ export default function WysiwygEditor({
               • List
             </Button>
             <Button
+              type="button"
               size="sm"
               variant={editor.isActive("orderedList") ? "default" : "ghost"}
               onClick={() => editor.chain().focus().toggleOrderedList().run()}
@@ -282,6 +293,7 @@ export default function WysiwygEditor({
         {enable.align && (
           <>
             <Button
+              type="button"
               size="sm"
               variant="ghost"
               onClick={() => setTextAlign("left")}
@@ -289,6 +301,7 @@ export default function WysiwygEditor({
               L
             </Button>
             <Button
+              type="button"
               size="sm"
               variant="ghost"
               onClick={() => setTextAlign("center")}
@@ -296,6 +309,7 @@ export default function WysiwygEditor({
               C
             </Button>
             <Button
+              type="button"
               size="sm"
               variant="ghost"
               onClick={() => setTextAlign("right")}
@@ -303,6 +317,7 @@ export default function WysiwygEditor({
               R
             </Button>
             <Button
+              type="button"
               size="sm"
               variant="ghost"
               onClick={() => setTextAlign("justify")}
@@ -313,19 +328,25 @@ export default function WysiwygEditor({
         )}
 
         {enable.image && (
-          <Button size="sm" variant="ghost" onClick={handlePickImage}>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={handlePickImage}
+          >
             Image
           </Button>
         )}
 
         {enable.link && (
-          <Button size="sm" variant="ghost" onClick={insertLink}>
+          <Button type="button" size="sm" variant="ghost" onClick={insertLink}>
             Link
           </Button>
         )}
 
         {enable.highlight && (
           <Button
+            type="button"
             size="sm"
             variant={editor.isActive("highlight") ? "default" : "ghost"}
             onClick={() => editor.chain().focus().toggleHighlight().run()}
@@ -359,6 +380,7 @@ export default function WysiwygEditor({
 
         <div className="ml-auto flex items-center gap-2">
           <Button
+            type="button"
             size="sm"
             variant="ghost"
             onClick={() => editor.chain().focus().undo().run()}
@@ -366,6 +388,7 @@ export default function WysiwygEditor({
             Undo
           </Button>
           <Button
+            type="button"
             size="sm"
             variant="ghost"
             onClick={() => editor.chain().focus().redo().run()}
@@ -376,6 +399,7 @@ export default function WysiwygEditor({
           <Separator orientation="vertical" />
 
           <Button
+            type="button"
             size="sm"
             onClick={() => onChange?.(editor.getHTML(), editor)}
           >
@@ -383,7 +407,7 @@ export default function WysiwygEditor({
           </Button>
 
           {onSave && (
-            <Button size="sm" onClick={handleSave}>
+            <Button type="button" size="sm" onClick={handleSave}>
               Save
             </Button>
           )}

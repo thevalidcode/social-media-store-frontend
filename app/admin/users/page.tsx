@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import UserTable from "./components/UserTable";
 import UserCardList from "./components/UserCardList";
 import DeleteDialog from "./components/DeleteDialog";
-import { mockUsers } from "./mockUsers";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,9 +17,17 @@ import { useIsMobile } from "@/hooks/use-mobile"; // your hook
 import { User } from "@/types";
 import Pagination from "@/components/pagination";
 import EditUserModal from "./components/EditUserModal";
+import {
+  useDeleteMultipleUsers,
+  useGetUsers,
+  useUpdateUserByAdmin,
+} from "@/hooks/use-user";
+import { EmptyState } from "@/components/empty-state";
+import { Users } from "lucide-react";
+import Loading from "@/app/loading";
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [users, setUsers] = useState<User[] | []>([]);
   const [selected, setSelected] = useState<number[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | User["status"]>(
@@ -35,8 +42,17 @@ export default function UsersPage() {
   const [deleteIds, setDeleteIds] = useState<number[]>([]);
   const [editingUser, setEditingUser] = useState<any>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const { data: usersData, isLoading } = useGetUsers();
+  const { mutate } = useDeleteMultipleUsers();
+  const { mutate: updateUser } = useUpdateUserByAdmin();
 
   const isMobile = useIsMobile();
+
+  useEffect(() => {
+    if (usersData) {
+      setUsers(usersData);
+    }
+  }, [usersData]);
 
   // derived lists
   const filtered = useMemo(() => {
@@ -69,6 +85,20 @@ export default function UsersPage() {
     return arr;
   }, [filtered, sortField, sortDirection]);
 
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (!isLoading && users.length === 0) {
+    return (
+      <EmptyState
+        icon={Users}
+        title="No User Found"
+        description="No user has been created yet."
+      />
+    );
+  }
+
   const current = sorted.slice((page - 1) * pageSize, page * pageSize);
 
   // handlers
@@ -78,9 +108,10 @@ export default function UsersPage() {
     );
   };
   const selectAllCurrent = (checked: boolean) => {
-    if (checked) setSelected(current.map((u) => u.id));
+    if (checked) setSelected(current.map((u) => u.storeScopedId));
     else setSelected([]);
   };
+
   const handleSort = (field: keyof User) => {
     if (sortField === field)
       setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
@@ -95,18 +126,28 @@ export default function UsersPage() {
     setIsEditOpen(true);
   };
 
-  const handleSaveUser = (updatedUser: any) => {
+  const handleSaveUser = (updatedUser: User) => {
     setUsers((prev: any[]) =>
-      prev.map((u) => (u.id === updatedUser.id ? updatedUser : u))
+      prev.map((u) =>
+        u.storeScopedId === updatedUser.storeScopedId ? updatedUser : u
+      )
     );
+    updateUser(updatedUser);
   };
 
   const handleDeleteSingle = (id: number) => {
     setDeleteIds([id]);
     setDeleteOpen(true);
   };
+
   const handleDeleteConfirm = () => {
-    setUsers((prev) => prev.filter((u) => !deleteIds.includes(u.id)));
+    const usersUids = users
+      .filter((u) => deleteIds.includes(u.storeScopedId))
+      .map((u) => u.uid);
+    mutate({ uids: usersUids });
+    setUsers((prev) =>
+      prev.filter((u) => !deleteIds.includes(u.storeScopedId))
+    );
     setSelected((prev) => prev.filter((id) => !deleteIds.includes(id)));
     setDeleteIds([]);
   };
@@ -116,12 +157,17 @@ export default function UsersPage() {
     setDeleteIds(selected);
     setDeleteOpen(true);
   };
+  
+  const namesForDelete = users
+    .filter((u) => deleteIds.includes(u.storeScopedId))
+    .map((u) => u.username);
+
 
   const handleToggleBan = (id: number) => {
     setUsers((prev) =>
       prev.map((u) =>
-        u.id === id
-          ? { ...u, status: u.status === "banned" ? "active" : "banned" }
+        u.storeScopedId === id
+          ? { ...u, status: u.status === "BANNED" ? "ACTIVE" : "BANNED" }
           : u
       )
     );
@@ -129,13 +175,9 @@ export default function UsersPage() {
 
   const handleActivate = (id: number) => {
     setUsers((prev) =>
-      prev.map((u) => (u.id === id ? { ...u, status: "active" } : u))
+      prev.map((u) => (u.storeScopedId === id ? { ...u, status: "ACTIVE" } : u))
     );
   };
-
-  const namesForDelete = users
-    .filter((u) => deleteIds.includes(u.id))
-    .map((u) => u.username);
 
   return (
     <main className="p-6 space-y-6">
@@ -165,7 +207,6 @@ export default function UsersPage() {
               <SelectItem value="all">All</SelectItem>
               <SelectItem value="active">Active</SelectItem>
               <SelectItem value="offline">Offline</SelectItem>
-              <SelectItem value="away">Away</SelectItem>
               <SelectItem value="banned">Banned</SelectItem>
             </SelectContent>
           </Select>
@@ -175,7 +216,7 @@ export default function UsersPage() {
           <Button
             variant="outline"
             onClick={() => {
-              setUsers(mockUsers);
+              setUsers(usersData || []);
               setSelected([]);
               setSearch("");
               setStatusFilter("all");
@@ -207,7 +248,9 @@ export default function UsersPage() {
               onClick={() =>
                 setUsers((prev) =>
                   prev.map((u) =>
-                    selected.includes(u.id) ? { ...u, status: "active" } : u
+                    selected.includes(u.storeScopedId)
+                      ? { ...u, status: "ACTIVE" }
+                      : u
                   )
                 )
               }
@@ -220,7 +263,9 @@ export default function UsersPage() {
               onClick={() =>
                 setUsers((prev) =>
                   prev.map((u) =>
-                    selected.includes(u.id) ? { ...u, status: "banned" } : u
+                    selected.includes(u.storeScopedId)
+                      ? { ...u, status: "BANNED" }
+                      : u
                   )
                 )
               }
@@ -282,6 +327,7 @@ export default function UsersPage() {
         onConfirm={handleDeleteConfirm}
         count={deleteIds.length}
         names={namesForDelete}
+        entityName="user"
       />
 
       {/* Edit user modal */}

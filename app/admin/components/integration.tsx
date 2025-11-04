@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Code2 } from "lucide-react"; // removed unused icons
 import { useState } from "react";
 
-import igPng from "@/public/images/ig.png";
+import igPng from "@/public/images/ig.jpeg";
 import wppPng from "@/public/images/whatsapp.png";
 
 import Image, { StaticImageData } from "next/image"; // needed for StaticImageData

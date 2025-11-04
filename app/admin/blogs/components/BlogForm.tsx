@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,10 +16,36 @@ interface BlogFormProps {
 }
 
 export default function BlogForm({ blog, onSave, onCancel }: BlogFormProps) {
-  const [title, setTitle] = useState(blog.title || "");
-  const [excerpt, setExcerpt] = useState(blog.excerpt || "");
-  const [content, setContent] = useState(blog.content || "");
-  const [img, setImg] = useState(blog.img || "");
+  const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
+  const [excerpt, setExcerpt] = useState("");
+  const [content, setContent] = useState("");
+  const [img, setImg] = useState("");
+
+  // ✅ Sync local state with blog prop every time it's updated (edit/create)
+  useEffect(() => {
+    if (blog) {
+      setTitle(blog.title || "");
+      setSlug(blog.slug || "");
+      setExcerpt(blog.excerpt || "");
+      setContent(blog.content || "");
+      setImg(blog.coverImage || "");
+    }
+  }, [blog]);
+
+  // ✅ Auto-generate slug from title
+  useEffect(() => {
+    if (title.trim()) {
+      const generatedSlug =
+        "/" +
+        title
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9\s-]/g, "")
+          .replace(/\s+/g, "-");
+      setSlug(generatedSlug);
+    }
+  }, [title]);
 
   const handleSubmit = () => {
     if (!title.trim() || !excerpt.trim() || !content.trim()) {
@@ -27,14 +53,13 @@ export default function BlogForm({ blog, onSave, onCancel }: BlogFormProps) {
       return;
     }
 
-    const now = new Date().toISOString();
     const updated: Blog = {
       ...blog,
       title: title.trim(),
+      slug: slug.trim(),
       excerpt: excerpt.trim(),
       content: content.trim(),
-      img: img.trim() || "https://placehold.co/600x400?text=Blog+Image",
-      updatedAt: now,
+      coverImage: img.trim() || "https://placehold.co/600x400?text=Blog+Image",
     };
 
     onSave(updated);
@@ -57,6 +82,12 @@ export default function BlogForm({ blog, onSave, onCancel }: BlogFormProps) {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
+      </div>
+
+      {/* Slug */}
+      <div className="space-y-2">
+        <Label htmlFor="slug">Slug</Label>
+        <Input id="slug" value={slug} disabled />
       </div>
 
       {/* Excerpt */}
@@ -86,6 +117,7 @@ export default function BlogForm({ blog, onSave, onCancel }: BlogFormProps) {
       <div className="space-y-2">
         <Label>Content</Label>
         <WysiwygEditor
+          key={blog.uid || "new"} // ✅ ensures re-render between create/edit
           initialContent={content}
           onChange={setContent}
           collection="blogs"
@@ -99,7 +131,7 @@ export default function BlogForm({ blog, onSave, onCancel }: BlogFormProps) {
           Cancel
         </Button>
         <Button type="submit">
-          {blog.id ? "Save Changes" : "Create Blog"}
+          {blog?.id ? "Save Changes" : "Create Blog"}
         </Button>
       </div>
     </form>

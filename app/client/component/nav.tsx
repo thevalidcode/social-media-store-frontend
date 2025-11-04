@@ -66,7 +66,7 @@ export function TopNav() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Notifications />
+          {/* <Notifications /> */}
           <ThemeToggle />
         </div>
       </Wrapper>

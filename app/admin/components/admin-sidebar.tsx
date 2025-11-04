@@ -236,7 +236,7 @@ export function AdminSidebar({
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => router.push("/admin/profile")}>
                   <User />
-                  Profile
+                  Account
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleAuthAction}>
