@@ -42,19 +42,27 @@ export const useGetBlogs = () => {
   });
 };
 
-export const useGetBlogById = (blogUid: string) => {
+export const useGetBlogById = (blogId: number) => {
   const { api, storeId } = useAppContext();
   return useQuery({
-    queryKey: ["blogUid", storeId, blogUid],
+    queryKey: ["blogId", storeId, blogId],
     queryFn: async () => {
-      const res = await api.get(`/blogs/${blogUid}?storeId=${storeId}`);
-      if (!res.data) {
-        throw new Error("an error occurred, failed to get blog data");
-        return res.data;
+      const res = await api.get<{ blog: Blog | null }>(
+        `/blogs/${blogId}?storeId=${storeId}`
+      );
+
+      const blog = res.data?.blog;
+
+      if (!blog) {
+        throw new Error("Blog not found");
       }
+
+      return blog;
     },
+    enabled: !!blogId && !!storeId,
   });
 };
+
 export const useUpdateBlog = () => {
   const { api } = useAppContext();
   const queryClient = useQueryClient();

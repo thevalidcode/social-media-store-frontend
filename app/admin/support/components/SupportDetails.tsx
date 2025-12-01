@@ -1,11 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { SupportTicket } from "@/types/models/support";
+import { MessageSenderType, SupportTicket } from "@/types/models/support";
+import {
+  useCreateSupportMessage,
+  useGetSupportTicketByUid,
+} from "@/hooks/use-support";
+import { useAppContext } from "@/context/appContext";
+import Loading from "@/app/loading";
 
 interface Props {
   ticket: SupportTicket;
@@ -15,15 +21,30 @@ interface Props {
 export default function TicketDetails({ ticket, onClose }: Props) {
   const [reply, setReply] = useState("");
   const [messages, setMessages] = useState(ticket.messages);
+  const { mutate: sendMessage } = useCreateSupportMessage(ticket.uid);
+  const { adminInfo } = useAppContext();
+  const { data: ticketData, isLoading } = useGetSupportTicketByUid(ticket.uid);
+
+  useEffect(() => {
+    if (ticketData) {
+      setMessages(ticketData.messages);
+    }
+  }, [ticketData]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   const handleReply = () => {
     if (!reply.trim()) return;
     const newMsg = {
-      sender: "support" as const,
-      text: reply,
-      time: new Date().toLocaleTimeString(),
+      senderType: "ADMIN" as MessageSenderType,
+      message: reply,
+      createdAt: new Date(),
+      ticketUid: ticket.uid,
+      senderUid: adminInfo?.uid,
     };
-    setMessages([...messages, newMsg]);
+    sendMessage(newMsg);
     setReply("");
   };
 
@@ -45,17 +66,19 @@ export default function TicketDetails({ ticket, onClose }: Props) {
           <div
             key={i}
             className={`flex ${
-              msg.sender === "support" ? "justify-end" : "justify-start"
+              msg.senderType === "ADMIN" ? "justify-end" : "justify-start"
             }`}
           >
             <div
               className={`max-w-[80%] rounded-lg p-3 text-sm ${
-                msg.sender === "support" ? "bg-primary text-white" : "bg-muted"
+                msg.senderType === "ADMIN"
+                  ? "bg-primary text-white"
+                  : "bg-muted"
               }`}
             >
-              <p>{msg.text}</p>
+              <p>{msg.message}</p>
               <span className="text-[10px] opacity-70 block mt-1 text-right">
-                {msg.time}
+                {msg.createdAt}
               </span>
             </div>
           </div>

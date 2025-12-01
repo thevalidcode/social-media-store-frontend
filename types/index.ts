@@ -6,5 +6,8 @@ export * from "./models/paymentGateway";
 export * from "./models/category";
 export * from "./models/provider";
 export * from "./models/user";
+export * from "./models/faq";
+export * from "./models/admin";
+export * from "./models/upload-log";
 export * from "./auth";
 export * from "./wysiwyg";

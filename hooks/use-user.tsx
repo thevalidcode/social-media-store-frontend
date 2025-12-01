@@ -1,6 +1,6 @@
 "use client";
 import { useAppContext } from "@/context/appContext";
-import { User } from "@/types";
+import { User, UserStatus } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import Decimal from "decimal.js";
@@ -241,14 +241,16 @@ export const useDeleteASingleUser = () => {
 
 // update user info
 interface UpdateUserProps {
-  apiKey?: string;
   username?: string;
   email?: string;
+  apiKey?: string;
   fullName?: string;
+  image?: string;
+  status?: UserStatus;
 }
 
 export function useUpdateUser() {
-  const { api } = useAppContext();
+  const { api, setUserInfo } = useAppContext();
 
   return useMutation({
     mutationFn: async (data: UpdateUserProps) => {
@@ -256,8 +258,11 @@ export function useUpdateUser() {
       if (!res.data) throw new Error("Failed to update user");
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: (updatedUser: any) => {
       toast.success("User updated successfully");
+      setUserInfo({
+        ...updatedUser.user,
+      });
     },
     onError: (error: unknown) => {
       if (error instanceof AxiosError) {

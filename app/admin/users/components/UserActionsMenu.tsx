@@ -17,13 +17,11 @@ export default function UserActionsMenu({
   onEdit,
   onDelete,
   onToggleBan,
-  onActivate,
 }: {
   user: User;
   onEdit: (u: User) => void;
   onDelete: (id: number) => void;
   onToggleBan: (id: number) => void;
-  onActivate: (id: number) => void;
 }) {
   return (
     <DropdownMenu>
@@ -37,9 +35,6 @@ export default function UserActionsMenu({
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuItem onClick={() => onEdit(user)}>
           <Edit className="mr-2 h-4 w-4" /> Edit
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onActivate(user.id)}>
-          <UserCheck className="mr-2 h-4 w-4" /> Activate
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => onToggleBan(user.id)}>
           <BanIcon className="mr-2 h-4 w-4" />{" "}

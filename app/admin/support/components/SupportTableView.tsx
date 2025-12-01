@@ -1,8 +1,15 @@
 "use client";
 
 import { Checkbox } from "@/components/ui/checkbox";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { SupportTicketAdmin } from "@/types";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { SupportTicket } from "@/types";
 import SupportBadge from "./SupportBadge";
 import SupportPriority from "./SupportPriority";
 import SupportActionsMenu from "./SupportActionsMenu";
@@ -14,7 +21,7 @@ export default function SupportTableView({
   onSelectAll,
   onSelectTicket,
 }: {
-  tickets: SupportTicketAdmin[];
+  tickets: SupportTicket[];
   selectedTickets: string[];
   onSelectAll: (checked: boolean) => void;
   onSelectTicket: (ticketId: string, checked: boolean) => void;
@@ -35,7 +42,10 @@ export default function SupportTableView({
           <TableRow>
             <TableHead className="w-12">
               <Checkbox
-                checked={selectedTickets.length === tickets.length && tickets.length > 0}
+                checked={
+                  selectedTickets.length === tickets.length &&
+                  tickets.length > 0
+                }
                 onCheckedChange={onSelectAll}
               />
             </TableHead>
@@ -62,11 +72,14 @@ export default function SupportTableView({
               </TableCell>
               <TableCell className="font-medium">{ticket.id}</TableCell>
               <TableCell>
-                <Link href={`/admin/support/${ticket.id}`} className="font-medium hover:underline">
+                <Link
+                  href={`/admin/support/${ticket.id}`}
+                  className="font-medium hover:underline"
+                >
                   {ticket.subject}
                 </Link>
                 <div className="text-sm text-muted-foreground truncate mt-1">
-                  {ticket.message}
+                  {ticket.messages[0].message}
                 </div>
               </TableCell>
               <TableCell>
@@ -74,8 +87,10 @@ export default function SupportTableView({
               </TableCell>
               <TableCell>
                 <div>
-                  <div className="font-medium">{ticket.user.name}</div>
-                  <div className="text-sm text-muted-foreground">{ticket.user.email}</div>
+                  <div className="font-medium">{ticket.user.fullName}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {ticket.user.email}
+                  </div>
                 </div>
               </TableCell>
               <TableCell>

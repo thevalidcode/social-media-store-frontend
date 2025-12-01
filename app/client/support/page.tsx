@@ -38,7 +38,6 @@ export default function SupportPage() {
 
   const { data: ticketsData, isLoading } = useGetUserSupportTicket();
 
-
   React.useEffect(() => {
     if (ticketsData) {
       setTickets(ticketsData);
@@ -48,7 +47,7 @@ export default function SupportPage() {
   if (isLoading) {
     return <Loading />;
   }
-  
+
   if (!tickets || tickets.length === 0) {
     return (
       <EmptyState

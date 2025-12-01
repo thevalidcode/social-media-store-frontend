@@ -82,10 +82,10 @@ export function DynamicStackedChart({
       <CardFooter>
         <div className="flex w-full items-start gap-2 text-sm">
           <div className="grid gap-2">
-            <div className="flex items-center gap-2 leading-none font-medium">
+            {/* <div className="flex items-center gap-2 leading-none font-medium">
               Trending up by {trendPercentage}% this month{" "}
               <TrendingUp className="h-4 w-4" />
-            </div>
+            </div> */}
             <div className="text-muted-foreground flex items-center gap-2 leading-none">
               {period}
             </div>

@@ -49,7 +49,7 @@ export const ServicesCardsMobile = ({
               <div className="mt-2 flex items-center gap-3">
                 <div className="text-sm">
                   {
-                    convert(s.currency, userCurrency, s.price, true, true)
+                    convert(s.currency, userCurrency, s.price, true, false)
                       .formatted
                   }
                 </div>

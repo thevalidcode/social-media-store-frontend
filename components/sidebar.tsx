@@ -42,6 +42,8 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAppContext } from "@/context/appContext";
+import Image from "next/image";
+import { del } from "idb-keyval";
 
 // Full navigation definition
 const baseNavigation = [
@@ -115,9 +117,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   if (isStoreGeneralSettingsLoading) return <div>Loading...</div>;
 
-  const handleAuthAction = () => {
+  const handleAuthAction = async () => {
     if (userInfo) {
       setUserInfo(null);
+      await del("userInfo"); // User is logging out
       router.push("/");
     } else {
       router.push("/auth/signin");
@@ -131,9 +134,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton size="md" asChild>
               <Link href="/">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Menu className="size-4" />
-                </div>
+                {generalSetting?.logoUrl && (
+                  <Image
+                    src={generalSetting.logoUrl}
+                    alt="logo"
+                    width={32}
+                    height={32}
+                    className="rounded-sm"
+                  />
+                )}
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold text-md">
                     {generalSetting?.storeName || "Social Media Store"}
@@ -185,7 +194,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage
-                      src="https://github.com/shadcn.png"
+                      src={userInfo?.image || "https://github.com/shadcn.png"}
                       alt="User"
                     />
                     <AvatarFallback className="rounded-lg">JD</AvatarFallback>
@@ -211,7 +220,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                     <Avatar className="h-8 w-8 rounded-lg">
                       <AvatarImage
-                        src="https://github.com/shadcn.png"
+                        src={userInfo?.image || "https://github.com/shadcn.png"}
                         alt="User"
                       />
                       <AvatarFallback className="rounded-lg">JD</AvatarFallback>

@@ -169,7 +169,7 @@ export const OrderTable = ({
                         userCurrency,
                         order.price,
                         true,
-                        true
+                        false
                       ).formatted
                     }
                   </span>

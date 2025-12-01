@@ -1,19 +1,21 @@
 "use client";
 
-import {
-  ordersConfig,
-  ordersData,
-  paymentsConfig,
-  paymentsData,
-} from "@/app/_docs/doc";
-import { MetricsCards } from "../component/dashboard-metric-cards";
-import RecentActivity from "../component/recent-activity";
+import { ordersConfig, paymentsConfig } from "@/app/_docs/doc";
+import { MetricsCards } from "./components/metric-cards";
+import RecentActivity from "./components/recent-activity";
 import { DynamicStackedChart } from "./components/charts";
 import { useGetUserDashboardStatistics } from "@/hooks/use-statistics";
 import Loading from "@/app/loading";
-import { BoxIcon, DollarSignIcon, ShoppingCartIcon, XIcon } from "lucide-react";
+import {
+  BoxIcon,
+  DollarSignIcon,
+  Server,
+  ShoppingCartIcon,
+  XIcon,
+} from "lucide-react";
 import { useCurrencyConverter } from "@/lib/currencyConverter";
 import { useAppContext } from "@/context/appContext";
+import { EmptyState } from "@/components/empty-state";
 
 export default function Dashboard() {
   const { data, isLoading } = useGetUserDashboardStatistics();
@@ -31,7 +33,7 @@ export default function Dashboard() {
     userCurrency,
     data?.yourSpent!,
     true,
-    true
+    false
   );
 
   const metrics = [
@@ -62,10 +64,7 @@ export default function Dashboard() {
         metrics={metrics.map((m) => ({
           title: m.label,
           icon: m.icon,
-          value:
-            typeof m.value === "string"
-              ? Number(m.value.replace(/[^0-9.-]+/g, "")) || 0
-              : m.value,
+          value: m.value,
         }))}
       />
       {/* charts */}
@@ -73,7 +72,7 @@ export default function Dashboard() {
         <DynamicStackedChart
           title="Orders Overview"
           description="Showing total orders for the last 6 months."
-          data={data ? data.ordersData : ordersData}
+          data={data ? data.ordersData : []}
           config={ordersConfig}
           dataKeys={["completed", "orders"]}
           trendPercentage={93}
@@ -81,13 +80,23 @@ export default function Dashboard() {
         <DynamicStackedChart
           title="Payments Overview"
           description="Payment amounts in USD for the last 6 months"
-          data={data ? data.paymentsData : paymentsData}
+          data={data ? data.paymentsData : []}
           config={paymentsConfig}
           dataKeys={["successful", "failed"]}
           trendPercentage={60}
         />
       </div>
-      <RecentActivity services={data?.recentlyAddedServices} />
+      {data &&
+      data.recentlyAddedServices &&
+      data.recentlyAddedServices.length === 0 ? (
+        <EmptyState
+          icon={Server}
+          title="No Service Found"
+          description="No service has been created yet."
+        />
+      ) : (
+        <RecentActivity services={data?.recentlyAddedServices} />
+      )}
     </div>
   );
 }

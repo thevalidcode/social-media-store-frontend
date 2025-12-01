@@ -1,5 +1,6 @@
 "use client";
 import { useAppContext } from "@/context/appContext";
+import { AdminStatus } from "@/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
@@ -64,105 +65,29 @@ export function useAdminLogin() {
   });
 }
 
-// get admins
-export function useGetAdmins() {
-  const { api } = useAppContext();
-  return useQuery({
-    queryKey: ["admins"],
-    queryFn: async () => {
-      // The 'withCredentials' option is now set globally in the API context.
-      const res = await api.get(`/admins`, {});
-      if (!res.data) throw new Error("Failed to fetch admin");
-      return res.data;
-    },
-  });
-}
-
-// ! get admin by id`
-export function useGetAdminById(id: string) {
-  const { api } = useAppContext();
-  return useQuery({
-    queryKey: ["admin", id],
-    queryFn: async () => {
-      const res = await api.get(`/admins/${id}`);
-      if (!res.data) throw new Error("Failed to fetch admin");
-      return res.data;
-    },
-  });
-}
-
-interface DeleteAdminsProps {
-  uids: string[];
-}
-
-//! delete multiple admins
-export function useDeleteMultipleAdmins() {
-  const { api } = useAppContext();
-  return useMutation({
-    mutationFn: async (data: DeleteAdminsProps) => {
-      const res = await api.delete(`/admins/multiple`, { data });
-      if (!res.data) throw new Error("Failed to delete admins");
-      return res.data;
-    },
-    onSuccess: () => {
-      toast.success("Admins deleted successfully");
-    },
-    onError: (error: unknown) => {
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data?.error || "Failed to delete admins");
-      } else {
-        toast.error("Failed to delete admins");
-      }
-    },
-  });
-}
-
-//! delete a single admin
-
-interface DeleteAdminProps {
-  uid: string;
-}
-export const useDeleteASingleAdmin = () => {
-  const { api } = useAppContext();
-  return useMutation({
-    mutationFn: async (data: DeleteAdminProps) => {
-      const res = await api.delete(`/admins`, {
-        data: { uid: data.uid },
-      });
-      if (!res.data) throw new Error("Failed to delete admin");
-      return res.data;
-    },
-    onSuccess: () => {
-      toast.success("Admin deleted successfully");
-    },
-    onError: (error: unknown) => {
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data?.error || "Failed to delete admin");
-      } else {
-        toast.error("Failed to delete admin");
-      }
-    },
-  });
-};
-
 // update admin info
 interface UpdateAdminProps {
-  uid: string;
-  username: string;
-  email: string;
-  fullName: string;
+  username?: string;
+  email?: string;
+  apiKey?: string;
+  fullName?: string;
+  image?: string;
+  status?: AdminStatus;
 }
 
 export function useUpdateAdmin() {
-  const { api } = useAppContext();
+  const { api, setAdminInfo } = useAppContext();
   return useMutation({
     mutationFn: async (data: UpdateAdminProps) => {
       const res = await api.patch(`/admins`, data);
       if (!res.data) throw new Error("Failed to update admin");
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: (updatedAdmin: any) => {
       toast.success("Admin updated successfully");
+      setAdminInfo({
+        ...updatedAdmin.admin,
+      });
     },
     onError: (error: unknown) => {
       if (error instanceof AxiosError) {

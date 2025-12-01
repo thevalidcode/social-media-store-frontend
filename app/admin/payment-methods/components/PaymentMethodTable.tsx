@@ -9,9 +9,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Switch } from "@/components/ui/switch";
-import { PaymentGateway } from "@/types";
+import { PaymentGateway, PaymentGatewayStatus } from "@/types";
 import PaymentMethodActions from "./PaymentMethodActions";
 import { Badge } from "@/components/ui/badge";
+import { useUpdatePaymentGatewayStatus } from "@/hooks/use-paymentGateway";
 
 export default function PaymentMethodsTable({
   gateways,
@@ -20,14 +21,28 @@ export default function PaymentMethodsTable({
   gateways: PaymentGateway[];
   setGateways: React.Dispatch<React.SetStateAction<PaymentGateway[]>>;
 }) {
-  const toggleStatus = (id: string) => {
-    setGateways((prev) =>
-      prev.map((g) =>
-        g.id === id
-          ? { ...g, status: g.status === "active" ? "inactive" : "active" }
-          : g
-      )
+  const { mutateAsync: updateGatewayStatus } = useUpdatePaymentGatewayStatus();
+
+  const toggleStatus = async (storeScopedId: number) => {
+    const updatedGateways = gateways.map((g) =>
+      g.storeScopedId === storeScopedId
+        ? {
+            ...g,
+            status:
+              g.status === "ACTIVE"
+                ? "DISABLED"
+                : ("ACTIVE" as PaymentGatewayStatus),
+          }
+        : g
     );
+
+    setGateways(updatedGateways);
+
+    const updatedGateway = updatedGateways.find(
+      (g) => g.storeScopedId === storeScopedId
+    )!;
+
+    await updateGatewayStatus(updatedGateway);
   };
 
   return (
@@ -46,7 +61,7 @@ export default function PaymentMethodsTable({
           {gateways.map((g) => (
             <TableRow key={g.id}>
               <TableCell className="flex items-center gap-3">
-                <img src={g.icon} alt={g.name} className="w-6 h-6 rounded" />
+                <img src={g.image} alt={g.name} className="w-6 h-6 rounded" />
                 <span className="font-medium">{g.name}</span>
               </TableCell>
               <TableCell>{g.platform}</TableCell>
@@ -56,13 +71,13 @@ export default function PaymentMethodsTable({
               <TableCell>
                 <div className="flex items-center gap-2">
                   <Switch
-                    checked={g.status === "active"}
-                    onCheckedChange={() => toggleStatus(g.id)}
+                    checked={g.status === "ACTIVE"}
+                    onCheckedChange={() => toggleStatus(g.storeScopedId)}
                   />
                   <Badge
                     variant="outline"
                     className={
-                      g.status === "active"
+                      g.status === "ACTIVE"
                         ? "text-green-600 border-green-600"
                         : "text-red-600 border-red-600"
                     }

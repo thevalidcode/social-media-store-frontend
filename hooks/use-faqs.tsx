@@ -7,6 +7,21 @@ interface FaqProps {
   question: string;
   answer: string;
 }
+
+export function useGetFaqs() {
+  const { api, storeId } = useAppContext();
+  return useQuery({
+    queryKey: ["faqs", storeId],
+    queryFn: async () => {
+      const res = await api.get(`/faqs?storeId=${storeId}`);
+      if (res.data && Array.isArray(res.data)) {
+        return res.data;
+      }
+      return [];
+    },
+  });
+}
+
 export function useCreateFaq() {
   const { api, storeId } = useAppContext();
   const queryClient = useQueryClient();
@@ -15,28 +30,11 @@ export function useCreateFaq() {
     mutationKey: ["addFaqs"],
     mutationFn: async (data: FaqProps) => {
       if (!storeId) throw new Error("Store ID is required");
-      const response = await api.post("/faq", {
-        ...data,
-        storeId: Number(storeId),
-      });
+      const response = await api.post("/faqs", { ...data });
       return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["faqs"] });
-    },
-  });
-}
-
-export function useGetFaqs() {
-  const { api, storeId } = useAppContext();
-  return useQuery({
-    queryKey: ["faqs", storeId],
-    queryFn: async () => {
-      const res = await api.get(`/faq?storeId=${storeId}`);
-      if (res.data && Array.isArray(res.data)) {
-        return res.data;
-      }
-      return [];
     },
   });
 }
@@ -50,7 +48,7 @@ export function useDeleteMultipleFaqs() {
   return useMutation({
     mutationKey: ["deleteFaqs"],
     mutationFn: async (data: DeleteFaqsProps) => {
-      const res = await api.delete(`/faq/multiple`, { data });
+      const res = await api.delete(`/faqs/multiple`, { data });
       if (!res.data) {
         throw new Error("Invalid response data");
       }
@@ -68,7 +66,7 @@ export function useDeleteSingleFaq() {
   return useMutation({
     mutationKey: ["deleteSingleFaq"],
     mutationFn: async (uid: string) => {
-      const res = await api.delete(`/faq`, { data: { uid } });
+      const res = await api.delete(`/faqs`, { data: { uid } });
       if (!res.data) {
         throw new Error("Invalid response data");
       }
@@ -89,7 +87,7 @@ export const useUpdateFaqs = () => {
   return useMutation({
     mutationKey: ["updateFaqs"],
     mutationFn: async (data: UpdateFaqsProps) => {
-      const res = await api.patch(`/faq`, data);
+      const res = await api.patch(`/faqs`, data);
       if (!res.data) {
         throw new Error("Invalid response data");
       }
@@ -106,7 +104,7 @@ export const useGetFaqsById = (uid: string) => {
   return useQuery({
     queryKey: ["faqs", uid],
     queryFn: async () => {
-      const res = await api.get(`/faq?storeId=${storeId}&faq_id=${uid}`);
+      const res = await api.get(`/faqs?storeId=${storeId}&faq_id=${uid}`);
       if (!res.data) {
         throw new Error("Invalid response data");
       }

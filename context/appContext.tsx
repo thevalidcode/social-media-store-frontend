@@ -6,30 +6,16 @@ import { createContext, useContext, useState, useMemo, useEffect } from "react";
 import Cookies from "js-cookie";
 import { get, set } from "idb-keyval";
 import { CurrencyCode } from "@/lib/currencyConverter";
-import { User } from "@/types";
-
-interface AdminProps {
-  id?: number;
-  role?: string;
-  username?: string;
-  fullName?: string;
-  email?: string;
-  status?: string;
-  timeStamp: string;
-  apiKey?: string;
-  lastSeen?: string;
-  image?: string;
-  storeId?: number;
-  uid?: string;
-}
+import { Admin, User } from "@/types";
 
 interface GeneralSettingProps {
-  storeName?: string;
-  logoUrl?: string;
-  storeDescription?: string;
-  storeId?: string;
-  faviconUrl?: string;
-  defaultClientCurrency?: string;
+  storeName: string;
+  logoUrl: string;
+  storeDescription: string;
+  showBanner: boolean;
+  storeId: number;
+  faviconUrl: string;
+  defaultClientCurrency: string;
 }
 
 interface CurrencyRates {
@@ -42,13 +28,14 @@ interface AppContextType {
   isStoreGeneralSettingsLoading: boolean;
   domain: string;
   userInfo: User | null;
-  adminInfo: AdminProps | null;
+  adminInfo: Admin | null;
   setUserInfo: (user: User | null) => void; // Allow setting to null for logout
-  setAdminInfo: (user: AdminProps | null) => void; // Allow setting to null for logout
+  setAdminInfo: (user: Admin | null) => void; // Allow setting to null for logout
   storeId: number | null;
   setStoreId: (storeId: number) => void;
   isLoading: boolean;
   isRatesLoading: boolean;
+  isAuthLoading: boolean;
   rates?: CurrencyRates;
   userCurrency: CurrencyCode;
   setUserCurrency: (currency: string) => void;
@@ -95,7 +82,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [userInfo, setUserInfo] = useState<User | null>(null);
   const [rates, setRates] = useState<CurrencyRates | {}>();
-  const [adminInfo, setAdminInfo] = useState<AdminProps | null>(null);
+  const [adminInfo, setAdminInfo] = useState<Admin | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
   const [userCurrency, setUserCurrencyState] = useState<CurrencyCode>("USD");
   const [generalSetting, setGeneralSetting] =
     useState<GeneralSettingProps | null>(null);
@@ -106,10 +94,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         const storedUser = await get<User | null>("userInfo");
         if (storedUser) setUserInfo(storedUser);
-        const storedAdmin = await get<AdminProps | null>("adminInfo");
+        const storedAdmin = await get<Admin | null>("adminInfo");
         if (storedAdmin) setAdminInfo(storedAdmin);
       } catch (err) {
         console.error("Failed to load user info from IndexedDB:", err);
+      } finally {
+        setIsAuthLoading(false);
       }
     };
     loadUserInfo();
@@ -118,17 +108,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const saveAuthInfo = async () => {
       try {
-        if (userInfo !== undefined) {
-          await set("userInfo", userInfo ?? null);
-        }
-        if (adminInfo !== undefined) {
-          await set("adminInfo", adminInfo ?? null);
-        }
+        if (userInfo !== null) await set("userInfo", userInfo);
+        if (adminInfo !== null) await set("adminInfo", adminInfo);
       } catch (err) {
         console.error("Failed to save auth info:", err);
       }
     };
-
     saveAuthInfo();
   }, [userInfo, adminInfo]);
 
@@ -156,7 +141,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     setUserInfo(user);
   };
 
-  const handleSetAdminInfo = async (admin: AdminProps | null) => {
+  const handleSetAdminInfo = async (admin: Admin | null) => {
     // Update state
     setAdminInfo(admin);
   };
@@ -249,6 +234,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         isStoreGeneralSettingsLoading,
         userCurrency,
         setUserCurrency,
+        isAuthLoading,
         error,
       }}
     >

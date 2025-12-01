@@ -12,7 +12,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isLoading, error, userInfo } = useAppContext();
+  const { isLoading, error, userInfo, generalSetting } = useAppContext();
 
   const router = useRouter();
 
@@ -23,6 +23,14 @@ export default function RootLayout({
       router.push("/client/dashboard");
     }
   }, [isLoading, error, userInfo, router]);
+
+  useEffect(() => {
+    if (generalSetting) {
+      document.title = `${generalSetting.storeName}`;
+    } else {
+      document.title = "Loading…";
+    }
+  }, [generalSetting]);
 
   if (error) {
     return <div>Error: {error.message}</div>;

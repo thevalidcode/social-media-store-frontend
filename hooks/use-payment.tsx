@@ -6,10 +6,9 @@ import { PaymentGatewayPlatform } from "@/types";
 import { useMutation } from "@tanstack/react-query";
 
 export interface CreatePaymentProps {
-  storeId: number;
   platform: PaymentGatewayPlatform;
   currency: CurrencyCode;
-  amount: number;
+  amount: string;
   redirect_url: string;
 }
 export interface CreatePaymentResponse {

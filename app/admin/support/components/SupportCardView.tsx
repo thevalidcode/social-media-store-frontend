@@ -6,14 +6,14 @@ import SupportBadge from "./SupportBadge";
 import SupportPriority from "./SupportPriority";
 import SupportActionsMenu from "./SupportActionsMenu";
 import Link from "next/link";
-import { SupportTicketAdmin } from "@/types";
+import { SupportTicket } from "@/types";
 
 export default function SupportCardView({
   tickets,
   selectedTickets,
   onSelectTicket,
 }: {
-  tickets: SupportTicketAdmin[];
+  tickets: SupportTicket[];
   selectedTickets: string[];
   onSelectTicket: (ticketId: string, checked: boolean) => void;
 }) {
@@ -44,7 +44,7 @@ export default function SupportCardView({
                   {ticket.subject}
                 </Link>
                 <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                  {ticket.message}
+                  {ticket.messages[0].message}
                 </p>
               </div>
             </div>
@@ -57,9 +57,11 @@ export default function SupportCardView({
               <SupportPriority priority={ticket.priority} />
             </div>
             <div className="text-muted-foreground">
-              {ticket.user.name} • {ticket.user.email}
+              {ticket.user.fullName} • {ticket.user.email}
             </div>
-            <div className="text-muted-foreground">{formatDate(ticket.createdAt)}</div>
+            <div className="text-muted-foreground">
+              {formatDate(ticket.createdAt)}
+            </div>
           </CardContent>
         </Card>
       ))}

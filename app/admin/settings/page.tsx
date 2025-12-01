@@ -11,11 +11,9 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
-import { Link2, Palette, Settings, Settings2 } from "lucide-react";
+import { Palette, Settings2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import AdminPages from "../components/admin-pages";
 import GeneralSettingsForm from "../components/general-setting";
-import Integration from "../components/integration";
 import DesignSettingsForm from "../components/theme";
 import { useRouter } from "next/navigation";
 
@@ -34,18 +32,11 @@ export default function SettingsDialogPage() {
       icon: Settings2,
     },
     {
-      id: "3",
+      id: "2",
       label: "design",
       key: "design",
       component: DesignSettingsForm,
       icon: Palette,
-    },
-    {
-      id: "4",
-      label: "integration",
-      key: "integration",
-      component: Integration,
-      icon: Link2,
     },
   ];
 

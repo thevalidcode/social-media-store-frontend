@@ -22,51 +22,84 @@ import { toast } from "sonner";
 export default function AddFunds() {
   const [amount, setAmount] = useState<number>(0);
   const [method, setMethod] = useState<string>("manual");
+
   const convert = useCurrencyConverter();
   const { userCurrency, userInfo } = useAppContext();
-
-  const { mutate } = useCreatePayment();
   const router = useRouter();
 
+  const { mutate } = useCreatePayment();
   const { data: PAYMENT_METHODS, isLoading } = useGetAllPaymentGateways();
 
-  if (isLoading) {
-    return <Loading />;
-  }
+  if (isLoading) return <Loading />;
 
-  if (!PAYMENT_METHODS || PAYMENT_METHODS.length === 0) {
+  if (!PAYMENT_METHODS?.length) {
     return (
       <EmptyState
         icon={CreditCard}
         title="No Payment Method Found"
-        description="No payment method has been created for this store yet."
+        description="You have not created any payment method for this store."
       />
     );
   }
 
-  const selectedMethod = PAYMENT_METHODS?.find((m) => m.platform === method)!;
-  const fee = (amount * selectedMethod?.feePercent!) / 100;
-  const total = amount + fee;
+  const selectedMethod = PAYMENT_METHODS.find((m) => m.platform === method)!;
+
+  // Convert min/max requirement from USD to user's currency
+  const minAmount = convert(
+    "USD",
+    userCurrency,
+    selectedMethod?.min,
+    false,
+    false
+  ).amount;
+  const maxAmount = convert(
+    "USD",
+    userCurrency,
+    selectedMethod?.max,
+    false,
+    false
+  ).amount;
+
+  const amt = parseFloat(String(amount)) || 0;
+  const percent = selectedMethod?.feePercent ?? 0;
+
+  const fee = (amt * percent) / 100;
+  const totalValue = amt + fee;
+
+  const total = totalValue.toLocaleString();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (amount <= 0) return alert("Enter a valid amount");
+
+    if (amt < minAmount) {
+      toast.error(
+        `Minimum amount is ${getCurrencySymbol(
+          userCurrency
+        )}${minAmount.toLocaleString()}`
+      );
+      return;
+    }
+
+    if (amt > maxAmount) {
+      toast.error(
+        `Maximum amount is ${getCurrencySymbol(
+          userCurrency
+        )}${maxAmount.toLocaleString()}`
+      );
+      return;
+    }
 
     mutate(
       {
-        storeId: userInfo?.storeId!,
-        platform: selectedMethod.platform,
+        platform: selectedMethod?.platform,
         currency: userCurrency,
-        amount: total,
+        amount: String(totalValue),
         redirect_url: `${window.location.origin}/client/add-funds`,
       },
       {
-        onSuccess: (data) => {
-          router.push(data.url);
-        },
-        onError: (error: any) => {
-          toast.error(error.message || "Failed to create payment");
-        },
+        onSuccess: (data) => router.push(data.url),
+        onError: (error: any) =>
+          toast.error(error.message || "Failed to create payment"),
       }
     );
   };
@@ -82,13 +115,14 @@ export default function AddFunds() {
           <CardHeader className="pb-6">
             <CardTitle className="text-2xl font-semibold">Add Funds</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-8">
+
+          <CardContent className="space-y-10">
             {/* Balance Summary */}
             <div className="flex items-center justify-between p-4 rounded-xl border">
               <p className="text-sm">Available Balance</p>
               <p className="text-xl font-semibold text-primary">
                 {
-                  convert("USD", userCurrency, userInfo?.balance!, true, true)
+                  convert("USD", userCurrency, userInfo?.balance!, true, false)
                     .formatted
                 }
               </p>
@@ -97,6 +131,7 @@ export default function AddFunds() {
             {/* Payment Methods */}
             <div className="space-y-3">
               <Label>Select Payment Method</Label>
+
               <RadioGroup
                 value={method}
                 onValueChange={setMethod}
@@ -104,27 +139,29 @@ export default function AddFunds() {
               >
                 {PAYMENT_METHODS.map((m) => (
                   <Label
-                    key={m.id}
-                    htmlFor={String(m.id)}
+                    key={m.storeScopedId}
+                    htmlFor={String(m.storeScopedId)}
                     className={`flex flex-col items-center gap-2 p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md ${
                       method === m.platform ? "border-primary" : "border-accent"
                     }`}
                   >
                     <RadioGroupItem
-                      id={String(m.id)}
+                      id={String(m.storeScopedId)}
                       value={m.platform}
                       className="sr-only"
                     />
+
                     <img
                       src={m.image}
                       alt={m.name}
                       className="w-10 h-10 object-contain"
                     />
+
                     <span className="font-medium text-sm text-center">
                       {m.name}
                     </span>
                     <span className="text-xs text-gray-500">
-                      Fee: {m.feePercent}%
+                      Fee {m.feePercent}%
                     </span>
                   </Label>
                 ))}
@@ -135,30 +172,24 @@ export default function AddFunds() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid gap-2">
                 <Label htmlFor="amount">
-                  Enter Amount ({getCurrencySymbol(userCurrency)})
+                  Amount ({getCurrencySymbol(userCurrency)})
                 </Label>
+
                 <Input
                   id="amount"
-                  type="number"
-                  min={
-                    convert("USD", userCurrency, selectedMethod.min, true, true)
-                      .amount
-                  }
-                  max={
-                    convert("USD", userCurrency, selectedMethod.max, true, true)
-                      .amount
-                  }
-                  placeholder={`e.g. ${
-                    convert("USD", userCurrency, selectedMethod.min, true, true)
-                      .formatted
-                  }`}
+                  type="text"
+                  placeholder={`Min ${minAmount.toLocaleString()} / Max ${maxAmount.toLocaleString()}`}
                   value={amount || ""}
                   onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
                   required
                 />
+                <p className="text-xs text-gray-500">
+                  Minimum {getCurrencySymbol(userCurrency)}
+                  {minAmount.toLocaleString()} • Maximum{" "}
+                  {getCurrencySymbol(userCurrency)}
+                  {maxAmount.toLocaleString()}
+                </p>
               </div>
-
-              <Separator />
 
               <Separator />
 
@@ -168,30 +199,32 @@ export default function AddFunds() {
                   <span>Amount</span>
                   <span>
                     {getCurrencySymbol(userCurrency)}
-                    {amount.toLocaleString()}
+                    {amt.toLocaleString()}
                   </span>
                 </div>
+
                 <div className="flex justify-between text-sm">
-                  <span>Fee ({selectedMethod.feePercent}%)</span>
+                  <span>Fee ({percent}%)</span>
                   <span>
                     {getCurrencySymbol(userCurrency)}
                     {fee.toLocaleString()}
                   </span>
                 </div>
-                <div className="flex justify-between font-semibold text-lg mt-2">
+
+                <div className="flex justify-between text-lg font-semibold mt-2">
                   <span>Total</span>
                   <span>
                     {getCurrencySymbol(userCurrency)}
-                    {total.toLocaleString()}
+                    {total}
                   </span>
                 </div>
               </div>
 
               {/* Submit */}
               <div className="flex justify-end">
-                <Button type="submit" size="lg" disabled={amount <= 0}>
+                <Button type="submit" size="lg" disabled={amt <= 0}>
                   Add {getCurrencySymbol(userCurrency)}
-                  {total.toLocaleString()}
+                  {total}
                 </Button>
               </div>
             </form>

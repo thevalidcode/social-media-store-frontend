@@ -2,7 +2,6 @@
 
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Service } from "@/types";
-import { sampleServices } from "@/app/_docs/doc";
 import ServiceList from "@/app/client/services/components/ServicesList";
 import { useMemo } from "react";
 import { groupServicesByCategory } from "@/lib/groupServices";
@@ -11,9 +10,7 @@ interface RecentActivityProps {
   services?: Service[];
 }
 
-export default function RecentActivity({
-  services = sampleServices,
-}: RecentActivityProps) {
+export default function RecentActivity({ services = [] }: RecentActivityProps) {
   const categorizedServices = useMemo(() => {
     return groupServicesByCategory(services);
   }, [services]);

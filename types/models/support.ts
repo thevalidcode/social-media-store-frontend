@@ -18,13 +18,20 @@ export interface TicketMessage {
   createdAt: string;
 }
 
+interface User {
+  email: string;
+  image: string;
+  username: string;
+  fullName: string;
+}
+
 /**
  * Base Support Ticket model (internal use)
  */
 export interface SupportTicket {
   id: number;
   uid: string;
-  description?: string | null;
+  description?: string;
   storeId: number;
   userUid: string;
   storeScopedId: number;
@@ -34,6 +41,7 @@ export interface SupportTicket {
   createdAt: string;
   updatedAt: string;
   messages: TicketMessage[];
+  user: User;
 }
 
 /**

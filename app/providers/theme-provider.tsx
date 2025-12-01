@@ -2,40 +2,45 @@
 
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { createContext, useContext, useEffect, useState } from "react";
+import { useGetStoreDesign, useUpdateStoreDesign } from "@/hooks/use-store";
 
 type ThemeSchema = {
   ":root": Record<string, string>;
   ".dark"?: Record<string, string>;
 };
 
+type ThemeOption = {
+  name: string;
+  hex: string;
+  schema: ThemeSchema;
+};
+
 type ThemeContextType = {
-  applyTheme: (schema: ThemeSchema) => void;
+  applyTheme: (schema: ThemeOption) => void;
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-// Apply theme CSS variables to override global.css
+// Apply CSS variables
 const applyThemeStyles = (schema: ThemeSchema, isDark: boolean) => {
   if (typeof window === "undefined") return;
 
   const styleElement = document.createElement("style");
   styleElement.id = "theme-styles";
 
-  // Remove existing theme styles
-  const existingStyle = document.getElementById("theme-styles");
-  if (existingStyle) existingStyle.remove();
+  const existing = document.getElementById("theme-styles");
+  if (existing) existing.remove();
 
-  // Generate CSS for light and dark modes
   let css = `:root {\n`;
-  Object.entries(schema[":root"]).forEach(([key, value]) => {
-    css += `  ${key}: ${value};\n`;
+  Object.entries(schema[":root"]).forEach(([k, v]) => {
+    css += `  ${k}: ${v};\n`;
   });
   css += `}\n`;
 
   if (schema[".dark"] && isDark) {
     css += `.dark {\n`;
-    Object.entries(schema[".dark"]).forEach(([key, value]) => {
-      css += `  ${key}: ${value};\n`;
+    Object.entries(schema[".dark"]).forEach(([k, v]) => {
+      css += `  ${k}: ${v};\n`;
     });
     css += `}\n`;
   }
@@ -44,41 +49,41 @@ const applyThemeStyles = (schema: ThemeSchema, isDark: boolean) => {
   document.head.appendChild(styleElement);
 };
 
-// Load saved theme from localStorage
-const loadSavedTheme = () => {
+const loadLocalTheme = () => {
   if (typeof window === "undefined") return null;
   try {
     const saved = localStorage.getItem("selectedTheme");
-    if (saved) {
-      return JSON.parse(saved);
-    }
-  } catch (e) {
-    console.error("Error loading theme from localStorage", e);
+    return saved ? JSON.parse(saved) : null;
+  } catch {
+    return null;
   }
-  return null;
 };
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [isDark, setIsDark] = useState(false);
 
-  const applyTheme = (schema: ThemeSchema) => {
-    applyThemeStyles(schema, isDark);
+  const { data: dbTheme } = useGetStoreDesign();
+  const updateThemeMutation = useUpdateStoreDesign();
+
+  // MAIN apply function
+  const applyTheme = (theme: ThemeOption) => {
+    applyThemeStyles(theme.schema, isDark);
+
+    localStorage.setItem("selectedTheme", JSON.stringify({ ...theme }));
+
+    updateThemeMutation.mutate({ ...theme });
   };
 
-  // Handle dark mode changes
+  // Watch dark/light changes
   useEffect(() => {
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.attributeName === "class") {
-          const isDarkMode =
-            document.documentElement.classList.contains("dark");
-          setIsDark(isDarkMode);
-          const savedTheme = loadSavedTheme();
-          if (savedTheme?.schema) {
-            applyThemeStyles(savedTheme.schema, isDarkMode);
-          }
-        }
-      });
+    const observer = new MutationObserver(() => {
+      const darkMode = document.documentElement.classList.contains("dark");
+      setIsDark(darkMode);
+
+      const saved = loadLocalTheme();
+      if (saved?.schema) {
+        applyThemeStyles(saved.schema, darkMode);
+      }
     });
 
     observer.observe(document.documentElement, {
@@ -89,15 +94,23 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return () => observer.disconnect();
   }, []);
 
-  // Load initial theme
+  // Initial load: localStorage first, then DB
   useEffect(() => {
-    const savedTheme = loadSavedTheme();
-    if (savedTheme?.schema) {
-      const isDarkMode = document.documentElement.classList.contains("dark");
-      setIsDark(isDarkMode);
-      applyThemeStyles(savedTheme.schema, isDarkMode);
+    const saved = loadLocalTheme();
+    const darkMode = document.documentElement.classList.contains("dark");
+
+    setIsDark(darkMode);
+
+    if (saved?.schema) {
+      applyThemeStyles(saved.schema, darkMode);
+      return;
     }
-  }, []);
+
+    if (dbTheme?.schema) {
+      applyThemeStyles(dbTheme.schema, darkMode);
+      localStorage.setItem("selectedTheme", JSON.stringify({ ...dbTheme }));
+    }
+  }, [dbTheme]);
 
   return (
     <ThemeContext.Provider value={{ applyTheme }}>
@@ -114,9 +127,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 }
 
 export const useThemeContext = () => {
-  const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error("useThemeContext must be used within a ThemeProvider");
-  }
-  return context;
+  const ctx = useContext(ThemeContext);
+  if (!ctx)
+    throw new Error("useThemeContext must be used within ThemeProvider");
+  return ctx;
 };

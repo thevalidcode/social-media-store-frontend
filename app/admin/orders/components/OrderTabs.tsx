@@ -12,7 +12,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useGetAllOrders, useGetOrderByStatus } from "@/hooks/use-order";
-import { OrderTable } from "@/app/client/orders/components/OrderTable";
+import { OrderTable } from "./OrderTable";
 
 export function OrdersTab() {
   const { data: allOrders, isLoading: allLoading } = useGetAllOrders();

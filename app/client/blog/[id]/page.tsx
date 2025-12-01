@@ -1,23 +1,28 @@
 "use client";
 
-import { useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { format } from "date-fns";
 import { motion } from "framer-motion";
-import { POSTS } from "@/app/_docs/doc";
 import { Button } from "@/components/ui/button";
+import { useGetBlogById } from "@/hooks/use-blog";
+import Loading from "@/app/loading";
+import { DateTime } from "@/lib/DateTime";
+import parse from "html-react-parser";
 
 export default function BlogDetailPage() {
-  const { slug } = useParams<{ slug: string }>();
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
-  const post = useMemo(() => POSTS.find((p) => p.slug === slug), [slug]);
+  const { data: post, isLoading } = useGetBlogById(Number(id));
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   if (!post) {
     return (
       <main className="max-w-3xl mx-auto p-6 text-center">
         <h1 className="text-2xl font-semibold mb-4">Post not found</h1>
-        <Button variant="outline" onClick={() => router.push("/blog")}>
+        <Button variant="outline" onClick={() => router.push("/client/blog")}>
           Back to Blog
         </Button>
       </main>
@@ -37,10 +42,10 @@ export default function BlogDetailPage() {
             {post.title}
           </h1>
           <p className="text-sm mb-4">
-            Published on {format(new Date(post.createdAt), "MMMM d, yyyy")}
+            Published {post.createdAt && <DateTime date={post.createdAt} />}
           </p>
           <img
-            src={post.img}
+            src={post.coverImage}
             alt={post.title}
             className="w-full h-72 object-cover rounded-xl shadow-md"
             loading="lazy"
@@ -48,10 +53,9 @@ export default function BlogDetailPage() {
         </header>
 
         {/* Content Section */}
-        <section
-          className="prose prose-gray max-w-none leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: post.content }}
-        />
+        <div className="text-sm text-muted-foreground">
+          {parse(post.content || "")}
+        </div>
 
         {/* Footer */}
         <div className="mt-10">

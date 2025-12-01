@@ -11,6 +11,13 @@ import PaymentMethodForm from "./PaymentMethodForm";
 import { useState } from "react";
 import { PaymentGateway } from "@/types";
 import { Button } from "@/components/ui/button";
+import {
+  PaymentGatewayFormResponse,
+  useCreatePaymentGateway,
+  useDeletePaymentGateway,
+  useUpdatePaymentGateway,
+} from "@/hooks/use-paymentGateway";
+import DeleteDialog from "../../users/components/DeleteDialog";
 
 export default function PaymentMethodActions({
   gateway,
@@ -20,9 +27,24 @@ export default function PaymentMethodActions({
   setGateways: React.Dispatch<React.SetStateAction<PaymentGateway[]>>;
 }) {
   const [editOpen, setEditOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const { mutate: deleteGateway } = useDeletePaymentGateway();
+  const { mutateAsync: updateGateway } = useUpdatePaymentGateway();
+  const { mutateAsync: createGateway } = useCreatePaymentGateway();
 
-  const handleDelete = () => {
+  const handleDeleteConfirm = () => {
+    deleteGateway(gateway.uid);
     setGateways((prev) => prev.filter((g) => g.id !== gateway.id));
+  };
+
+  const handleSave = async (updated: PaymentGateway) => {
+    const mutation = editOpen ? updateGateway : createGateway;
+    const response = await mutation(updated);
+    setGateways((prev) => prev.map((g) => (g.id === gateway.id ? updated : g)));
+    setEditOpen(false);
+    console.log(response);
+
+    return response;
   };
 
   return (
@@ -37,7 +59,10 @@ export default function PaymentMethodActions({
           <DropdownMenuItem onClick={() => setEditOpen(true)}>
             <Pencil className="w-4 h-4 mr-2" /> Edit
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleDelete} className="text-red-600">
+          <DropdownMenuItem
+            onClick={() => setDeleteDialogOpen(true)}
+            className="text-red-600"
+          >
             <Trash className="w-4 h-4 mr-2" /> Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -47,12 +72,16 @@ export default function PaymentMethodActions({
         open={editOpen}
         onClose={() => setEditOpen(false)}
         initialData={gateway}
-        onSave={(updated) => {
-          setGateways((prev) =>
-            prev.map((g) => (g.id === gateway.id ? updated : g))
-          );
-          setEditOpen(false);
-        }}
+        onSave={(updated) => handleSave(updated)}
+      />
+      {/* Delete dialog */}
+      <DeleteDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        count={1}
+        names={[gateway.name]}
+        entityName="payment method"
       />
     </>
   );

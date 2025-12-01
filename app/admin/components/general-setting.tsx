@@ -15,8 +15,12 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { UploadCloud } from "lucide-react";
 import { useState } from "react";
+import { useUpdateStoreSettings } from "@/hooks/use-store";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import { useUploadImage } from "@/hooks/use-file";
+import { useAppContext } from "@/context/appContext";
 
 interface FileInputProps {
   id: string;
@@ -53,35 +57,55 @@ function FileInputRow({ id, label, onFileChange }: FileInputProps) {
           {fileName || "No file chosen"}
         </span>
       </div>
-      <Button variant="outline" size="sm" className="md:justify-self-end">
-        <UploadCloud className="w-4 h-4 mr-2" />
-        Upload
-      </Button>
     </div>
   );
 }
 
 export default function GeneralSettingsForm() {
-  const [siteTitle, setSiteTitle] = useState("My Awesome Site");
-  const [clientCurrency, setClientCurrency] = useState("usd");
-  const [adminCurrency, setAdminCurrency] = useState("usd");
-  const [showBanner, setShowBanner] = useState(true);
+  const { generalSetting, userCurrency, setUserCurrency } = useAppContext();
+  const [storeName, setStoreName] = useState(generalSetting?.storeName || "");
+  const [storeDescription, setStoreDescription] = useState(
+    generalSetting?.storeDescription || ""
+  );
+  const [clientCurrency, setClientCurrency] = useState(
+    generalSetting?.defaultClientCurrency || "USD"
+  );
+  const [showBanner, setShowBanner] = useState<boolean>(
+    generalSetting?.showBanner || true
+  );
+  const [logoUrl, setLogoUrl] = useState(generalSetting?.logoUrl || "");
+  const [faviconUrl, setFaviconUrl] = useState(
+    generalSetting?.faviconUrl || ""
+  );
+  const { mutate: updateStoreSettings } = useUpdateStoreSettings();
+  const { mutateAsync: uploadImage } = useUploadImage();
 
-  const handleFaviconChange = (file: File | null) => {
-    console.log("Favicon changed:", file);
+  const handleFaviconChange = async (file: File | null) => {
+    const response = await uploadImage({ file: file!, collection: "store" });
+    setFaviconUrl(response.url);
+    toast.info(
+      "Image uploaded successfully... Please save the settings to apply the new favicon."
+    );
   };
 
-  const handleLogoChange = (file: File | null) => {
-    console.log("Logo changed:", file);
+  const handleLogoChange = async (file: File | null) => {
+    const response = await uploadImage({ file: file!, collection: "store" });
+    setLogoUrl(response.url);
+    toast.info(
+      "Image uploaded successfully... Please save the settings to apply the new logo."
+    );
   };
 
   const handleSave = () => {
-    console.log("Saving settings:", {
-      siteTitle,
-      clientCurrency,
-      adminCurrency,
+    updateStoreSettings({
+      storeName: storeName,
+      storeDescription,
+      logoUrl,
+      faviconUrl,
+      defaultClientCurrency: clientCurrency,
       showBanner,
     });
+    toast.success("Settings saved successfully!");
   };
 
   return (
@@ -94,30 +118,41 @@ export default function GeneralSettingsForm() {
       </div>
 
       <div className="space-y-8">
-        {/* Site Section */}
+        {/* Store Section */}
         <section>
-          <h2 className="text-xl font-semibold mb-4">Site</h2>
+          <h2 className="text-xl font-semibold mb-4">Store</h2>
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] items-center gap-3 md:gap-4">
-              <Label htmlFor="siteTitle" className="text-sm font-medium">
-                Site Title
+              <Label htmlFor="storeName" className="text-sm font-medium">
+                Store Name
               </Label>
               <Input
-                id="siteTitle"
+                id="storeName"
                 type="text"
-                placeholder="Site Title"
-                value={siteTitle}
-                onChange={(e) => setSiteTitle(e.target.value)}
+                placeholder="Store Name"
+                value={storeName}
+                onChange={(e) => setStoreName(e.target.value)}
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] items-center gap-3 md:gap-4">
+              <Label htmlFor="storeDescription" className="text-sm font-medium">
+                Store Description
+              </Label>
+              <Textarea
+                id="storeDescription"
+                placeholder="Store Description"
+                value={storeDescription}
+                onChange={(e) => setStoreDescription(e.target.value)}
               />
             </div>
             <FileInputRow
               id="siteFavicon"
-              label="Site Favicon"
+              label="Store Favicon"
               onFileChange={handleFaviconChange}
             />
             <FileInputRow
               id="siteLogo"
-              label="Site Logo"
+              label="Store Logo"
               onFileChange={handleLogoChange}
             />
           </div>
@@ -129,35 +164,38 @@ export default function GeneralSettingsForm() {
         <section>
           <h2 className="text-xl font-semibold mb-4">Currency</h2>
           <div className="space-y-6">
+            {/* Client Currency */}
             <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] items-center gap-3 md:gap-4">
               <Label htmlFor="clientCurrency" className="text-sm font-medium">
                 Client Default Currency
               </Label>
+
               <Select value={clientCurrency} onValueChange={setClientCurrency}>
                 <SelectTrigger id="clientCurrency">
-                  <SelectValue placeholder="Select..." />
+                  <SelectValue placeholder="Select currency..." />
                 </SelectTrigger>
+
                 <SelectContent>
-                  <SelectItem value="usd">
-                    USD - United States Dollar
-                  </SelectItem>
-                  <SelectItem value="eur">EUR - Euro</SelectItem>
-                  <SelectItem value="gbp">GBP - British Pound</SelectItem>
+                  {Object.entries(currency).map(([key, value]) => (
+                    <SelectItem key={key} value={key}>
+                      {key} - {value.split("|")[0]}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Admin Currency */}
             <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] items-center gap-3 md:gap-4">
               <Label htmlFor="adminCurrency" className="text-sm font-medium">
                 Admin Currency
               </Label>
-              <Select
-                value={adminCurrency}
-                onValueChange={setAdminCurrency}
-                defaultValue="USD"
-              >
+
+              <Select value={userCurrency} onValueChange={setUserCurrency}>
                 <SelectTrigger id="adminCurrency">
-                  <SelectValue placeholder="Select..." />
+                  <SelectValue placeholder="Select currency..." />
                 </SelectTrigger>
+
                 <SelectContent>
                   {Object.entries(currency).map(([key, value]) => (
                     <SelectItem key={key} value={key}>

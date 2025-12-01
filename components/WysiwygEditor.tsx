@@ -23,6 +23,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { WysiwygEditorProps } from "@/types";
+import { useUploadImage } from "@/hooks/use-file";
 
 const defaultEnable = {
   bold: true,
@@ -92,6 +93,7 @@ export default function WysiwygEditor({
   const built = useBuiltExtensions({ ...defaultEnable, ...enable } as Required<
     NonNullable<WysiwygEditorProps["enable"]>
   >);
+  const { mutateAsync: uploadImage } = useUploadImage();
 
   const [isClient, setIsClient] = useState(false);
 
@@ -128,16 +130,11 @@ export default function WysiwygEditor({
   }, [initialContent, editor]);
 
   const execInsertImage = useCallback(
-    (file: File) => {
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const src = ev.target?.result as string;
-        if (src && editor) {
-          editor.chain().focus().setImage({ src }).run();
-          toast.success("Image added");
-        }
-      };
-      reader.readAsDataURL(file);
+    (url: string) => {
+      if (url && editor) {
+        editor.chain().focus().setImage({ src: url }).run();
+        toast.success("Image added");
+      }
     },
     [editor]
   );
@@ -146,12 +143,21 @@ export default function WysiwygEditor({
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
-    input.onchange = (e) => {
-      const f = (e.target as HTMLInputElement).files?.[0];
-      if (f) execInsertImage(f);
+
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      try {
+        const response = await uploadImage({ file, collection });
+        execInsertImage(response.url); // insert actual backend URL
+      } catch (err) {
+        toast.error("Failed to upload image");
+      }
     };
+
     input.click();
-  }, [execInsertImage]);
+  }, [uploadImage, execInsertImage]);
 
   const handleToggleMark = useCallback(
     (mark: "bold" | "italic" | "strike" | "code") => {

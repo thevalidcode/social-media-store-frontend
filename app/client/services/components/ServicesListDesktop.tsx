@@ -66,7 +66,7 @@ export const ServicesTableDesktop = ({
               <TableCell>
                 <div className="font-medium">
                   {
-                    convert(s.currency, userCurrency, s.price, true, true)
+                    convert(s.currency, userCurrency, s.price, true, false)
                       .formatted
                   }
                 </div>

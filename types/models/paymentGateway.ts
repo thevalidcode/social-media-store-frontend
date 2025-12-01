@@ -1,5 +1,9 @@
-export type PaymentGatewayStatus = "ACTIVE" | "INACTIVE";
-export type PaymentGatewayPlatform = "MANUAL" | "PAYSTACK" | "FLUTTERWAVE";
+export type PaymentGatewayStatus = "ACTIVE" | "DISABLED";
+export type PaymentGatewayPlatform =
+  | "MANUAL"
+  | "PAYSTACK"
+  | "FLUTTERWAVE"
+  | "REFERRAL";
 
 export interface PaymentGateway {
   id: number;
@@ -7,15 +11,17 @@ export interface PaymentGateway {
   uid: string;
   platform: PaymentGatewayPlatform;
   name: string;
-  description?: string | null;
-  signature?: string | null;
+  description?: string;
+  signature?: string;
   feePercent?: number;
-  secretKey?: Record<string, any> | null;
   image: string;
   status: PaymentGatewayStatus;
   createdAt: string; // ISO date string
-  storeId: number;
   position: number;
+  webhookUrl: string;
   min: string;
   max: string;
 }
+
+export interface PaymentGatewayPublic
+  extends Omit<PaymentGateway, "signature" | "id" | "uid" | "webhookUrl"> {}

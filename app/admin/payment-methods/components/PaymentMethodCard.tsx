@@ -8,10 +8,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { PaymentGateway } from "@/types";
 import { motion } from "framer-motion";
 import PaymentMethodActions from "./PaymentMethodActions";
+import parse from "html-react-parser";
 
 type Props = {
   gateways: PaymentGateway[];
@@ -20,23 +20,23 @@ type Props = {
 
 export default function PaymentMethodCard({ gateways, setGateways }: Props) {
   return (
-    <div className="grid gap-4">
+    <div className="grid gap-6">
       {gateways.map((gateway) => (
         <motion.div
           key={gateway.id}
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <Card className="rounded-2xl border p-4 hover:shadow-lg transition-all duration-300">
-            <CardHeader className="flex flex-row items-center gap-3 pb-3">
+          <Card className="rounded-2xl border p-5 hover:shadow-xl transition-all duration-300">
+            <CardHeader className="flex items-center gap-4 pb-3">
               <img
-                src={gateway.icon}
+                src={gateway.image}
                 alt={gateway.name}
-                className="w-10 h-10 rounded-full"
+                className="w-12 h-12 rounded-full"
               />
               <div className="flex flex-col">
-                <CardTitle className="text-lg font-semibold">
+                <CardTitle className="text-lg font-bold">
                   {gateway.name}
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
@@ -44,29 +44,36 @@ export default function PaymentMethodCard({ gateways, setGateways }: Props) {
                 </p>
               </div>
               <Badge
-                className="ml-auto"
-                variant={gateway.status === "active" ? "default" : "secondary"}
+                className="ml-auto px-3 py-1 text-sm"
+                variant={gateway.status === "ACTIVE" ? "default" : "secondary"}
               >
-                {gateway.status === "active" ? "Active" : "Disabled"}
+                {gateway.status === "ACTIVE" ? "Active" : "Disabled"}
               </Badge>
             </CardHeader>
 
-            <CardContent className="space-y-2">
-              <p className="text-sm text-muted-foreground">
-                {gateway.description}
-              </p>
-
-              <div className="text-xs bg-muted/30 p-2 rounded-md">
-                <div>
-                  <strong>Webhook:</strong> {gateway.webhookUrl}
-                </div>
-                <div className="mt-1">
-                  <strong>Secret:</strong> {gateway.secretKey}
-                </div>
+            <CardContent className="space-y-3">
+              <div className="text-sm text-muted-foreground">
+                {parse(gateway.description || "")}
               </div>
+
+              {gateway.webhookUrl && (
+                <div className="text-xs bg-muted/20 p-2 rounded-md flex justify-between items-center">
+                  <span>
+                    <strong>Webhook:</strong> {gateway.webhookUrl}
+                  </span>
+                  <button
+                    onClick={() =>
+                      navigator.clipboard.writeText(gateway.webhookUrl)
+                    }
+                    className="text-blue-500 text-xs hover:underline"
+                  >
+                    Copy
+                  </button>
+                </div>
+              )}
             </CardContent>
 
-            <CardFooter className="flex justify-end gap-2">
+            <CardFooter className="flex justify-end gap-3">
               <PaymentMethodActions
                 gateway={gateway}
                 setGateways={setGateways}

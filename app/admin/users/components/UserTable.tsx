@@ -17,31 +17,25 @@ import UserActionsMenu from "./UserActionsMenu";
 import { User } from "@/types";
 import { useCurrencyConverter } from "@/lib/currencyConverter";
 import { useAppContext } from "@/context/appContext";
+import { DateTime } from "@/lib/DateTime";
 
 export default function UserTable({
   users,
   selected,
   onSelectAll,
   onSelect,
-  onSort,
-  sortField,
-  sortDirection,
   onEdit,
   onDelete,
   onToggleBan,
-  onActivate,
 }: {
   users: User[];
   selected: number[];
   onSelectAll: (checked: boolean) => void;
   onSelect: (id: number, checked: boolean) => void;
   onSort: (field: keyof User) => void;
-  sortField: string;
-  sortDirection: "asc" | "desc";
   onEdit: (u: User) => void;
   onDelete: (id: number) => void;
   onToggleBan: (id: number) => void;
-  onActivate: (id: number) => void;
 }) {
   const convert = useCurrencyConverter();
   const { userCurrency } = useAppContext();
@@ -97,25 +91,34 @@ export default function UserTable({
               </TableCell>
               <TableCell className="font-medium">
                 {
-                  convert(u.currency, userCurrency, u.balance, true, true)
+                  convert(u.currency, userCurrency, u.balance, true, false)
                     .formatted
                 }
               </TableCell>
               <TableCell>
                 {" "}
                 {
-                  convert(u.currency, userCurrency, u.spent, true, true)
+                  convert(u.currency, userCurrency, u.spent, true, false)
                     .formatted
                 }
               </TableCell>
+
               <TableCell className="text-sm text-muted-foreground">
-                {u.timestamp
-                  ? new Date(u.timestamp).toLocaleDateString()
-                  : "N/A"}
+                {u.timestamp ? (
+                  <DateTime date={u.timestamp} formatStr="yyyy-MM-dd" />
+                ) : (
+                  "N/A"
+                )}
               </TableCell>
+
               <TableCell className="text-sm text-muted-foreground">
-                {u.lastSeen ? new Date(u.lastSeen).toLocaleString() : "N/A"}
+                {u.lastSeen ? (
+                  <DateTime date={u.lastSeen} formatStr="PPP p" relative />
+                ) : (
+                  "N/A"
+                )}
               </TableCell>
+
               <TableCell>
                 <UserStatusBadge status={u.status} />
               </TableCell>
@@ -125,7 +128,6 @@ export default function UserTable({
                   onEdit={onEdit}
                   onDelete={onDelete}
                   onToggleBan={onToggleBan}
-                  onActivate={onActivate}
                 />
               </TableCell>
             </TableRow>

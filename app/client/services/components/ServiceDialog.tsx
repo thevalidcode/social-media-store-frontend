@@ -118,7 +118,7 @@ export const ServiceDialog = ({
                         userCurrency,
                         (activeService.price / 1000) * modalQty,
                         true,
-                        true
+                        false
                       ).formatted
                     }
                   </div>

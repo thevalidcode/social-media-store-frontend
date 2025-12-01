@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 interface MetricProps {
   title: string;
   icon: React.ReactNode;
-  value: number;
+  value: string | number;
   trend?: {
     value: number;
     isPositive: boolean;
@@ -21,7 +21,7 @@ export function MetricsCards({ metrics }: { metrics: MetricProps[] }) {
             <CardTitle className="text-sm font-medium text-muted-foreground">
               {metric.title}
             </CardTitle>
-            <div className="h-8 w-8 rounded-full bg-primary/10 p-1.5 text-primary">
+            <div className="h-8 w-8 rounded-full bg-primary/10 p-1.5 text-primary flex items-center justify-center">
               {metric.icon}
             </div>
           </CardHeader>

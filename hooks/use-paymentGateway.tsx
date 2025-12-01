@@ -1,62 +1,57 @@
 "use client";
 
 import { useAppContext } from "@/context/appContext";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   PaymentGateway,
   PaymentGatewayStatus,
   PaymentGatewayPlatform,
+  PaymentGatewayPublic,
 } from "@/types";
 
 export interface CreatePaymentGatewayProps {
   platform: PaymentGatewayPlatform;
   name: string;
   description?: string;
-  signature?: string;
   feePercent?: number;
-  secretKey?: Record<string, any>;
+  secretKey?: string;
   image: string;
   status?: PaymentGatewayStatus;
-  min: number;
-  max: number;
-  storeId: number;
+  min: string;
+  max: string;
 }
 
-export interface CreateBulkPaymentGatewayProps {
-  gateways: CreatePaymentGatewayProps[];
+export interface UpdatePaymentGatewayProps {
+  uid: string;
+  platform?: PaymentGatewayPlatform;
+  name?: string;
+  description?: string;
+  feePercent?: number;
+  secretKey?: string;
+  image?: string;
+  status?: PaymentGatewayStatus;
+  min?: string;
+  max?: string;
 }
 
-export const useCreatePaymentGateway = () => {
-  const { api } = useAppContext();
+export interface UpdatePaymentGatewayStatusProps {
+  uid: string;
+  status: PaymentGatewayStatus;
+}
 
-  return useMutation({
-    mutationKey: ["createPaymentGateway"],
-    mutationFn: async (data: CreatePaymentGatewayProps) => {
-      const res = await api.post("/payment-gateways", data);
-      if (!res.data) throw new Error("Failed to create payment gateway");
-      return res.data;
-    },
-  });
-};
+export interface PaymentGatewayFormResponse {
+  success: string;
+  signature: string;
+}
 
-export const useCreateBulkPaymentGateways = () => {
-  const { api } = useAppContext();
-
-  return useMutation({
-    mutationKey: ["createBulkPaymentGateways"],
-    mutationFn: async (data: CreateBulkPaymentGatewayProps) => {
-      const res = await api.post("/payment-gateways/bulk", data);
-      if (!res.data) throw new Error("Failed to create bulk gateways");
-      return res.data;
-    },
-  });
-};
-
+/* ---------------------------------------------------------
+    GET PAYMENT GATEWAYS BY STATUS (PUBLIC)
+--------------------------------------------------------- */
 export const useGetPaymentGatewaysByStatus = (status: PaymentGatewayStatus) => {
   const { api, storeId } = useAppContext();
 
   return useQuery({
-    queryKey: ["paymentGateways", storeId, status],
+    queryKey: ["paymentGatewaysByStatus", storeId, status],
     queryFn: async () => {
       const res = await api.get<PaymentGateway[]>(
         `/payment-gateways/status/${status}`
@@ -67,24 +62,46 @@ export const useGetPaymentGatewaysByStatus = (status: PaymentGatewayStatus) => {
   });
 };
 
+/* ---------------------------------------------------------
+    GET ALL PAYMENT GATEWAYS (PUBLIC)
+--------------------------------------------------------- */
 export const useGetAllPaymentGateways = () => {
   const { api, storeId } = useAppContext();
 
   return useQuery({
-    queryKey: ["allPaymentGateways", storeId],
+    queryKey: ["allPaymentGatewaysPublic", storeId],
     queryFn: async () => {
-      const res = await api.get<PaymentGateway[]>(`/payment-gateways`);
+      const res = await api.get<PaymentGatewayPublic[]>(`/payment-gateways`);
       if (!res.data) throw new Error("Failed to fetch gateways");
       return res.data;
     },
   });
 };
 
-export const useGetSinglePaymentGateway = (uid: string) => {
-  const { api } = useAppContext();
+/* ---------------------------------------------------------
+    GET ALL PAYMENT GATEWAYS (ADMIN)
+--------------------------------------------------------- */
+export const useGetAllPaymentGatewaysForAdmins = () => {
+  const { api, storeId } = useAppContext();
 
   return useQuery({
-    queryKey: ["paymentGateway", uid],
+    queryKey: ["allPaymentGatewaysAdmin", storeId],
+    queryFn: async () => {
+      const res = await api.get<PaymentGateway[]>(`/payment-gateways/admin`);
+      if (!res.data) throw new Error("Failed to fetch gateways");
+      return res.data;
+    },
+  });
+};
+
+/* ---------------------------------------------------------
+    GET SINGLE PAYMENT GATEWAY (PUBLIC)
+--------------------------------------------------------- */
+export const useGetSinglePaymentGateway = (uid: string) => {
+  const { api, storeId } = useAppContext();
+
+  return useQuery({
+    queryKey: ["paymentGatewayPublic", storeId, uid],
     queryFn: async () => {
       const res = await api.get<PaymentGateway>(`/payment-gateways/${uid}`);
       if (!res.data) throw new Error("Failed to fetch gateway details");
@@ -94,34 +111,130 @@ export const useGetSinglePaymentGateway = (uid: string) => {
   });
 };
 
-export const useUpdatePaymentGateway = () => {
-  const { api } = useAppContext();
+/* ---------------------------------------------------------
+    GET SINGLE PAYMENT GATEWAY (ADMIN)
+--------------------------------------------------------- */
+export const useGetSinglePaymentGatewayForAdmins = (uid: string) => {
+  const { api, storeId } = useAppContext();
+
+  return useQuery({
+    queryKey: ["paymentGatewayAdmin", storeId, uid],
+    queryFn: async () => {
+      const res = await api.get<PaymentGateway>(
+        `/payment-gateways/admin/${uid}`
+      );
+      if (!res.data) throw new Error("Failed to fetch gateway details");
+      return res.data;
+    },
+    enabled: !!uid,
+  });
+};
+
+/* ---------------------------------------------------------
+    CREATE PAYMENT GATEWAY (ADMIN)
+--------------------------------------------------------- */
+export const useCreatePaymentGateway = () => {
+  const { api, storeId } = useAppContext();
+  const queryClient = useQueryClient();
 
   return useMutation({
-    mutationKey: ["updatePaymentGateway"],
-    mutationFn: async (data: {
-      uid: string;
-      updates: Partial<CreatePaymentGatewayProps>;
-    }) => {
-      const res = await api.patch(
-        `/payment-gateways/${data.uid}`,
-        data.updates
+    mutationKey: ["createPaymentGateway", storeId],
+    mutationFn: async (data: CreatePaymentGatewayProps) => {
+      const res = await api.post<PaymentGatewayFormResponse>(
+        "/payment-gateways",
+        data
       );
-      if (!res.data) throw new Error("Failed to update payment gateway");
+      if (!res.data) throw new Error("Failed to create payment gateway");
       return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["allPaymentGatewaysAdmin", storeId],
+      });
     },
   });
 };
 
-export const useDeletePaymentGateway = () => {
-  const { api } = useAppContext();
+/* ---------------------------------------------------------
+    UPDATE PAYMENT GATEWAY (ADMIN)
+--------------------------------------------------------- */
+export const useUpdatePaymentGateway = () => {
+  const { api, storeId } = useAppContext();
+  const queryClient = useQueryClient();
 
   return useMutation({
-    mutationKey: ["deletePaymentGateway"],
+    mutationKey: ["updatePaymentGateway", storeId],
+    mutationFn: async (data: UpdatePaymentGatewayProps) => {
+      const res = await api.patch<PaymentGatewayFormResponse>(
+        `/payment-gateways`,
+        data
+      );
+      if (!res.data) throw new Error("Failed to update payment gateway");
+      return res.data;
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["allPaymentGatewaysAdmin", storeId],
+      });
+
+      // Refresh single gateway if it is open in a page
+      queryClient.invalidateQueries({
+        queryKey: ["paymentGatewayAdmin", storeId, variables.uid],
+      });
+    },
+  });
+};
+
+/* ---------------------------------------------------------
+    UPDATE PAYMENT GATEWAY STATUS (ADMIN)
+--------------------------------------------------------- */
+export const useUpdatePaymentGatewayStatus = () => {
+  const { api, storeId } = useAppContext();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["updatePaymentGatewayStatus", storeId],
+    mutationFn: async (data: UpdatePaymentGatewayStatusProps) => {
+      const res = await api.patch(`/payment-gateways/status`, data);
+      if (!res.data) throw new Error("Failed to update payment gateway status");
+      return res.data;
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["allPaymentGatewaysAdmin", storeId],
+      });
+
+      // Refresh single gateway if it is open in a page
+      queryClient.invalidateQueries({
+        queryKey: ["paymentGatewayAdmin", storeId, variables.uid],
+      });
+    },
+  });
+};
+
+/* ---------------------------------------------------------
+    DELETE PAYMENT GATEWAY (ADMIN)
+--------------------------------------------------------- */
+export const useDeletePaymentGateway = () => {
+  const { api, storeId } = useAppContext();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["deletePaymentGateway", storeId],
     mutationFn: async (uid: string) => {
       const res = await api.delete(`/payment-gateways/${uid}`);
       if (!res.data) throw new Error("Failed to delete payment gateway");
       return res.data;
+    },
+
+    onSuccess: (_res, uid) => {
+      queryClient.invalidateQueries({
+        queryKey: ["allPaymentGatewaysAdmin", storeId],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["paymentGatewayAdmin", storeId, uid],
+      });
     },
   });
 };

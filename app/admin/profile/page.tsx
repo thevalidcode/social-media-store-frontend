@@ -15,48 +15,49 @@ import {
 } from "@/components/ui/select";
 import { Settings, Users, ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
-
-type AdminProfile = {
-  id: string;
-  name: string;
-  username: string;
-  email: string;
-  role: string;
-  currency: string;
-  avatar: string;
-  joinedAt: string;
-};
-
-const mockAdmin: AdminProfile = {
-  id: "a1",
-  name: "Valid Admin",
-  username: "validadmin",
-  email: "admin@validplug.com",
-  role: "Super Admin",
-  currency: "USD",
-  avatar: "https://picsum.photos/seed/admin/200",
-  joinedAt: "2023-05-12",
-};
+import { currency } from "@/app/_docs/doc";
+import { useAppContext } from "@/context/appContext";
+import { Admin } from "@/types";
+import { useUpdateAdmin } from "@/hooks/use-admin";
+import { useUploadImage } from "@/hooks/use-file";
+import { toast } from "sonner";
 
 export default function AdminProfilePage() {
-  const [profile, setProfile] = useState<AdminProfile>(mockAdmin);
+  const { adminInfo, userCurrency, setUserCurrency } = useAppContext();
+  const [profile, setProfile] = useState<Admin>(adminInfo!);
   const [editing, setEditing] = useState(false);
+  const { mutateAsync: updateAdmin } = useUpdateAdmin();
+  const { mutateAsync: uploadImage } = useUploadImage();
 
   const router = useRouter();
+
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
     setProfile((prev) => ({ ...prev, [name]: value }));
   }
 
-  function handleCurrencyChange(value: string) {
-    setProfile((prev) => ({ ...prev, currency: value }));
-  }
-
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    console.log("Updated Admin Profile:", profile);
+
+    // Sanitize profile to match UpdateAdminProps type
+    const sanitizedProfile = {
+      ...profile,
+      fullName: profile.fullName ?? undefined,
+      image: profile.image ?? undefined,
+    };
+
+    updateAdmin(sanitizedProfile);
     setEditing(false);
   }
+
+  if (!profile) return null;
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    const response = await uploadImage({ file: file!, collection: "admins" });
+    await updateAdmin({ image: response.url });
+    setProfile((prev) => ({ ...prev, image: response.url }));
+  };
 
   return (
     <main className="min-h-screen w-full p-6">
@@ -68,17 +69,51 @@ export default function AdminProfilePage() {
       >
         <Card className="p-8 rounded-2xl shadow-sm">
           <div className="flex flex-col sm:flex-row gap-8 items-start">
-            <img
-              src={profile.avatar}
-              alt={profile.name}
-              className="w-32 h-32 rounded-full object-cover border border-primary/40"
-            />
+            <div className="relative w-32 h-32">
+              <img
+                src={profile?.image ?? "/images/default-profile.jpg"}
+                alt={profile.fullName ?? "Admin Profile"}
+                className="w-32 h-32 rounded-full object-cover border border-primary/40"
+              />
+
+              {editing && (
+                <label
+                  htmlFor="profile-upload"
+                  className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer transition-opacity"
+                >
+                  <span className="text-white flex flex-col items-center gap-1">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15.232 5.232l3.536 3.536M9 13l6 6 6-6-6-6-6 6z"
+                      />
+                    </svg>
+                    <span className="text-xs">Edit</span>
+                  </span>
+                  <Input
+                    type="file"
+                    id="profile-upload"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileUpload} // your upload handler
+                  />
+                </label>
+              )}
+            </div>
 
             <div className="flex-1 space-y-2">
-              <h1 className="text-2xl font-semibold">{profile.name}</h1>
+              <h1 className="text-2xl font-semibold">{profile.fullName}</h1>
               <p className="text-sm">@{profile.username}</p>
               <p className="text-sm opacity-80">
-                Joined {new Date(profile.joinedAt).toLocaleDateString()}
+                Joined {new Date(profile.timestamp).toLocaleDateString()}
               </p>
 
               <div className="flex gap-3 mt-4">
@@ -123,8 +158,9 @@ export default function AdminProfilePage() {
               <div className="grid gap-2">
                 <Label>Full Name</Label>
                 <Input
-                  name="name"
-                  value={profile.name}
+                  name="fullName"
+                  type="text"
+                  value={profile.fullName || ""}
                   onChange={handleChange}
                   required
                 />
@@ -153,32 +189,38 @@ export default function AdminProfilePage() {
 
               <div className="grid gap-2">
                 <Label>Role</Label>
-                <Select disabled defaultValue={profile.role}>
+                <Select disabled value={profile.role}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Super Admin">Super Admin</SelectItem>
-                    <SelectItem value="Admin">Admin</SelectItem>
+                    <SelectItem value="SUPER">Super Admin</SelectItem>
+                    <SelectItem value="BASIC">Basic Admin</SelectItem>
+                    <SelectItem value="MANAGER">Manager</SelectItem>
+                    <SelectItem value="SUPPORT_STAFF">Support Staff</SelectItem>
+                    <SelectItem value="FINANCE_OFFICER">
+                      Finance Officer
+                    </SelectItem>
+                    <SelectItem value="SERVICE_OPERATOR">
+                      Service Operator
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="grid gap-2">
                 <Label>Currency</Label>
-                <Select
-                  value={profile.currency}
-                  onValueChange={handleCurrencyChange}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select currency" />
+                <Select value={userCurrency} onValueChange={setUserCurrency}>
+                  <SelectTrigger id="adminCurrency">
+                    <SelectValue placeholder="Select currency..." />
                   </SelectTrigger>
+
                   <SelectContent>
-                    <SelectItem value="USD">
-                      USD - United States Dollar
-                    </SelectItem>
-                    <SelectItem value="NGN">NGN - Nigerian Naira</SelectItem>
-                    <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                    {Object.entries(currency).map(([key, value]) => (
+                      <SelectItem key={key} value={key}>
+                        {key} - {value.split("|")[0]}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

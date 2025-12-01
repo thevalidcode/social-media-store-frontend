@@ -14,7 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
+
 // Types
 type ThemeSchema = {
   ":root": Record<string, string>;
@@ -80,7 +80,7 @@ export default function DesignSettings() {
     try {
       const saved = localStorage.getItem("selectedTheme");
       if (saved) {
-        const parsed = JSON.parse(saved);
+        const parsed: ThemeOption = JSON.parse(saved);
         const theme =
           brandColors.find((t) => t.hex === parsed.hex) || brandColors[0];
         setSelectedBrand(theme);
@@ -100,30 +100,17 @@ export default function DesignSettings() {
 
   const handleBrandSelect = (theme: ThemeOption) => {
     setSelectedBrand(theme);
-    applyTheme(theme.schema);
   };
 
   const handleSave = () => {
-    localStorage.setItem(
-      "selectedTheme",
-      JSON.stringify({
-        hex: selectedBrand.hex,
-        schema: selectedBrand.schema,
-      })
-    );
-    applyTheme(selectedBrand.schema);
-    toast.success("Theme saved", {
-      duration: 2000,
-      position: "top-right",
-      richColors: true,
-    });
+    applyTheme(selectedBrand);
   };
 
   return (
     <Card className="border-none shadow-none h-full flex flex-col bg-background">
       <CardHeader className="flex justify-between items-start px-0 pt-0">
         <CardDescription>
-          Customize the look and feel of your application.
+          Customize the look and feel of your store.
         </CardDescription>
       </CardHeader>
 

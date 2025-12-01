@@ -14,11 +14,14 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useCreateProvider, useUpdateProvider } from "@/hooks/use-providers";
 import { useQueryClient } from "@tanstack/react-query";
-import { Eye, Pencil, Plus } from "lucide-react";
+import { Eye, Pencil, Plus, Image as ImageIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AnimatePresence, motion } from "framer-motion";
 import { Provider } from "@/types";
+import { useUploadImage } from "@/hooks/use-file";
+import { DialogTrigger } from "@radix-ui/react-dialog";
+import { PreviousImagesSelector } from "../../components/PreviousImagesSelector";
 
 interface ProviderDialogProps {
   isOpen: boolean;
@@ -42,6 +45,7 @@ export default function ProviderDialog({
   const queryClient = useQueryClient();
   const { mutate: createProvider } = useCreateProvider();
   const { mutate: UpdateProvider } = useUpdateProvider();
+  const { mutateAsync: uploadImage } = useUploadImage();
 
   // Populate form values on edit
   useEffect(() => {
@@ -97,6 +101,13 @@ export default function ProviderDialog({
     });
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const response = await uploadImage({ file, collection: "providers" });
+    setImage(response.url);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] p-6">
@@ -130,7 +141,6 @@ export default function ProviderDialog({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
-            {/* Name Field */}
             <div className="flex flex-col lg:gap-2 gap-1">
               <Label htmlFor="providerName">Provider Name</Label>
               <Input
@@ -141,18 +151,36 @@ export default function ProviderDialog({
                 required
               />
             </div>
-
             <div className="flex flex-col lg:gap-2 gap-1">
-              <Label htmlFor="provideImage">Provider Image</Label>
+              <Label htmlFor="url">Url</Label>
               <Input
-                id="provideImage"
-                placeholder="e.g. https://validplug.com.ng/logo.png"
-                value={image}
-                onChange={(e) => setImage(e.target.value)}
+                id="url"
+                placeholder="validplug.com.ng/api/v2"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
                 required
               />
             </div>
-
+            <div className="flex flex-col lg:gap-2 gap-1">
+              <Label htmlFor="provideImage">Provider Image</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileUpload(e)}
+                />
+                <ImageIcon className="w-5 h-5 text-muted-foreground" />
+              </div>
+              <Dialog>
+                <DialogTrigger>Choose Previous Image</DialogTrigger>
+                <PreviousImagesSelector
+                  collection="providers"
+                  onSelect={(img) => {
+                    setImage(img.url);
+                  }}
+                />
+              </Dialog>
+            </div>
             {/* API Key Field */}
             <div className="flex flex-col lg:gap-2 gap-1">
               <Label htmlFor="apiKey">API Key</Label>
@@ -161,16 +189,6 @@ export default function ProviderDialog({
                 placeholder="Enter provider API key"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
-                required
-              />
-            </div>
-            <div className="flex flex-col lg:gap-2 gap-1">
-              <Label htmlFor="url">Url</Label>
-              <Input
-                id="url"
-                placeholder="validplug.com.ng/api/v2"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
                 required
               />
             </div>

@@ -2,12 +2,10 @@
 
 import {
   BarChart,
-  Bell,
   BookOpen,
   CreditCard,
   HelpCircle,
   LogIn,
-  Menu,
   MessageCircle,
   Network,
   Settings,
@@ -42,6 +40,8 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAppContext } from "@/context/appContext";
+import Image from "next/image";
+import { del } from "idb-keyval";
 
 // Admin navigation data
 const adminNavigationItems = [
@@ -128,8 +128,9 @@ export function AdminSidebar({
 
   if (isStoreGeneralSettingsLoading) return <div>Loading...</div>;
 
-  const handleAuthAction = () => {
+  const handleAuthAction = async () => {
     setAdminInfo(null);
+    await del("adminInfo");
     router.push("/admin/auth/signin");
   };
 
@@ -140,12 +141,17 @@ export function AdminSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton size="md" asChild>
               <Link href="/admin/users">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  {/* Store Logo */}
-                  <Menu className="size-4" />
-                </div>
+                {generalSetting?.logoUrl && (
+                  <Image
+                    src={generalSetting?.logoUrl || ""}
+                    alt="logo"
+                    width={32}
+                    height={32}
+                    className="rounded-sm"
+                  />
+                )}
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate text-xs">
+                  <span className="truncate font-semibold text-md">
                     {generalSetting?.storeName || "Social Media Store"}
                   </span>
                 </div>
@@ -193,7 +199,7 @@ export function AdminSidebar({
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage
-                      src="https://github.com/shadcn.png"
+                      src={adminInfo?.image || "https://github.com/shadcn.png"}
                       alt="Admin"
                     />
                     <AvatarFallback className="rounded-lg">AD</AvatarFallback>
@@ -218,7 +224,9 @@ export function AdminSidebar({
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                     <Avatar className="h-8 w-8 rounded-lg">
                       <AvatarImage
-                        src="https://github.com/shadcn.png"
+                        src={
+                          adminInfo?.image || "https://github.com/shadcn.png"
+                        }
                         alt="Admin"
                       />
                       <AvatarFallback className="rounded-lg">AD</AvatarFallback>

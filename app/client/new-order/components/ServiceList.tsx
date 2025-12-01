@@ -56,7 +56,7 @@ export const ServiceList: React.FC<Props> = ({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-5">
         {services.map((s) => {
-          const inCart = cartItems.find((c) => c.serviceId === s.id) ?? {
+          const inCart = cartItems.find((c) => c.serviceId === s.storeScopedId) ?? {
             quantity: 0,
             link: "",
           };
@@ -67,7 +67,7 @@ export const ServiceList: React.FC<Props> = ({
 
           return (
             <Card
-              key={s.id}
+              key={s.storeScopedId}
               className="rounded-xl shadow-sm border border-border hover:shadow-md transition-all duration-200 flex flex-col"
             >
               <CardHeader className="flex flex-row items-center gap-3 p-3">
@@ -82,12 +82,12 @@ export const ServiceList: React.FC<Props> = ({
                   </CardTitle>
                   <div className="text-xs mt-1 text-muted-foreground">
                     {
-                      convert(s.currency, userCurrency, s.price, true, true)
+                      convert(s.currency, userCurrency, s.price, true, false)
                         .formatted
                     }{" "}
                     / 1000 •{" "}
                     {
-                      convert(s.currency, userCurrency, perUnit, true, true)
+                      convert(s.currency, userCurrency, perUnit, true, false)
                         .formatted
                     }{" "}
                     per unit
@@ -109,7 +109,7 @@ export const ServiceList: React.FC<Props> = ({
                     Subtotal:{" "}
                     <span className="font-medium text-foreground">
                       {
-                        convert(s.currency, userCurrency, subtotal, true, true)
+                        convert(s.currency, userCurrency, subtotal, true, false)
                           .formatted
                       }
                     </span>
@@ -120,7 +120,7 @@ export const ServiceList: React.FC<Props> = ({
                   placeholder="Enter link (required)"
                   value={inCart.link}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    updateLink(s.id, e.target.value)
+                    updateLink(s.storeScopedId, e.target.value)
                   }
                   className="text-sm h-8"
                 />
@@ -132,7 +132,7 @@ export const ServiceList: React.FC<Props> = ({
                       variant="outline"
                       className="h-8 w-8 p-0"
                       onClick={() =>
-                        updateQuantity(s.id, Math.max(0, inCart.quantity - 1))
+                        updateQuantity(s.storeScopedId, Math.max(0, inCart.quantity - 1))
                       }
                     >
                       -
@@ -144,7 +144,7 @@ export const ServiceList: React.FC<Props> = ({
                       value={inCart.quantity}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         updateQuantity(
-                          s.id,
+                          s.storeScopedId,
                           parseInt(e.target.value || "0", 10)
                         )
                       }

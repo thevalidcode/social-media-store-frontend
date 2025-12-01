@@ -108,7 +108,7 @@ export default function ServiceCard({
                   <span className="font-medium">
                     {" "}
                     {
-                      convert(currency, userCurrency, price, true, true)
+                      convert(currency, userCurrency, price, true, false)
                         .formatted
                     }
                   </span>

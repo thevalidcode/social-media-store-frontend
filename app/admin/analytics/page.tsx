@@ -1,9 +1,13 @@
-import Statistics from "../components/statistics";
+import { ComingSoon } from "@/components/ComingSoon";
+import Statistics from "./components/statistics";
 
 export default function AnalyticsPage() {
   return (
     <main>
-      <Statistics />
+      <ComingSoon
+        title="Analytics Feature Coming Soon"
+        description="Stay tuned this feature will be created soon!"
+      />
     </main>
   );
 }

@@ -16,8 +16,7 @@ import Loading from "@/app/loading";
 import { useAppContext } from "@/context/appContext";
 import { useCurrencyConverter } from "@/lib/currencyConverter";
 import { EmptyState } from "@/components/empty-state";
-import { useRouter } from "next/navigation";
-import { Order, OrderPublic } from "@/types";
+import { Order } from "@/types";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -171,7 +170,10 @@ export const OrderTable = ({
           >
             <div className="flex items-start gap-3">
               <img
-                src={`https://picsum.photos/seed/order-${idx}/100`}
+                src={
+                  order.service.icon ||
+                  `https://picsum.photos/seed/service-${idx}/64`
+                }
                 alt={order.service.name}
                 className="w-16 h-16 rounded-md object-cover"
               />
@@ -180,9 +182,13 @@ export const OrderTable = ({
                   <h3 className="font-semibold truncate">
                     {order.service.name}
                   </h3>
-                  <span className="text-xs text-muted-foreground">
-                    #{order.storeScopedId}
-                  </span>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setEditingOrder(order)}
+                  >
+                    <MoreVertical className="w-4 h-4" />
+                  </Button>
                 </div>
 
                 <p className="text-xs text-muted-foreground mt-1 truncate">
@@ -200,7 +206,7 @@ export const OrderTable = ({
                         userCurrency,
                         order.price,
                         true,
-                        true
+                        false
                       ).formatted
                     }
                   </span>

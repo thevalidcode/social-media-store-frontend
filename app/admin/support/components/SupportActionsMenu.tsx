@@ -8,13 +8,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Eye, MessageSquare, MoreHorizontal, Trash2 } from "lucide-react";
-import type { SupportTicketAdmin } from "@/types";
+import type { SupportTicket } from "@/types";
+import { useRouter } from "next/navigation";
 
 export default function SupportActionsMenu({
   ticket,
 }: {
-  ticket: SupportTicketAdmin;
+  ticket: SupportTicket;
 }) {
+  const router = useRouter();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -23,7 +25,7 @@ export default function SupportActionsMenu({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push(`${ticket.id}`)}>
           <Eye className="mr-2 h-4 w-4" /> View
         </DropdownMenuItem>
         <DropdownMenuItem>

@@ -1,11 +1,11 @@
 import { AppProvider } from "@/context/appContext";
 import { UseMounted } from "@/lib/mounted";
 import { QueryProvider } from "@/provider/queryProvider";
-import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
 import { ThemeProvider } from "./providers/theme-provider";
+import FaviconSetter from "@/components/FaviconSetter";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,11 +16,6 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
-
-export const metadata: Metadata = {
-  title: "Social Media Store",
-  description: "The best social media services resellers",
-};
 
 export default function RootLayout({
   children,
@@ -37,6 +32,7 @@ export default function RootLayout({
           <QueryProvider>
             <AppProvider>
               <ThemeProvider>
+                <FaviconSetter />
                 <Toaster position="top-right" richColors />
                 <main>{children}</main>
               </ThemeProvider>

@@ -1,7 +1,7 @@
 "use client";
 
-import Loading from "@/app/loading";
 import { useAppContext } from "@/context/appContext";
+import Loading from "@/app/loading";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useMemo } from "react";
 
@@ -17,10 +17,11 @@ const withAuth = <P extends object>({
   excludePaths = [],
 }: WithAuthProps<P>) => {
   const AuthenticatedComponent = (props: P) => {
-    const { userInfo, adminInfo, isLoading } = useAppContext();
+    const { userInfo, adminInfo, isLoading, isAuthLoading } = useAppContext();
     const router = useRouter();
     const pathname = usePathname();
 
+    // Determine if current path is public
     const isExcluded = useMemo(
       () => excludePaths.some((path) => pathname.includes(path)),
       [excludePaths, pathname]
@@ -30,24 +31,28 @@ const withAuth = <P extends object>({
     const redirectPath =
       userType === "admin" ? "/admin/auth/signin" : "/auth/signin";
 
-    // useEffect must always run, regardless of conditions
+    // Only redirect after loading is complete
     useEffect(() => {
-      if (!isExcluded && !isLoading && !currentUser) {
-        router.push(redirectPath);
+      if (!isExcluded && !isAuthLoading && !isLoading && !currentUser) {
+        router.replace(redirectPath); // use replace to avoid back button issues
       }
-    }, [isExcluded, isLoading, currentUser, redirectPath, router]);
+    }, [
+      isExcluded,
+      isAuthLoading,
+      currentUser,
+      isLoading,
+      redirectPath,
+      router,
+    ]);
 
-    if (isExcluded) {
-      return <WrappedComponent {...props} />;
-    }
+    // Show loader while auth state is unknown
+    if (isAuthLoading) return <Loading />;
 
-    if (isLoading) {
-      return <Loading />;
-    }
+    // If path is excluded, render immediately
+    if (isExcluded) return <WrappedComponent {...props} />;
 
-    if (!currentUser) {
-      return null;
-    }
+    // Wait until currentUser is available to render wrapped component
+    if (!currentUser) return null;
 
     return <WrappedComponent {...props} />;
   };

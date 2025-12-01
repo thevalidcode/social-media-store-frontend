@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { serviceCategories, sortBy } from "@/app/_docs/doc";
+import { sortBy } from "@/app/_docs/doc";
 import { Service, ServiceCategory } from "@/types";
 import { SortOption } from "@/types";
 
@@ -18,7 +18,7 @@ type Props = {
 };
 
 export default function ServicesList({
-  categoryWithServices = serviceCategories,
+  categoryWithServices = [],
   showControls = true,
 }: Props) {
   const router = useRouter();
@@ -49,7 +49,7 @@ export default function ServicesList({
       case "alphabetical":
         return list.sort((a, b) => a.name.localeCompare(b.name));
       case "id":
-        return list.sort((a, b) => a.id - b.id);
+        return list.sort((a, b) => a.storeScopedId - b.storeScopedId);
       default:
         return list;
     }

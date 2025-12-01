@@ -1,4 +1,16 @@
-type CollectionName ="default"| "users" | "blogs" | "services"; // e.g. "blogs" | "users" | "pages"
+export type CollectionName =
+  | "default"
+  | "users"
+  | "blogs"
+  | "orders"
+  | "faqs"
+  | "store"
+  | "admins"
+  | "providers"
+  | "categories"
+  | "services"
+  | "payment-gateways";
+
 import { Editor } from "@tiptap/react";
 
 export interface WysiwygEditorProps {

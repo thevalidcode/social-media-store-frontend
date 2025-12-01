@@ -8,6 +8,10 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import WysiwygEditor from "@/components/WysiwygEditor";
 import { Blog } from "@/types";
+import { Image } from "lucide-react";
+import { useUploadImage } from "@/hooks/use-file";
+import { PreviousImagesSelector } from "../../components/PreviousImagesSelector";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 
 interface BlogFormProps {
   blog: Blog;
@@ -21,8 +25,8 @@ export default function BlogForm({ blog, onSave, onCancel }: BlogFormProps) {
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
   const [img, setImg] = useState("");
+  const { mutateAsync: uploadImage } = useUploadImage();
 
-  // ✅ Sync local state with blog prop every time it's updated (edit/create)
   useEffect(() => {
     if (blog) {
       setTitle(blog.title || "");
@@ -65,6 +69,13 @@ export default function BlogForm({ blog, onSave, onCancel }: BlogFormProps) {
     onSave(updated);
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const response = await uploadImage({ file, collection: "blogs" });
+    setImg(response.url);
+  };
+
   return (
     <form
       onSubmit={(e) => {
@@ -102,22 +113,33 @@ export default function BlogForm({ blog, onSave, onCancel }: BlogFormProps) {
         />
       </div>
 
-      {/* Image URL */}
-      <div className="space-y-2">
-        <Label htmlFor="img">Image URL</Label>
-        <Input
-          id="img"
-          placeholder="https://example.com/cover-image.jpg"
-          value={img}
-          onChange={(e) => setImg(e.target.value)}
-        />
+      {/* Image */}
+      <div className="flex flex-col lg:gap-2 gap-1">
+        <Label htmlFor="provideImage">Image</Label>
+        <div className="flex items-center gap-2">
+          <Input
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleFileUpload(e)}
+          />
+          <Image className="w-5 h-5 text-muted-foreground" />
+        </div>
+        <Dialog>
+          <DialogTrigger>Choose Previous Image</DialogTrigger>
+          <PreviousImagesSelector
+            collection="blogs"
+            onSelect={(img) => {
+              setImg(img.url);
+            }}
+          />
+        </Dialog>
       </div>
 
       {/* WYSIWYG Editor */}
       <div className="space-y-2">
         <Label>Content</Label>
         <WysiwygEditor
-          key={blog.uid || "new"} // ✅ ensures re-render between create/edit
+          key={blog.uid || "new"}
           initialContent={content}
           onChange={setContent}
           collection="blogs"
@@ -126,7 +148,7 @@ export default function BlogForm({ blog, onSave, onCancel }: BlogFormProps) {
       </div>
 
       {/* Actions */}
-      <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+      <div className="flex justify-end gap-3 border-gray-100">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>

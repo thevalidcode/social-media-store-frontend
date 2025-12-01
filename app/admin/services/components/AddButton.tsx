@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { PlusCircle, Image as ImageIcon, Tags, Import } from "lucide-react";
+import { PlusCircle, Image as ImageIcon, Import } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,11 +28,332 @@ import Loading from "@/app/loading";
 import { useGetProviders } from "@/hooks/use-providers";
 import { useCreateService } from "@/hooks/use-services";
 import { useAppContext } from "@/context/appContext";
+import { useUploadImage } from "@/hooks/use-file";
+import Image from "next/image";
+import { PreviousImagesSelector } from "../../components/PreviousImagesSelector";
 
 interface SelectType {
   value: string;
   label: string;
+  image?: string;
 }
+
+const syncOptions = [
+  { key: "syncQuantity", label: "Sync Quantity" },
+  { key: "syncCatAndName", label: "Sync Category & Name" },
+  { key: "dripFeed", label: "Drip Feed" },
+  { key: "refill", label: "Refill" },
+  { key: "cancel", label: "Cancel" },
+];
+
+function CategoryForm({ newCategory, setNewCategory, handleFileUpload }: any) {
+  const handleChange = (key: string, value: any) =>
+    setNewCategory((prev: any) => ({ ...prev, [key]: value }));
+
+  return (
+    <div className="space-y-3 text-sm mt-2">
+      <div>
+        <Label>Name</Label>
+        <Input
+          value={newCategory.name}
+          onChange={(e) => handleChange("name", e.target.value)}
+          placeholder="Category name"
+        />
+      </div>
+      <div>
+        <Label>Description</Label>
+        <Textarea
+          value={newCategory.description}
+          onChange={(e) => handleChange("description", e.target.value)}
+          placeholder="Short category description..."
+        />
+      </div>
+      <div>
+        <Label>Icon</Label>
+        <div className="flex items-center gap-2">
+          <Input
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleFileUpload(e, "categories")}
+          />
+          <ImageIcon className="w-5 h-5 text-muted-foreground" />
+        </div>
+        <Dialog>
+          <DialogTrigger>Choose Previous Image</DialogTrigger>
+          <PreviousImagesSelector
+            collection="categories"
+            onSelect={(img) => {
+              setNewCategory({ ...newCategory, icon: img.url });
+            }}
+          />
+        </Dialog>
+      </div>
+    </div>
+  );
+}
+
+function ServiceForm({
+  newService,
+  setNewService,
+  categoryOptions,
+  providerOptions,
+  handleFileUpload,
+}: any) {
+  const handleChange = (key: string, value: any) =>
+    setNewService((prev: any) => ({ ...prev, [key]: value }));
+
+  const showProviderFields = newService.type !== "MANUAL";
+
+  return (
+    <div className="space-y-3 text-sm mt-2">
+      <div className="flex justify-between items-center">
+        <Label>Add Service Details</Label>
+        <Button size="sm" variant="outline" className="flex items-center gap-1">
+          <Import className="w-4 h-4" /> Import from Provider
+        </Button>
+      </div>
+
+      <InputField
+        label="Name"
+        value={newService.name}
+        onChange={(v) => handleChange("name", v)}
+      />
+
+      <SelectField
+        label="Category"
+        options={categoryOptions}
+        value={newService.category}
+        onChange={(v) => handleChange("category", v)}
+        showImage
+      />
+
+      <FileInputField
+        label="Icon"
+        onChange={(e) => handleFileUpload(e, "services")}
+      />
+      <Dialog>
+        <DialogTrigger>Choose Previous Image</DialogTrigger>
+        <PreviousImagesSelector
+          collection="services"
+          onSelect={(img) => {
+            setNewService({ ...newService, icon: img.url });
+          }}
+        />
+      </Dialog>
+      <TextareaField
+        label="Description"
+        value={newService.description}
+        onChange={(v) => handleChange("description", v)}
+      />
+      <SelectField
+        label="Type"
+        options={[
+          "MANUAL",
+          "DEFAULT",
+          "PACKAGE",
+          "SEO",
+          "CUSTOM_COMMENTS",
+          "MENTIONS",
+          "MENTIONS_WITH_HASHTAGS",
+          "MENTIONS_CUSTOM_LIST",
+          "MENTIONS_HASHTAG",
+          "MENTIONS_USER_FOLLOWERS",
+          "MENTIONS_MEDIA_LIKERS",
+          "CUSTOM_COMMENTS_PACKAGE",
+          "COMMENT_LIKES",
+          "POLL",
+          "COMMENT_REPLIES",
+          "SUBSCRIPTIONS",
+          "INVITES_FROM_GROUPS",
+        ].map((t) => ({ value: t, label: t.replace(/_/g, " ") }))}
+        value={newService.type}
+        onChange={(v) => handleChange("type", v)}
+      />
+
+      {showProviderFields && (
+        <>
+          <SelectField
+            label="Provider"
+            options={providerOptions}
+            value={newService.providerUid}
+            onChange={(v) => handleChange("providerUid", v)}
+            showImage
+          />
+
+          <div className="grid grid-cols-2 gap-3">
+            <InputField
+              label="Min"
+              type="number"
+              value={newService.min}
+              onChange={(v) => handleChange("min", Number(v))}
+              disabled={newService.type === "PACKAGE"}
+            />
+            <InputField
+              label="Max"
+              type="number"
+              value={newService.max}
+              onChange={(v) => handleChange("max", Number(v))}
+              disabled={newService.type === "PACKAGE"}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <InputField
+              label="Provider Service ID"
+              type="number"
+              value={newService.providerId}
+              onChange={(v) => handleChange("providerId", Number(v))}
+            />
+            <InputField
+              label="Provider Price"
+              type="number"
+              value={newService.providerPrice}
+              disabled
+            />
+            <InputField
+              label="Network"
+              value={newService.network}
+              onChange={(v) => handleChange("network", v)}
+            />
+            <InputField
+              label="Refill Days"
+              type="number"
+              value={newService.refillDays}
+              onChange={(v) => handleChange("refillDays", Number(v))}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            {syncOptions.map((opt) => (
+              <div
+                key={opt.key}
+                className="flex items-center justify-between border p-2 rounded-md"
+              >
+                <Label>{opt.label}</Label>
+                <Switch
+                  checked={newService[opt.key]}
+                  onCheckedChange={(v) => handleChange(opt.key, v)}
+                />
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+interface InputFieldProps {
+  label: string;
+  value: string | number;
+  onChange?: (value: string) => void;
+  type?: "text" | "number" | "password" | "email";
+  disabled?: boolean;
+}
+
+export const InputField = ({
+  label,
+  value,
+  onChange,
+  type = "text",
+  disabled = false,
+}: InputFieldProps) => (
+  <div>
+    <Label>{label}</Label>
+    <Input
+      type={type}
+      value={value}
+      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+        onChange?.(e.target.value)
+      }
+      disabled={disabled}
+    />
+  </div>
+);
+
+interface TextareaFieldProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}
+
+export const TextareaField = ({
+  label,
+  value,
+  onChange,
+}: TextareaFieldProps) => (
+  <div>
+    <Label>{label}</Label>
+    <Textarea
+      value={value}
+      onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+        onChange(e.target.value)
+      }
+    />
+  </div>
+);
+
+interface FileInputFieldProps {
+  label: string;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+}
+
+export const FileInputField = ({ label, onChange }: FileInputFieldProps) => (
+  <div>
+    <Label>{label}</Label>
+    <div className="flex items-center gap-2">
+      <Input type="file" accept="image/*" onChange={onChange} />
+      <ImageIcon className="w-5 h-5 text-muted-foreground" />
+    </div>
+  </div>
+);
+
+export interface SelectOption {
+  value: string;
+  label: string;
+  image?: string;
+}
+
+interface SelectFieldProps {
+  label: string;
+  options: SelectOption[];
+  value: string;
+  onChange: (value: string) => void;
+  showImage?: boolean;
+}
+
+export const SelectField = ({
+  label,
+  options,
+  value,
+  onChange,
+  showImage = false,
+}: SelectFieldProps) => (
+  <div>
+    <Label>{label}</Label>
+    <Select onValueChange={onChange} value={value}>
+      <SelectTrigger className="w-full">
+        <SelectValue placeholder={`Select ${label}`} />
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((opt, key) => (
+          <SelectItem key={key} value={opt.value}>
+            {showImage && opt.image && (
+              <Image
+                src={opt.image}
+                alt={opt.label}
+                width={20}
+                height={20}
+                className="inline rounded-sm object-cover"
+              />
+            )}
+            {opt.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  </div>
+);
 
 export default function AddButton() {
   const [open, setOpen] = useState(false);
@@ -42,27 +364,25 @@ export default function AddButton() {
   const { userCurrency } = useAppContext();
 
   const [newService, setNewService] = useState({
-    name: "",
-    category: "",
     type: "PACKAGE",
+    currency: userCurrency,
     min: 1,
     max: 1,
-    price: "",
-    providerPrice: 1,
     providerUid: "",
-    icon: "",
-    description: "",
-    refillDays: 0,
     providerId: 0,
+    providerPrice: 1,
+    network: "",
+    refillDays: 0,
     syncQuantity: true,
     syncCatAndName: true,
     dripFeed: true,
-    network: "",
     refill: true,
     cancel: true,
-    currency: userCurrency,
+    name: "",
+    category: "",
+    description: "",
+    icon: "",
   });
-
   const [newCategory, setNewCategory] = useState({
     name: "",
     description: "",
@@ -71,57 +391,49 @@ export default function AddButton() {
 
   const { data: categoryData, isLoading: isCategoriesLoading } =
     useGetCategories();
-
   const { data: providerData, isLoading: isProviderLoading } =
     useGetProviders();
-
   const { mutate: createCategory } = useCreateCategory();
   const { mutate: createService } = useCreateService();
+  const { mutateAsync: uploadImage } = useUploadImage();
 
   useEffect(() => {
-    if (categoryData) {
-      const mappedCategories = categoryData.map((category) => ({
-        value: category.name,
-        label: category.name,
-      }));
-      setCategoryOptions(mappedCategories);
-    }
+    if (categoryData)
+      setCategoryOptions(
+        categoryData.map((c) => ({
+          value: c.name,
+          label: c.name,
+          image: c.icon,
+        }))
+      );
   }, [categoryData]);
 
   useEffect(() => {
-    if (providerData) {
-      const mappedProviders = providerData.map((provider) => ({
-        value: provider.uid,
-        label: provider.name,
-      }));
-      setProviderOptions(mappedProviders);
-    }
+    if (providerData)
+      setProviderOptions(
+        providerData.map((p) => ({
+          value: p.uid,
+          label: p.name,
+          image: p.image,
+        }))
+      );
   }, [providerData]);
 
-  const handleServiceChange = (key: keyof typeof newService, value: any) => {
-    setNewService((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleCategoryChange = (key: keyof typeof newCategory, value: any) => {
-    setNewCategory((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleFileUpload = (
+  const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    type: "service" | "category"
+    type: "services" | "categories"
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (type === "service") handleServiceChange("icon", file);
-    else handleCategoryChange("icon", file);
+    const response = await uploadImage({ file, collection: type });
+    if (type === "services")
+      setNewService((prev) => ({ ...prev, icon: response.url }));
+    else setNewCategory((prev) => ({ ...prev, icon: response.url }));
   };
 
   const handleSave = () => {
-    if (isCategoryMode) {
-      createCategory(newCategory);
-    } else {
-      createService(newService);
-    }
+    if (isCategoryMode) createCategory(newCategory);
+    else createService(newService);
     setOpen(false);
   };
 
@@ -138,7 +450,7 @@ export default function AddButton() {
       <AnimatePresence>
         {open && (
           <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="max-w-lg max-h-[90vh]  overflow-y-auto">
+            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
               {isCategoriesLoading || isProviderLoading ? (
                 <Loading />
               ) : (
@@ -147,7 +459,6 @@ export default function AddButton() {
                     <DialogTitle>
                       {isCategoryMode ? "Add New Category" : "Add New Service"}
                     </DialogTitle>
-
                     <div className="flex items-center gap-2">
                       <Label htmlFor="switch-mode" className="text-xs">
                         Category
@@ -161,292 +472,29 @@ export default function AddButton() {
                   </DialogHeader>
 
                   {isCategoryMode ? (
-                    <div className="space-y-3 text-sm mt-2">
-                      <div>
-                        <Label>Name</Label>
-                        <Input
-                          value={newCategory.name}
-                          onChange={(e) =>
-                            handleCategoryChange("name", e.target.value)
-                          }
-                          placeholder="Category name"
-                          className="w-full"
-                        />
-                      </div>
-
-                      <div>
-                        <Label>Description</Label>
-                        <Textarea
-                          value={newCategory.description}
-                          onChange={(e) =>
-                            handleCategoryChange("description", e.target.value)
-                          }
-                          placeholder="Short category description..."
-                          className="w-full"
-                        />
-                      </div>
-
-                      <div>
-                        <Label>Icon</Label>
-                        <div className="flex items-center gap-2">
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleFileUpload(e, "category")}
-                            className="w-full"
-                          />
-                          <Tags className="w-5 h-5 text-muted-foreground" />
-                        </div>
-                      </div>
-
-                      <div className="pt-4 flex justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          onClick={() => setOpen(false)}
-                        >
-                          Cancel
-                        </Button>
-                        <Button onClick={handleSave}>Add Category</Button>
-                      </div>
-                    </div>
+                    <CategoryForm
+                      newCategory={newCategory}
+                      setNewCategory={setNewCategory}
+                      handleFileUpload={handleFileUpload}
+                    />
                   ) : (
-                    <div className="space-y-3 text-sm mt-2">
-                      <div className="flex justify-between items-center">
-                        <Label>Add Service Details</Label>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setImportOpen(true)}
-                          className="flex items-center gap-1"
-                        >
-                          <Import className="w-4 h-4" /> Import from Provider
-                        </Button>
-                      </div>
-
-                      <div>
-                        <Label>Name</Label>
-                        <Input
-                          value={newService.name}
-                          onChange={(e) =>
-                            handleServiceChange("name", e.target.value)
-                          }
-                          placeholder="Service name"
-                          className="w-full"
-                        />
-                      </div>
-
-                      <div>
-                        <Label>Category</Label>
-                        <Select
-                          onValueChange={(v) =>
-                            handleServiceChange("category", v)
-                          }
-                          value={newService.category}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {categoryOptions.map((c) => (
-                              <SelectItem key={c.value} value={c.value}>
-                                {c.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div>
-                        <Label>Type</Label>
-                        <Select
-                          onValueChange={(v) => handleServiceChange("type", v)}
-                          value={newService.type}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="PACKAGE">Package</SelectItem>
-                            <SelectItem value="DEFAULT">Default</SelectItem>
-                            <SelectItem value="SUBSCRIPTION">
-                              Subscription
-                            </SelectItem>
-                            <SelectItem value="CUSTOMCOMMENTS">
-                              Custom Comments
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div>
-                        <Label>Provider</Label>
-                        <Select
-                          onValueChange={(v) =>
-                            handleServiceChange("providerUid", v)
-                          }
-                          value={newService.providerUid}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select provider" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {providerOptions.map((c) => (
-                              <SelectItem key={c.value} value={c.value}>
-                                {c.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <Label>Min</Label>
-                          <Input
-                            type="number"
-                            value={newService.min}
-                            onChange={(e) =>
-                              handleServiceChange("min", Number(e.target.value))
-                            }
-                            className="w-full"
-                            disabled={newService.type === "PACKAGE"}
-                          />
-                        </div>
-                        <div>
-                          <Label>Max</Label>
-                          <Input
-                            type="number"
-                            value={newService.max}
-                            onChange={(e) =>
-                              handleServiceChange("max", Number(e.target.value))
-                            }
-                            className="w-full"
-                            disabled={newService.type === "PACKAGE"}
-                          />
-                        </div>
-                      </div>
-
-                      {newService.providerUid !== "" && (
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <Label>Provider Service ID</Label>
-                            <Input
-                              type="number"
-                              value={newService.providerId}
-                              onChange={(e) =>
-                                handleServiceChange(
-                                  "providerId",
-                                  Number(e.target.value)
-                                )
-                              }
-                              className="w-full"
-                            />
-                          </div>
-                          <div>
-                            <Label>Provider Price</Label>
-                            <Input
-                              type="number"
-                              value={newService.providerPrice}
-                              disabled
-                              className="w-full"
-                            />
-                          </div>
-                          <div>
-                            <Label>Network</Label>
-                            <Input
-                              value={newService.network}
-                              onChange={(e) =>
-                                handleServiceChange("network", e.target.value)
-                              }
-                              className="w-full"
-                            />
-                          </div>
-                          <div>
-                            <Label>Refill Days</Label>
-                            <Input
-                              type="number"
-                              value={newService.refillDays}
-                              onChange={(e) =>
-                                handleServiceChange(
-                                  "refillDays",
-                                  Number(e.target.value)
-                                )
-                              }
-                              className="w-full"
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="grid grid-cols-2 gap-3">
-                        {[
-                          { key: "syncQuantity", label: "Sync Quantity" },
-                          {
-                            key: "syncCatAndName",
-                            label: "Sync Category & Name",
-                          },
-                          { key: "dripFeed", label: "Drip Feed" },
-                          { key: "refill", label: "Refill" },
-                          { key: "cancel", label: "Cancel" },
-                        ]
-                          .filter((item) =>
-                            newService.providerUid !== ""
-                              ? item.key !== "syncCatAndName" &&
-                                item.key !== "syncQuantity"
-                              : true
-                          )
-                          .map((item) => (
-                            <div
-                              key={item.key}
-                              className="flex items-center justify-between border p-2 rounded-md"
-                            >
-                              <Label>{item.label}</Label>
-                              <Switch
-                                checked={(newService as any)[item.key]}
-                                onCheckedChange={(v) =>
-                                  handleServiceChange(item.key as any, v)
-                                }
-                              />
-                            </div>
-                          ))}
-                      </div>
-
-                      <div>
-                        <Label>Description</Label>
-                        <Textarea
-                          value={newService.description}
-                          onChange={(e) =>
-                            handleServiceChange("description", e.target.value)
-                          }
-                          placeholder="Describe the service..."
-                          className="w-full"
-                        />
-                      </div>
-
-                      <div>
-                        <Label>Icon</Label>
-                        <div className="flex items-center gap-2">
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleFileUpload(e, "service")}
-                            className="w-full"
-                          />
-                          <ImageIcon className="w-5 h-5 text-muted-foreground" />
-                        </div>
-                      </div>
-
-                      <div className="pt-4 flex justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          onClick={() => setOpen(false)}
-                        >
-                          Cancel
-                        </Button>
-                        <Button onClick={handleSave}>Add Service</Button>
-                      </div>
-                    </div>
+                    <ServiceForm
+                      newService={newService}
+                      setNewService={setNewService}
+                      categoryOptions={categoryOptions}
+                      providerOptions={providerOptions}
+                      handleFileUpload={handleFileUpload}
+                    />
                   )}
+
+                  <div className="pt-4 flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSave}>
+                      {isCategoryMode ? "Add Category" : "Add Service"}
+                    </Button>
+                  </div>
                 </>
               )}
             </DialogContent>
@@ -454,7 +502,6 @@ export default function AddButton() {
         )}
       </AnimatePresence>
 
-      {/* Import Dialog */}
       <ImportServicesDialog open={importOpen} onOpenChange={setImportOpen} />
     </>
   );

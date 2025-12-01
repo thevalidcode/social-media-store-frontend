@@ -3,7 +3,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { addMinutes, format } from "date-fns";
 import { useSearchParams } from "next/navigation";
-import { serviceCategories } from "@/app/_docs/doc";
 import type { Service, ServiceCategory } from "@/types";
 
 import { CategorySelect } from "./components/CategorySelect";
@@ -17,6 +16,11 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { CreateBulkOrdeProps, useCreateBulkOrder } from "@/hooks/use-order";
 import { useAppContext } from "@/context/appContext";
+import { useGetServicesByPublic } from "@/hooks/use-services";
+import { groupServicesByCategory } from "@/lib/groupServices";
+import Loading from "@/app/loading";
+import { EmptyState } from "@/components/empty-state";
+import { Server } from "lucide-react";
 
 interface CartItem {
   serviceId: number;
@@ -43,11 +47,6 @@ interface OrderPayload {
 const perUnitPrice = (price: number): number => price / 1000;
 
 export default function NewOrderPage() {
-  const [category, setCategory] = useState<string>(serviceCategories[0].title);
-  const [filteredServices, setFilteredServices] = useState<Service[]>(
-    () => serviceCategories[0].services || []
-  );
-
   const [cart, setCart] = useState<CartItem[]>([]);
   const [dripEnabled, setDripEnabled] = useState<boolean>(false);
   const [intervalMinutes, setIntervalMinutes] = useState<number>(60);
@@ -56,25 +55,55 @@ export default function NewOrderPage() {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const { userInfo } = useAppContext();
   const { mutate } = useCreateBulkOrder();
+  const { data: services, isLoading } = useGetServicesByPublic();
+  const [categoryWithServices, setCategoryWithServices] = useState<
+    ServiceCategory[]
+  >([]);
+
+  const [category, setCategory] = useState<string>(
+    categoryWithServices[0]?.title || ""
+  );
+  const [filteredServices, setFilteredServices] = useState<Service[]>(
+    () => categoryWithServices[0]?.services || []
+  );
 
   const searchParams = useSearchParams();
 
+  useEffect(() => {
+    const parsed = groupServicesByCategory(services || []);
+    setCategoryWithServices(parsed);
+  }, [services]);
+
   // Update filtered services when category changes
   useEffect(() => {
-    const selectedCategory = serviceCategories.find(
+    const selectedCategory = categoryWithServices.find(
       (c) => c.title === category
     );
     setFilteredServices(selectedCategory?.services || []);
   }, [category]);
 
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (filteredServices.length === 0) {
+    return (
+      <EmptyState
+        icon={Server}
+        title="No Service Found"
+        description="No service have been created yet."
+      />
+    );
+  }
+
   const addToCart = (service: Service, qty = 1, link = ""): void => {
     const safeQty = Number.isFinite(qty) ? qty : parseInt(String(qty), 10) || 0;
     if (safeQty <= 0) return;
     setCart((prev) => {
-      const existing = prev.find((p) => p.serviceId === service.id);
+      const existing = prev.find((p) => p.serviceId === service.storeScopedId);
       if (existing) {
         return prev.map((p) =>
-          p.serviceId === service.id
+          p.serviceId === service.storeScopedId
             ? { ...p, quantity: p.quantity + safeQty, link: link || p.link }
             : p
         );
@@ -82,7 +111,7 @@ export default function NewOrderPage() {
       return [
         ...prev,
         {
-          serviceId: service.id,
+          serviceId: service.storeScopedId,
           serviceUid: service.uid,
           name: service.name,
           price: service.price,
@@ -216,25 +245,25 @@ export default function NewOrderPage() {
     if (!catParam && !svcParam) return;
 
     if (catParam) {
-      const foundCat = serviceCategories.find(
+      const foundCat = categoryWithServices.find(
         (c) => c.title.toLowerCase() === catParam.toLowerCase()
       );
       if (foundCat) setCategory(foundCat.title);
     }
 
     if (svcParam) {
-      const svc = serviceCategories
+      const svc = categoryWithServices
         .flatMap((c) => c.services || [])
-        .find((s) => String(s.id) === String(svcParam));
+        .find((s) => String(s.storeScopedId) === String(svcParam));
       if (svc) {
         if (!catParam) setCategory(svc.category);
         setCart((prev) => {
-          const exists = prev.find((p) => p.serviceId === svc.id);
+          const exists = prev.find((p) => p.serviceId === svc.storeScopedId);
           if (exists) return prev;
           return [
             ...prev,
             {
-              serviceId: svc.id,
+              serviceId: svc.storeScopedId,
               serviceUid: svc.uid,
               name: svc.name,
               price: svc.price,
@@ -252,7 +281,7 @@ export default function NewOrderPage() {
   }, [searchParams]);
 
   const allServices = useMemo<Service[]>(() => {
-    return serviceCategories.flatMap((cat) => cat.services || []);
+    return categoryWithServices.flatMap((cat) => cat.services || []);
   }, []);
 
   return (
@@ -271,7 +300,7 @@ export default function NewOrderPage() {
                 <CategorySelect
                   value={category}
                   onChange={setCategory}
-                  categories={serviceCategories}
+                  categories={categoryWithServices}
                 />
 
                 <div className="w-full gap-2 flex flex-col">
@@ -303,7 +332,7 @@ export default function NewOrderPage() {
                 <ServiceList
                   services={filteredServices}
                   category={
-                    serviceCategories.find(
+                    categoryWithServices.find(
                       (c) => c.title === category
                     ) as ServiceCategory
                   }

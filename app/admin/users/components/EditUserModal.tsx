@@ -57,16 +57,24 @@ export default function EditUserModal({
   }, [user]);
 
   const handleSave = () => {
-    let newBalance = new Decimal(form.balance);
-    if (balanceAction === "add") newBalance = newBalance.plus(balanceChange);
+    let newBalance = new Decimal(form.balance); // Already USD stored
+    const convertedUSDBalance = convert(
+      userCurrency,
+      "USD",
+      balanceChange.toString(),
+      true,
+      true
+    ).amount;
+    if (balanceAction === "add")
+      newBalance = newBalance.plus(convertedUSDBalance);
     if (balanceAction === "remove")
-      newBalance = newBalance.minus(balanceChange);
+      newBalance = newBalance.minus(convertedUSDBalance);
 
     const updatedUser = {
       ...user,
       username: form.username,
       email: form.email,
-      balance: newBalance.lt(0) ? "0" : newBalance.toString(),
+      balance: newBalance.toString(),
     };
 
     onSave(updatedUser);
@@ -125,8 +133,13 @@ export default function EditUserModal({
               <Label>Current Balance</Label>
               <span className="text-lg font-medium text-primary">
                 {
-                  convert(user.currency, userCurrency, form.balance, true, true)
-                    .formatted
+                  convert(
+                    user?.currency,
+                    userCurrency,
+                    form.balance,
+                    true,
+                    true
+                  ).formatted
                 }
               </span>
             </div>

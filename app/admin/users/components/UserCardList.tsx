@@ -14,6 +14,7 @@ import UserActionsMenu from "./UserActionsMenu";
 import { User } from "@/types";
 import { useCurrencyConverter } from "@/lib/currencyConverter";
 import { useAppContext } from "@/context/appContext";
+import { DateTime } from "@/lib/DateTime";
 
 export default function UserCardList({
   users,
@@ -22,7 +23,6 @@ export default function UserCardList({
   onEdit,
   onDelete,
   onToggleBan,
-  onActivate,
 }: {
   users: User[];
   selected: number[];
@@ -30,7 +30,6 @@ export default function UserCardList({
   onEdit: (u: User) => void;
   onDelete: (id: number) => void;
   onToggleBan: (id: number) => void;
-  onActivate: (id: number) => void;
 }) {
   const convert = useCurrencyConverter();
   const { userCurrency } = useAppContext();
@@ -64,7 +63,7 @@ export default function UserCardList({
               <div className="text-muted-foreground">Balance</div>
               <div className="font-medium">
                 {
-                  convert(u.currency, userCurrency, u.balance, true, true)
+                  convert(u.currency, userCurrency, u.balance, true, false)
                     .formatted
                 }
               </div>
@@ -73,14 +72,18 @@ export default function UserCardList({
               <div className="text-muted-foreground">Spent</div>
               <div className="font-medium">
                 {
-                  convert(u.currency, userCurrency, u.spent, true, true)
+                  convert(u.currency, userCurrency, u.spent, true, false)
                     .formatted
                 }
               </div>
             </div>
             <div className="text-xs text-muted-foreground">
               Last seen:{" "}
-              {u.lastSeen ? new Date(u.lastSeen).toLocaleString() : "N/A"}
+              {u.lastSeen ? (
+                <DateTime date={u.lastSeen} formatStr="PPP p" relative />
+              ) : (
+                "N/A"
+              )}
             </div>
           </CardContent>
 
@@ -103,7 +106,6 @@ export default function UserCardList({
                 onEdit={onEdit}
                 onDelete={onDelete}
                 onToggleBan={onToggleBan}
-                onActivate={onActivate}
               />
             </div>
           </CardFooter>

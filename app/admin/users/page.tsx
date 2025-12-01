@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useIsMobile } from "@/hooks/use-mobile"; // your hook
-import { User } from "@/types";
+import { User, UserStatus } from "@/types";
 import Pagination from "@/components/pagination";
 import EditUserModal from "./components/EditUserModal";
 import {
@@ -40,7 +40,7 @@ export default function UsersPage() {
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteIds, setDeleteIds] = useState<number[]>([]);
-  const [editingUser, setEditingUser] = useState<any>(null);
+  const [editingUser, setEditingUser] = useState<User>(null as any);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const { data: usersData, isLoading } = useGetUsers();
   const { mutate } = useDeleteMultipleUsers();
@@ -157,26 +157,53 @@ export default function UsersPage() {
     setDeleteIds(selected);
     setDeleteOpen(true);
   };
-  
+
   const namesForDelete = users
     .filter((u) => deleteIds.includes(u.storeScopedId))
     .map((u) => u.username);
 
+  const handleToggleBan = (storeScopedId: number) => {
+    let updatedUser: User | null = null;
 
-  const handleToggleBan = (id: number) => {
     setUsers((prev) =>
-      prev.map((u) =>
-        u.storeScopedId === id
-          ? { ...u, status: u.status === "BANNED" ? "ACTIVE" : "BANNED" }
-          : u
-      )
+      prev.map((u) => {
+        if (u.storeScopedId !== storeScopedId) return u;
+
+        const newUser = {
+          ...u,
+          status: u.status === "BANNED" ? "ACTIVE" : ("BANNED" as UserStatus),
+        };
+
+        updatedUser = newUser;
+        return newUser;
+      })
     );
+
+    if (updatedUser) {
+      updateUser(updatedUser);
+    }
   };
 
-  const handleActivate = (id: number) => {
+  const handleBanSelectedUsers = (
+    selectedIds: number[],
+    users: User[],
+    setUsers: React.Dispatch<React.SetStateAction<User[]>>,
+    updateUser: (user: User) => void
+  ) => {
+    const updatedUsers: User[] = [];
+
     setUsers((prev) =>
-      prev.map((u) => (u.storeScopedId === id ? { ...u, status: "ACTIVE" } : u))
+      prev.map((u) => {
+        if (!selectedIds.includes(u.storeScopedId)) return u;
+
+        const updated = { ...u, status: "BANNED" as UserStatus };
+        updatedUsers.push(updated);
+        return updated;
+      })
     );
+
+    // Call updateUser for each updated user
+    updatedUsers.forEach((u) => updateUser(u));
   };
 
   return (
@@ -205,9 +232,9 @@ export default function UsersPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="offline">Offline</SelectItem>
-              <SelectItem value="banned">Banned</SelectItem>
+              <SelectItem value="ACTIVE">Active</SelectItem>
+              <SelectItem value="INACTIVE">Inactive</SelectItem>
+              <SelectItem value="BANNED">Banned</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -246,32 +273,12 @@ export default function UsersPage() {
               size="sm"
               variant="outline"
               onClick={() =>
-                setUsers((prev) =>
-                  prev.map((u) =>
-                    selected.includes(u.storeScopedId)
-                      ? { ...u, status: "ACTIVE" }
-                      : u
-                  )
-                )
-              }
-            >
-              Activate
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() =>
-                setUsers((prev) =>
-                  prev.map((u) =>
-                    selected.includes(u.storeScopedId)
-                      ? { ...u, status: "BANNED" }
-                      : u
-                  )
-                )
+                handleBanSelectedUsers(selected, users, setUsers, updateUser)
               }
             >
               Ban
             </Button>
+
             <Button
               size="sm"
               variant="destructive"
@@ -291,12 +298,9 @@ export default function UsersPage() {
           onSelectAll={selectAllCurrent}
           onSelect={toggleSelect}
           onSort={handleSort}
-          sortField={String(sortField)}
-          sortDirection={sortDirection}
           onEdit={handleEdit}
           onDelete={handleDeleteSingle}
           onToggleBan={handleToggleBan}
-          onActivate={handleActivate}
         />
       ) : (
         <UserCardList
@@ -306,7 +310,6 @@ export default function UsersPage() {
           onEdit={handleEdit}
           onDelete={handleDeleteSingle}
           onToggleBan={handleToggleBan}
-          onActivate={handleActivate}
         />
       )}
 

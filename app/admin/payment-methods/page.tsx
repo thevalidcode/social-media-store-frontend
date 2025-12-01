@@ -1,55 +1,55 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PaymentMethodsTable from "./components/PaymentMethodTable";
 import PaymentMethodsCardView from "./components/PaymentMethodCard";
 import PaymentToolbar from "./components/PaymentToolbar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { PaymentGateway } from "@/types";
-
-const dummyGateways: PaymentGateway[] = [
-  {
-    id: "1",
-    name: "Paystack",
-    platform: "Paystack",
-    icon: "https://cdn-icons-png.flaticon.com/512/5968/5968885.png",
-    description: "Secure payments via Paystack",
-    publicKey: "pk_test_xxxxxx",
-    secretKey: "sk_test_xxxxxx",
-    webhookUrl: "https://validplug.com/api/payments/paystack",
-    status: "active",
-  },
-  {
-    id: "2",
-    name: "Flutterwave",
-    platform: "Flutterwave",
-    icon: "https://cdn-icons-png.flaticon.com/512/5968/5968839.png",
-    description: "Fast and reliable payment gateway",
-    publicKey: "pk_live_xxxxxx",
-    secretKey: "sk_live_xxxxxx",
-    webhookUrl: "https://validplug.com/api/payments/flutterwave",
-    status: "inactive",
-  },
-  {
-    id: "3",
-    name: "Bank Transfer",
-    platform: "Manual",
-    icon: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-    description: "Accept transfers to your business account",
-    publicKey: "",
-    secretKey: "",
-    webhookUrl: "",
-    status: "active",
-  },
-];
+import { useGetAllPaymentGatewaysForAdmins } from "@/hooks/use-paymentGateway";
+import { EmptyState } from "@/components/empty-state";
+import { CreditCard } from "lucide-react";
 
 export default function PaymentMethodsPage() {
-  const [gateways, setGateways] = useState(dummyGateways);
+  const [gateways, setGateways] = useState<PaymentGateway[]>([]);
+  const [openForm, setOpenForm] = useState<boolean>(false);
   const isMobile = useIsMobile();
+  const { data: gatewaysData } = useGetAllPaymentGatewaysForAdmins();
+
+  useEffect(() => {
+    if (gatewaysData) {
+      setGateways(gatewaysData);
+    }
+  }, [gatewaysData]);
+
+  if (gateways.length === 0) {
+    return (
+      <>
+        <EmptyState
+          icon={CreditCard}
+          title="No Payment Method Found"
+          description="No payment method have been created yet."
+          actionLabel="Create Payment Method"
+          onAction={() => setOpenForm(true)}
+        />
+        <PaymentToolbar
+          openForm={openForm}
+          setOpenForm={setOpenForm}
+          gateways={gateways}
+          setGateways={setGateways}
+        />
+      </>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
-      <PaymentToolbar gateways={gateways} setGateways={setGateways} />
+      <PaymentToolbar
+        openForm={openForm}
+        setOpenForm={setOpenForm}
+        gateways={gateways}
+        setGateways={setGateways}
+      />
       {!isMobile ? (
         <PaymentMethodsTable gateways={gateways} setGateways={setGateways} />
       ) : (
