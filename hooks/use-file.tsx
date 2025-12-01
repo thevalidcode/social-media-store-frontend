@@ -3,7 +3,7 @@
 import { useAppContext } from "@/context/appContext";
 import { CollectionName } from "@/types";
 import { UploadLog } from "@/types/models/upload-log";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 
@@ -14,7 +14,7 @@ export interface UploadImageProps {
 
 export function useUploadImage() {
   const { api, storeId } = useAppContext();
-
+  const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ["uploadImage", storeId],
 
@@ -37,6 +37,11 @@ export function useUploadImage() {
       }
 
       return res.data;
+    },
+    onSuccess: (file) => {
+      queryClient.invalidateQueries({
+        queryKey: ["previousImages", storeId, file.collection],
+      });
     },
 
     onError: (error) => {

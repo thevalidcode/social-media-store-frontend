@@ -125,23 +125,32 @@ export function OrdersTab() {
   return (
     <div className="w-full max-w-[90rem] mx-auto flex flex-col gap-6 ">
       <Tabs defaultValue="all" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 p-1 bg-muted/50">
+        <TabsList
+          className="relative z-50 flex flex-wrap w-full grid-cols-2 gap-3 p-1 bg-muted/50
+             sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 h-auto"
+        >
           {Trigger.map((trigger, index) => {
             const Icon = trigger.icon;
             return (
               <TabsTrigger
                 key={index}
                 value={trigger.value}
-                className="cursor-pointer px-4 text-sm sm:text-base flex items-center justify-center gap-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all duration-200 hover:bg-primary/10 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:outline-none"
+                className="cursor-pointer px-3 py-2 text-xs sm:text-sm md:text-base 
+                   flex items-center justify-center gap-2 rounded-lg
+                   data-[state=active]:bg-background data-[state=active]:shadow-sm
+                   transition-colors duration-200
+                   hover:bg-primary/10 hover:text-primary"
               >
-                <Icon className="w-5 h-5 transition-colors duration-200 group-hover:text-primary" />
-                <TypographySmall>{trigger.label}</TypographySmall>
+                <Icon className="w-4 h-4 md:w-5 md:h-5" />
+                <TypographySmall className="truncate max-w-[80px] sm:max-w-none">
+                  {trigger.label}
+                </TypographySmall>
               </TabsTrigger>
             );
           })}
         </TabsList>
 
-        <div className="mt-6">
+        <div className="mt-3">
           {Content.map((content, index) => (
             <TabsContent key={index} value={content.value} className="mt-0">
               {content.component}

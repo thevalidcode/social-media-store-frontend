@@ -21,45 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useUploadImage } from "@/hooks/use-file";
 import { useAppContext } from "@/context/appContext";
-
-interface FileInputProps {
-  id: string;
-  label: string;
-  onFileChange: (file: File | null) => void;
-}
-
-function FileInputRow({ id, label, onFileChange }: FileInputProps) {
-  const [fileName, setFileName] = useState<string | null>(null);
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null;
-    setFileName(file ? file.name : "No file chosen");
-    onFileChange(file);
-  };
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_auto] items-center gap-3 md:gap-4">
-      <Label htmlFor={id} className="text-sm font-medium">
-        {label}
-      </Label>
-      <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" className="relative">
-          <Input
-            type="file"
-            id={id}
-            name={id}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            onChange={handleFileChange}
-          />
-          Choose File
-        </Button>
-        <span className="text-sm text-muted-foreground truncate max-w-[150px] md:max-w-[200px]">
-          {fileName || "No file chosen"}
-        </span>
-      </div>
-    </div>
-  );
-}
+import ImagePicker from "./ImagePicker";
 
 export default function GeneralSettingsForm() {
   const { generalSetting, userCurrency, setUserCurrency } = useAppContext();
@@ -122,7 +84,7 @@ export default function GeneralSettingsForm() {
         <section>
           <h2 className="text-xl font-semibold mb-4">Store</h2>
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] items-center gap-3 md:gap-4">
+            <div className="flex flex-col lg:gap-2 gap-l">
               <Label htmlFor="storeName" className="text-sm font-medium">
                 Store Name
               </Label>
@@ -134,7 +96,7 @@ export default function GeneralSettingsForm() {
                 onChange={(e) => setStoreName(e.target.value)}
               />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] items-center gap-3 md:gap-4">
+            <div className="flex flex-col lg:gap-2 gap-l">
               <Label htmlFor="storeDescription" className="text-sm font-medium">
                 Store Description
               </Label>
@@ -145,15 +107,21 @@ export default function GeneralSettingsForm() {
                 onChange={(e) => setStoreDescription(e.target.value)}
               />
             </div>
-            <FileInputRow
-              id="siteFavicon"
+            <ImagePicker
               label="Store Favicon"
-              onFileChange={handleFaviconChange}
+              collection="store"
+              value={faviconUrl}
+              onChange={(data) => {
+                setFaviconUrl(data.url);
+              }}
             />
-            <FileInputRow
-              id="siteLogo"
+            <ImagePicker
               label="Store Logo"
-              onFileChange={handleLogoChange}
+              collection="store"
+              value={logoUrl}
+              onChange={(data) => {
+                setLogoUrl(data.url);
+              }}
             />
           </div>
         </section>
@@ -165,13 +133,13 @@ export default function GeneralSettingsForm() {
           <h2 className="text-xl font-semibold mb-4">Currency</h2>
           <div className="space-y-6">
             {/* Client Currency */}
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] items-center gap-3 md:gap-4">
+            <div className="flex flex-col lg:gap-2 gap-l">
               <Label htmlFor="clientCurrency" className="text-sm font-medium">
                 Client Default Currency
               </Label>
 
               <Select value={clientCurrency} onValueChange={setClientCurrency}>
-                <SelectTrigger id="clientCurrency">
+                <SelectTrigger id="clientCurrency" className="w-full">
                   <SelectValue placeholder="Select currency..." />
                 </SelectTrigger>
 
@@ -186,13 +154,13 @@ export default function GeneralSettingsForm() {
             </div>
 
             {/* Admin Currency */}
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] items-center gap-3 md:gap-4">
+            <div className="flex flex-col lg:gap-2 gap-l">
               <Label htmlFor="adminCurrency" className="text-sm font-medium">
                 Admin Currency
               </Label>
 
               <Select value={userCurrency} onValueChange={setUserCurrency}>
-                <SelectTrigger id="adminCurrency">
+                <SelectTrigger id="adminCurrency" className="w-full">
                   <SelectValue placeholder="Select currency..." />
                 </SelectTrigger>
 

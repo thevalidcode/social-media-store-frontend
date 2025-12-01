@@ -1,13 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import ServiceDetailsModal from "./ServiceDetailsModal";
 import ServiceCard from "./ServiceCard";
 import ServiceTable from "./ServiceTable";
 import { Service } from "@/types";
 import ServiceFilters from "./ServiceFilters";
 import {
-  useDeleteService,
   useDeleteMultipleServices,
   useGetServicesByAdmin,
 } from "@/hooks/use-services";
@@ -16,11 +14,11 @@ import { EmptyState } from "@/components/empty-state";
 import { Shield } from "lucide-react";
 import Pagination from "@/components/pagination";
 import DeleteDialog from "../../users/components/DeleteDialog";
+import AddService from "./ServiceDialog";
+import ServiceDialog from "./ServiceDialog";
 
 export default function ServiceList() {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
   const [filters, setFilters] = useState({
     category: "All",
     search: "",
@@ -29,11 +27,11 @@ export default function ServiceList() {
   const [selected, setSelected] = useState<number[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [open, setOpen] = useState<boolean>(false);
   const [deleteIds, setDeleteIds] = useState<number[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const { data: servicesData, isLoading } = useGetServicesByAdmin();
-  const { mutate: deleteService } = useDeleteService();
   const { mutate: deleteMultipleServices } = useDeleteMultipleServices();
 
   useEffect(() => {
@@ -64,17 +62,21 @@ export default function ServiceList() {
 
   if (!services || services.length === 0) {
     return (
-      <EmptyState
-        icon={Shield}
-        title="No Service Found"
-        description="No services have been placed yet."
-      />
+      <>
+        <EmptyState
+          icon={Shield}
+          title="No Service Found"
+          description="No services have been placed yet."
+          actionLabel="Create Service"
+          onAction={() => setOpen(true)}
+        />
+        <AddService open={open} setOpen={setOpen} />
+      </>
     );
   }
 
   const handleEdit = (service: Service) => {
-    setIsModalOpen(true);
-    setIsEditing(true);
+    setOpen(true);
     setSelectedService(service);
   };
 
@@ -118,6 +120,7 @@ export default function ServiceList() {
       <ServiceFilters
         categories={categories}
         onFilterChange={handleFilterChange}
+        addService={() => setOpen(true)}
       />
       {/* Desktop Table */}
       <div className="hidden md:block">
@@ -139,16 +142,11 @@ export default function ServiceList() {
         />
       </div>
 
-      {/* Modal */}
-      {selectedService && (
-        <ServiceDetailsModal
-          service={selectedService}
-          isOpen={isModalOpen}
-          onEdit={handleEdit}
-          isEditing={isEditing}
-          onClose={() => setIsModalOpen(false)}
-        />
-      )}
+      <ServiceDialog
+        editingItem={selectedService}
+        open={open}
+        setOpen={setOpen}
+      />
 
       {/* Pagination */}
       <Pagination

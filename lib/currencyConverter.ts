@@ -1,3 +1,4 @@
+import Decimal from "decimal.js";
 import { currency, getCurrencySymbol } from "@/app/_docs/doc";
 import { useAppContext } from "@/context/appContext";
 
@@ -8,22 +9,13 @@ export interface CurrencyRates {
 }
 
 export interface ConvertedResult {
-  amount: number;
+  amount: string; // store as string for precision
   symbol: string;
   formatted: string;
 }
 
 /**
- * Converts an amount from one currency to another.
- * Automatically detects conversion direction even if base rate differs.
- * Accepts number, string, or decimal input for amount.
- *
- * @param source - Source currency code (e.g., "USD")
- * @param target - Target currency code (e.g., "NGN")
- * @param amount - Amount to convert (number, string, or decimal)
- * @param rates - Currency rates from context
- * @param showSymbol - If true, prepends the currency symbol (₦, $, £)
- * @param useLocale - If true, formats with locale-aware style (₦32,000.00)
+ * Converts an amount from one currency to another using Decimal for precise math.
  */
 export function convertCurrency(
   source: CurrencyCode,
@@ -37,57 +29,55 @@ export function convertCurrency(
   const locale =
     typeof navigator !== "undefined" ? navigator.language : "en-US";
 
-  // Parse amount safely (handles strings, commas, decimals)
+  // Parse amount safely with Decimal
   const parsedAmount = (() => {
-    if (typeof amount === "number") return amount;
+    if (typeof amount === "number") return new Decimal(amount);
     if (typeof amount === "string") {
       const cleaned = amount.replace(/,/g, "").trim();
-      const parsed = parseFloat(cleaned);
-      return isNaN(parsed) ? 0 : parsed;
+      return new Decimal(cleaned || 0);
     }
-    return 0;
+    return new Decimal(0);
   })();
 
   // Handle missing rates gracefully
   if (!rates[source] || !rates[target]) {
-    console.warn(`Missing currency rate for ${source} or ${target}`);
-    return {
-      amount: parsedAmount,
-      symbol,
-      formatted: showSymbol
-        ? `${symbol}${parsedAmount.toFixed(2)}`
-        : parsedAmount.toFixed(2),
-    };
+    const formatted = showSymbol
+      ? `${symbol}${parsedAmount.toFixed(2)}`
+      : parsedAmount.toFixed(2);
+    return { amount: parsedAmount.toFixed(2), symbol, formatted };
   }
 
-  // Auto-detect base and adjust math dynamically
+  // Detect base currency (rate = 1)
   const baseCurrency = Object.keys(rates).find((key) => rates[key] === 1);
-  let convertedValue: number;
+  let convertedValue: Decimal;
+
+  const sourceRate = new Decimal(rates[source]);
+  const targetRate = new Decimal(rates[target]);
 
   if (baseCurrency === source) {
-    convertedValue = parsedAmount * rates[target];
+    convertedValue = parsedAmount.mul(targetRate);
   } else if (baseCurrency === target) {
-    convertedValue = parsedAmount / rates[source];
+    convertedValue = parsedAmount.div(sourceRate);
   } else {
-    convertedValue = (parsedAmount / rates[source]) * rates[target];
+    convertedValue = parsedAmount.div(sourceRate).mul(targetRate);
   }
 
-  const rounded = parseFloat(convertedValue.toFixed(2));
+  const rounded = convertedValue.toDecimalPlaces(2);
 
   const formatted = useLocale
     ? new Intl.NumberFormat(locale, {
         style: "currency",
         currency: target,
-      }).format(rounded)
+      }).format(Number(rounded.toString()))
     : showSymbol
-    ? `${symbol}${rounded.toLocaleString()}`
-    : rounded.toLocaleString();
+    ? `${symbol}${rounded.toString()}`
+    : rounded.toString();
 
-  return { amount: rounded, symbol, formatted };
+  return { amount: rounded.toString(), symbol, formatted };
 }
 
 /**
- * React hook to easily perform currency conversion using app context rates.
+ * React hook for currency conversion using app context rates.
  */
 export function useCurrencyConverter() {
   const { rates } = useAppContext();
@@ -101,31 +91,22 @@ export function useCurrencyConverter() {
   ): ConvertedResult => {
     const symbol = getCurrencySymbol(target) || "";
 
-    // Parse amount safely
-    const parsedAmount = (() => {
-      if (typeof amount === "number") return amount;
-      if (typeof amount === "string") {
-        const cleaned = amount.replace(/,/g, "").trim();
-        const parsed = parseFloat(cleaned);
-        return isNaN(parsed) ? 0 : parsed;
-      }
-      return 0;
-    })();
+    const parsedAmount =
+      typeof amount === "string"
+        ? new Decimal(amount.replace(/,/g, "").trim() || 0)
+        : new Decimal(amount || 0);
 
     if (!rates) {
-      return {
-        amount: parsedAmount,
-        symbol,
-        formatted: showSymbol
-          ? `${symbol}${parsedAmount.toFixed(2)}`
-          : parsedAmount.toFixed(2),
-      };
+      const formatted = showSymbol
+        ? `${symbol}${parsedAmount.toFixed(2)}`
+        : parsedAmount.toFixed(2);
+      return { amount: parsedAmount.toFixed(2), symbol, formatted };
     }
 
     return convertCurrency(
       source,
       target,
-      parsedAmount,
+      parsedAmount.toString(),
       rates,
       showSymbol,
       useLocale

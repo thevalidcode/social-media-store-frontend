@@ -17,7 +17,7 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
         <MemoizedSidebar />
         <SidebarInset>
           <TopNav />
-          <Wrapper className="max-w-[90rem] md:py-5">{children}</Wrapper>
+          <Wrapper className="max-w-[90rem] md:py-5 mt-6">{children}</Wrapper>
         </SidebarInset>
       </SidebarProvider>
     ),

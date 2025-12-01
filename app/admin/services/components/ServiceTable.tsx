@@ -129,14 +129,13 @@ export default function ServiceTable({
                 </TableCell>
                 <TableCell>{service.type}</TableCell>
                 <TableCell>
-                  {" "}
                   {
                     convert(
-                      service.currency,
+                      service.currency||"USD",
                       userCurrency,
                       service.price,
                       true,
-                      true
+                      false
                     ).formatted
                   }
                 </TableCell>

@@ -212,7 +212,7 @@ export default function PaymentMethodForm({
                   initialContent={form.description}
                   onChange={(e) => handleChange("description", e)}
                   collection="payment-gateways"
-                  className="h-[420px]"
+                  className="min-h-[420px]"
                   placeholder="e.g. Pay with card, transfer e.t.c"
                 />
               </div>

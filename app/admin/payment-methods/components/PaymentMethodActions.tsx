@@ -42,7 +42,6 @@ export default function PaymentMethodActions({
     const response = await mutation(updated);
     setGateways((prev) => prev.map((g) => (g.id === gateway.id ? updated : g)));
     setEditOpen(false);
-    console.log(response);
 
     return response;
   };

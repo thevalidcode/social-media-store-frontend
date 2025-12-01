@@ -30,7 +30,6 @@ export function useAdminLogin() {
           "Failed to login admin: No response data received from server."
         );
       }
-      // console.log("Login response:", res.data);
       return res.data;
     },
     onSuccess: async (data) => {

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Service } from "@/types";
 import { useCurrencyConverter } from "@/lib/currencyConverter";
 import { useAppContext } from "@/context/appContext";
+import Image from "next/image";
 
 interface CartItemLocal {
   serviceId: number;
@@ -41,7 +42,9 @@ export const CartMobile: React.FC<Props> = ({
           ) : (
             <div className="space-y-4">
               {cart.map((c) => {
-                const svc = services.find((s) => s.id === c.serviceId)!;
+                const svc = services.find(
+                  (s) => s.storeScopedId === c.serviceId
+                )!;
                 const effQty = dripEnabled ? c.quantity * runs : c.quantity;
                 const perUnit = convert(
                   svc.currency,
@@ -52,11 +55,17 @@ export const CartMobile: React.FC<Props> = ({
                 ).formatted;
                 return (
                   <div key={c.serviceId} className="flex items-center gap-4">
-                    <img
-                      src={svc.icon}
-                      alt={svc.name}
-                      className="w-12 h-12 rounded-md object-cover"
-                    />
+                    {svc.icon ? (
+                      <Image
+                        src={svc.icon}
+                        alt={svc.name}
+                        width={48}
+                        height={48}
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="text-muted-foreground text-5xl">🧩</div>
+                    )}
                     <div className="flex-1">
                       <div className="font-medium">{c.name}</div>
                       <div className="text-xs">

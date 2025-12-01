@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
 interface ServiceFiltersProps {
   categories: string[];
@@ -17,11 +18,13 @@ interface ServiceFiltersProps {
     search: string;
     status: string;
   }) => void;
+  addService: () => void;
 }
 
 export default function ServiceFilters({
   categories,
   onFilterChange,
+  addService,
 }: ServiceFiltersProps) {
   const [filters, setFilters] = useState({
     category: "All",
@@ -84,6 +87,13 @@ export default function ServiceFilters({
           />
         </div>
       </div>
+      <Button
+        type="button"
+        className="bg-primary text-white hover:bg-primary/90 rounded-sm py-2 px-4 cursor-pointer"
+        onClick={() => addService()}
+      >
+        Add Service
+      </Button>
     </div>
   );
 }

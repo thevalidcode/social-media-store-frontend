@@ -1,15 +1,14 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import Wrapper from "@/components/wrapper";
-import { PlusIcon, WalletIcon, LogIn, UserPlus } from "lucide-react";
+import { CreditCard, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/mode-toggle";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAppContext } from "@/context/appContext";
 
 export function TopNav() {
-  const { userInfo, generalSetting } = useAppContext();
-  const isAuthenticated = !!userInfo;
+  const { generalSetting } = useAppContext();
 
   return (
     <header className="sticky top-0 z-40 border-b bg-transparent backdrop-blur-xl">
@@ -40,47 +39,25 @@ export function TopNav() {
         {/* Desktop Navigation */}
         <div className="hidden md:block">
           <nav className="flex items-center justify-between gap-4">
-            {isAuthenticated ? (
-              <>
-                <Link href="/client/new-order">
-                  <Button
-                    variant="outline"
-                    className="rounded-lg cursor-pointer"
-                    size="lg"
-                  >
-                    <PlusIcon className="mr-2 h-4 w-4" />
-                    New Order
-                  </Button>
-                </Link>
+            <>
+              <Link href="/admin/orders">
+                <Button
+                  variant="outline"
+                  className="rounded-lg cursor-pointer"
+                  size="lg"
+                >
+                  <ShoppingCart className="mr-2 h-4 w-4" />
+                  Orders
+                </Button>
+              </Link>
 
-                <Link href="/client/add-funds">
-                  <Button className="rounded-lg cursor-pointer" size="lg">
-                    <WalletIcon className="mr-2 h-4 w-4" />
-                    Deposit
-                  </Button>
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link href="/auth/signin">
-                  <Button
-                    variant="outline"
-                    className="rounded-lg cursor-pointer"
-                    size="lg"
-                  >
-                    <LogIn className="mr-2 h-4 w-4" />
-                    Sign In
-                  </Button>
-                </Link>
-
-                <Link href="/auth/signup">
-                  <Button className="rounded-lg cursor-pointer" size="lg">
-                    <UserPlus className="mr-2 h-4 w-4" />
-                    Register
-                  </Button>
-                </Link>
-              </>
-            )}
+              <Link href="/admin/payment-methods">
+                <Button className="rounded-lg cursor-pointer" size="lg">
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  Payment Methods
+                </Button>
+              </Link>
+            </>
           </nav>
         </div>
 

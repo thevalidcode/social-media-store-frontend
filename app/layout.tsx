@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import "./globals.css";
 import { ThemeProvider } from "./providers/theme-provider";
 import FaviconSetter from "@/components/FaviconSetter";
+import MadeInValidPanelBanner from "@/components/MadeInValidPanelBanner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,6 +36,7 @@ export default function RootLayout({
                 <FaviconSetter />
                 <Toaster position="top-right" richColors />
                 <main>{children}</main>
+                <MadeInValidPanelBanner />
               </ThemeProvider>
             </AppProvider>
           </QueryProvider>

@@ -1,10 +1,19 @@
-// lib/groupServices.ts
 import { Service, ServiceCategory } from "@/types";
 
 export function groupServicesByCategory(
-  services: Service[]
+  services: Service[],
+  categories: any[]
 ): ServiceCategory[] {
   const grouped: Record<string, Service[]> = {};
+
+  const categoryMeta: Record<string, { name: string; icon: string }> = {};
+
+  categories?.forEach((cat) => {
+    categoryMeta[cat.name] = {
+      name: cat.name,
+      icon: cat.icon!,
+    };
+  });
 
   services.forEach((service) => {
     if (!grouped[service.category]) {
@@ -13,9 +22,15 @@ export function groupServicesByCategory(
     grouped[service.category].push(service);
   });
 
-  return Object.entries(grouped).map(([category, services]) => ({
-    title: category,
-    icon: services[0]?.icon || "https://picsum.photos/seed/default/64",
-    services,
-  }));
+  return Object.entries(grouped).map(([categoryName, services]) => {
+    const meta = categoryMeta[categoryName];
+
+    return {
+      title: meta?.name || categoryName,
+      icon:
+        meta?.icon ||
+        "https://picsum.photos/seed/default/64",
+      services,
+    };
+  });
 }

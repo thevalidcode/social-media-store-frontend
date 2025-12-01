@@ -18,6 +18,7 @@ import { useCurrencyConverter } from "@/lib/currencyConverter";
 import { EmptyState } from "@/components/empty-state";
 import { useRouter } from "next/navigation";
 import { OrderPublic } from "@/types";
+import Image from "next/image";
 
 interface OrderTableProps {
   orders?: OrderPublic[];
@@ -78,11 +79,17 @@ export const OrderTable = ({
 
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <img
-                      src={`https://picsum.photos/seed/service-${idx}/64`}
-                      alt={order.service.name}
-                      className="w-9 h-9 rounded-md object-cover"
-                    />
+                    {order.service.icon ? (
+                      <Image
+                        src={order.service.icon}
+                        alt={order.service.name}
+                        width={32}
+                        height={32}
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="text-muted-foreground text-3xl">🧩</div>
+                    )}
                     <span className="font-medium truncate">
                       {order.service.name}
                     </span>
@@ -104,7 +111,7 @@ export const OrderTable = ({
                       userCurrency,
                       order.price,
                       true,
-                      true
+                      false
                     ).formatted
                   }
                 </TableCell>
@@ -139,11 +146,17 @@ export const OrderTable = ({
             className="bg-card border border-border rounded-xl p-4 shadow-sm"
           >
             <div className="flex items-start gap-3">
-              <img
-                src={`https://picsum.photos/seed/order-${idx}/100`}
-                alt={order.service.name}
-                className="w-16 h-16 rounded-md object-cover"
-              />
+              {order.service.icon ? (
+                <Image
+                  src={order.service.icon}
+                  alt={order.service.name}
+                  width={64}
+                  height={64}
+                  className="object-cover"
+                />
+              ) : (
+                <div className="text-muted-foreground text-6xl">🧩</div>
+              )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold truncate">

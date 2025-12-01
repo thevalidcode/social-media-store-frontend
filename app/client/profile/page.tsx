@@ -176,7 +176,7 @@ export default function UserProfilePage() {
               <div className="grid gap-2">
                 <Label>Role</Label>
                 <Select disabled defaultValue={userInfo.role}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="User Role" />
                   </SelectTrigger>
                   <SelectContent>

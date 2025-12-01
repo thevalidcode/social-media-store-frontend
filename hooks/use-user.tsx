@@ -107,7 +107,6 @@ export function useUserLogin() {
           "Failed to login user: No response data received from server."
         );
       }
-      // console.log("Login response:", res.data);
       return res.data;
     },
     onSuccess: async (data) => {

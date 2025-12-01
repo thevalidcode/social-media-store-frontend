@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Service } from "@/types";
 import { useCurrencyConverter } from "@/lib/currencyConverter";
 import { useAppContext } from "@/context/appContext";
+import Decimal from "decimal.js";
 
 interface Props {
   open: boolean;
@@ -45,14 +46,15 @@ export const ServiceDialog = ({
         {activeService && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
             <div className="md:col-span-1">
-              <img
-                src={
-                  activeService.icon ??
-                  `https://picsum.photos/seed/service-${activeService.id}/600`
-                }
-                alt={activeService.name}
-                className="w-full h-44 object-cover rounded-lg"
-              />
+              {activeService.icon ? (
+                <img
+                  src={activeService.icon}
+                  alt={activeService.name}
+                  className="w-full h-44 object-cover rounded-lg"
+                />
+              ) : (
+                <div className="text-muted-foreground text-[176px]">🧩</div>
+              )}
               <div className="mt-3 text-sm text-muted-foreground">
                 Per 1000:{" "}
                 {
@@ -116,7 +118,10 @@ export const ServiceDialog = ({
                       convert(
                         activeService.currency,
                         userCurrency,
-                        (activeService.price / 1000) * modalQty,
+                        new Decimal(activeService.price)
+                          .div(1000)
+                          .mul(modalQty)
+                          .toString(),
                         true,
                         false
                       ).formatted
@@ -132,7 +137,7 @@ export const ServiceDialog = ({
                   onClick={() =>
                     navigateToNewOrder(
                       activeService.category ?? activeService.category,
-                      activeService.id
+                      activeService.storeScopedId
                     )
                   }
                 >

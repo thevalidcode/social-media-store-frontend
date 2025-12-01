@@ -2,9 +2,11 @@
 
 import { useAppContext } from "@/context/appContext";
 import { Order, OrderPublic, OrderStatus } from "@/types/models/order";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export interface CreateOrdeProps {
+// ---------- TYPES ----------
+
+export interface CreateOrderProps {
   serviceUid: string;
   quantity: number;
   url: string;
@@ -15,12 +17,12 @@ export interface CreateOrdeProps {
   userUid: string;
 }
 
-export interface CreateBulkOrdeProps {
-  orders: CreateOrdeProps[];
+export interface CreateBulkOrderProps {
+  orders: CreateOrderProps[];
 }
 
-export interface UpdateOrdeProps {
-  ststua?: OrderStatus;
+export interface UpdateOrderProps {
+  status?: OrderStatus;
   remains?: number;
   start?: number;
   syncOrder?: boolean;
@@ -28,16 +30,16 @@ export interface UpdateOrdeProps {
   url?: string;
 }
 
+// ---------- CREATE ORDERS ----------
+
 export const useCreateOrder = () => {
   const { api } = useAppContext();
 
   return useMutation({
     mutationKey: ["createOrder"],
-    mutationFn: async (data: CreateOrdeProps) => {
+    mutationFn: async (data: CreateOrderProps) => {
       const res = await api.post("/orders", data);
-      if (!res.data) {
-        throw new Error("failed to create an order");
-      }
+      if (!res.data) throw new Error("Failed to create an order");
       return res.data;
     },
   });
@@ -48,15 +50,15 @@ export const useCreateBulkOrder = () => {
 
   return useMutation({
     mutationKey: ["createBulkOrder"],
-    mutationFn: async (data: CreateBulkOrdeProps) => {
+    mutationFn: async (data: CreateBulkOrderProps) => {
       const res = await api.post("/orders/bulk", data);
-      if (!res.data) {
-        throw new Error("failed to create an order");
-      }
+      if (!res.data) throw new Error("Failed to create bulk orders");
       return res.data;
     },
   });
 };
+
+// ---------- GET ORDERS ----------
 
 export const useUserGetOrderByStatus = (status: OrderStatus) => {
   const { api, userInfo } = useAppContext();
@@ -65,10 +67,10 @@ export const useUserGetOrderByStatus = (status: OrderStatus) => {
     queryKey: ["userOrders", userInfo?.uid, status],
     queryFn: async () => {
       const res = await api.get<OrderPublic[]>(`/orders/status/${status}`);
-
       if (!res.data) throw new Error("Failed to fetch orders");
       return res.data;
     },
+    enabled: !!userInfo?.uid,
   });
 };
 
@@ -79,10 +81,10 @@ export const useGetOrderByStatus = (status: OrderStatus) => {
     queryKey: ["allOrders", adminInfo?.uid, status],
     queryFn: async () => {
       const res = await api.get<Order[]>(`/orders/admin/status/${status}`);
-
       if (!res.data) throw new Error("Failed to fetch orders");
       return res.data;
     },
+    enabled: !!adminInfo?.uid,
   });
 };
 
@@ -93,10 +95,10 @@ export const useUserGetAllOrders = () => {
     queryKey: ["userOrders", userInfo?.uid],
     queryFn: async () => {
       const res = await api.get<OrderPublic[]>(`/orders`);
-
       if (!res.data) throw new Error("Failed to fetch orders");
       return res.data;
     },
+    enabled: !!userInfo?.uid,
   });
 };
 
@@ -107,24 +109,48 @@ export const useGetAllOrders = () => {
     queryKey: ["allOrders", storeId],
     queryFn: async () => {
       const res = await api.get<Order[]>(`/orders/admin`);
-
       if (!res.data) throw new Error("Failed to fetch orders");
       return res.data;
     },
+    enabled: !!storeId,
   });
 };
 
-export const useUpdateOrder = (orderUid: string) => {
+// ---------- UPDATE ORDER ----------
+
+export const useUpdateOrder = () => {
   const { api } = useAppContext();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: ["updateOrder"],
-    mutationFn: async (data: UpdateOrdeProps) => {
-      const res = await api.post(`/orders/${orderUid}`, { update: data });
-      if (!res.data) {
-        throw new Error("failed to update order");
-      }
+    mutationFn: async ({
+      uid,
+      update,
+    }: {
+      uid: string;
+      update: UpdateOrderProps;
+    }) => {
+      if (!uid) throw new Error("Missing order UID");
+
+      const res = await api.patch(`/orders/${uid}`, { update });
+      if (!res.data) throw new Error("Failed to update order");
+
       return res.data;
+    },
+    onSuccess: (data, variables) => {
+      // variables.update.status might have changed the order status
+      queryClient.invalidateQueries({ queryKey: ["userOrders"] });
+      queryClient.invalidateQueries({ queryKey: ["allOrders"] });
+
+      if (variables.update.status) {
+        queryClient.invalidateQueries({
+          queryKey: ["userOrders", variables.update.status],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["allOrders", variables.update.status],
+        });
+      }
     },
   });
 };

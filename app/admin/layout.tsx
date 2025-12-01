@@ -9,6 +9,7 @@ import Wrapper from "@/components/wrapper";
 import { memo } from "react";
 import { AdminSidebar } from "./components/admin-sidebar";
 import withAuth from "@/lib/withAuth";
+import { TopNav } from "./components/nav";
 
 // Memoize the sidebar to prevent re-renders
 const MemoizedSidebar = memo(AdminSidebar);
@@ -19,8 +20,8 @@ function AdminLayoutComponent({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       <MemoizedSidebar />
       <SidebarInset>
-        <SidebarTrigger />
-        <Wrapper className="max-w-[90rem] md:py-5">{children}</Wrapper>
+        <TopNav />
+        <Wrapper className="max-w-[90rem] md:py-5 mt-6">{children}</Wrapper>
       </SidebarInset>
     </SidebarProvider>
   );

@@ -28,6 +28,7 @@ import { useState } from "react";
 import { OrderEditDialog } from "./OrderEditDialog";
 import { Button } from "@/components/ui/button";
 import { useUpdateOrder } from "@/hooks/use-order";
+import Image from "next/image";
 
 interface OrderTableProps {
   orders?: Order[];
@@ -43,7 +44,19 @@ export const OrderTable = ({
   const { userCurrency, userInfo } = useAppContext();
   const convert = useCurrencyConverter();
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
-  const { mutate } = useUpdateOrder(editingOrder?.uid || "");
+const updateOrder = useUpdateOrder();
+
+const handleSaveOrder = (updated: Partial<Order>) => {
+  if (!editingOrder?.uid) return;
+
+  updateOrder.mutate({
+    uid: editingOrder.uid,
+    update: updated,
+  });
+
+  setEditingOrder(null);
+};
+
 
   if (isLoading) return <Loading />;
   if (!orders || orders.length === 0) {
@@ -55,12 +68,6 @@ export const OrderTable = ({
       />
     );
   }
-
-  const handleSaveOrder = (updated: Partial<Order>) => {
-    mutate(updated);
-    setEditingOrder(null);
-  };
-
   return (
     <div className="space-y-6">
       {/* --- Desktop Table --- */}
@@ -93,11 +100,17 @@ export const OrderTable = ({
 
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <img
-                      src={`https://picsum.photos/seed/service-${idx}/64`}
-                      alt={order.service.name}
-                      className="w-9 h-9 rounded-md object-cover"
-                    />
+                    {order.service.icon ? (
+                      <Image
+                        src={order.service.icon}
+                        alt={order.service.name}
+                        width={32}
+                        height={32}
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="text-muted-foreground text-3xl">🧩</div>
+                    )}
                     <span className="font-medium truncate">
                       {order.service.name}
                     </span>
@@ -120,7 +133,7 @@ export const OrderTable = ({
                       userCurrency,
                       order.price,
                       true,
-                      true
+                      false
                     ).formatted
                   }
                 </TableCell>
@@ -169,14 +182,17 @@ export const OrderTable = ({
             className="bg-card border border-border rounded-xl p-4 shadow-sm"
           >
             <div className="flex items-start gap-3">
-              <img
-                src={
-                  order.service.icon ||
-                  `https://picsum.photos/seed/service-${idx}/64`
-                }
-                alt={order.service.name}
-                className="w-16 h-16 rounded-md object-cover"
-              />
+              {order.service.icon ? (
+                <Image
+                  src={order.service.icon}
+                  alt={order.service.name}
+                  width={64}
+                  height={64}
+                  className="object-cover"
+                />
+              ) : (
+                <div className="text-muted-foreground text-6xl">🧩</div>
+              )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold truncate">

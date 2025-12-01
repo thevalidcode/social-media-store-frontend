@@ -77,7 +77,7 @@ export default function UserTable({
               <TableCell>
                 <div className="flex items-center gap-3 min-w-0">
                   <img
-                    src={u.image ?? `/avatar.png`}
+                    src={u.image ?? `/images/default-profile.jpg`}
                     alt={u.username}
                     className="w-8 h-8 rounded-full object-cover"
                   />

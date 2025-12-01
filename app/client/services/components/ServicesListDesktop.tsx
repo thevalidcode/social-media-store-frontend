@@ -12,6 +12,7 @@ import {
 import { Service } from "@/types";
 import { useCurrencyConverter } from "@/lib/currencyConverter";
 import { useAppContext } from "@/context/appContext";
+import Image from "next/image";
 
 interface Props {
   services: Service[];
@@ -45,16 +46,22 @@ export const ServicesTableDesktop = ({
               key={s.storeScopedId}
               className="hover:bg-muted/40 transition-colors"
             >
-              <TableCell className="font-mono text-sm">{s.storeScopedId}</TableCell>
+              <TableCell className="font-mono text-sm">
+                {s.storeScopedId}
+              </TableCell>
               <TableCell>
                 <div className="flex items-center gap-3 min-w-0">
-                  <img
-                    src={
-                      s.icon ?? `https://picsum.photos/seed/service-${s.storeScopedId}/64`
-                    }
-                    alt={s.name}
-                    className="w-10 h-10 rounded-md object-cover flex-shrink-0"
-                  />
+                  {s.icon ? (
+                    <Image
+                      src={s.icon}
+                      alt={s.name}
+                      width={40}
+                      height={40}
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="text-muted-foreground text-xs">🧩</div>
+                  )}
                   <div className="min-w-0">
                     <div className="font-medium truncate">{s.name}</div>
                     <div className="text-xs text-muted-foreground truncate">
@@ -66,8 +73,13 @@ export const ServicesTableDesktop = ({
               <TableCell>
                 <div className="font-medium">
                   {
-                    convert(s.currency, userCurrency, s.price, true, false)
-                      .formatted
+                    convert(
+                      s.currency,
+                      userCurrency,
+                      s.price,
+                      true,
+                      false
+                    ).formatted
                   }
                 </div>
                 <div className="text-xs text-muted-foreground">
@@ -91,7 +103,10 @@ export const ServicesTableDesktop = ({
                   <Button
                     size="sm"
                     onClick={() =>
-                      navigateToNewOrder(s.category ?? s.category, s.storeScopedId)
+                      navigateToNewOrder(
+                        s.category ?? s.category,
+                        s.storeScopedId
+                      )
                     }
                   >
                     Order

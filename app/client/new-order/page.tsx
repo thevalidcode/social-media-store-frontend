@@ -21,9 +21,10 @@ import { groupServicesByCategory } from "@/lib/groupServices";
 import Loading from "@/app/loading";
 import { EmptyState } from "@/components/empty-state";
 import { Server } from "lucide-react";
+import { useGetCategories } from "@/hooks/use-category";
 
 interface CartItem {
-  serviceId: number;
+  serviceId: number; // The store-scoped ID of the service
   serviceUid: string;
   name: string;
   price: number;
@@ -56,6 +57,9 @@ export default function NewOrderPage() {
   const { userInfo } = useAppContext();
   const { mutate } = useCreateBulkOrder();
   const { data: services, isLoading } = useGetServicesByPublic();
+  const { data: categories, isLoading: isCategoriesLoading } =
+    useGetCategories();
+
   const [categoryWithServices, setCategoryWithServices] = useState<
     ServiceCategory[]
   >([]);
@@ -70,9 +74,9 @@ export default function NewOrderPage() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    const parsed = groupServicesByCategory(services || []);
+    const parsed = groupServicesByCategory(services || [], categories || []);
     setCategoryWithServices(parsed);
-  }, [services]);
+  }, [services, categories]);
 
   // Update filtered services when category changes
   useEffect(() => {
@@ -80,67 +84,61 @@ export default function NewOrderPage() {
       (c) => c.title === category
     );
     setFilteredServices(selectedCategory?.services || []);
-  }, [category]);
+  }, [category, categoryWithServices]);
 
-  if (isLoading) {
-    return <Loading />;
-  }
+  useEffect(() => {
+    if (categoryWithServices.length > 0 && !category) {
+      setCategory(categoryWithServices[0].title);
+      setFilteredServices(categoryWithServices[0].services || []);
+    }
+  }, [categoryWithServices]);
 
-  if (filteredServices.length === 0) {
-    return (
-      <EmptyState
-        icon={Server}
-        title="No Service Found"
-        description="No service have been created yet."
-      />
-    );
-  }
+  // handle category/service in query params
+  useEffect(() => {
+    const catParam = searchParams?.get("category");
+    const svcParam = searchParams?.get("service");
+    const qtyParam = searchParams?.get("quantity");
 
-  const addToCart = (service: Service, qty = 1, link = ""): void => {
-    const safeQty = Number.isFinite(qty) ? qty : parseInt(String(qty), 10) || 0;
-    if (safeQty <= 0) return;
-    setCart((prev) => {
-      const existing = prev.find((p) => p.serviceId === service.storeScopedId);
-      if (existing) {
-        return prev.map((p) =>
-          p.serviceId === service.storeScopedId
-            ? { ...p, quantity: p.quantity + safeQty, link: link || p.link }
-            : p
-        );
+    if (!catParam && !svcParam) return;
+
+    if (catParam) {
+      const foundCat = categoryWithServices.find(
+        (c) => c.title.toLowerCase() === catParam.toLowerCase()
+      );
+      if (foundCat) setCategory(foundCat.title);
+    }
+
+    if (svcParam) {
+      const svc = categoryWithServices
+        .flatMap((c) => c.services || [])
+        .find((s) => String(s.storeScopedId) === String(svcParam));
+      if (svc) {
+        if (!catParam) setCategory(svc.category);
+        setCart((prev) => {
+          const exists = prev.find((p) => p.serviceId === svc.storeScopedId);
+          if (exists) return prev;
+          return [
+            ...prev,
+            {
+              serviceId: svc.storeScopedId,
+              serviceUid: svc.uid,
+              name: svc.name,
+              price:
+                typeof svc.price === "string"
+                  ? parseFloat(svc.price)
+                  : svc.price,
+              quantity: qtyParam
+                ? Number.isFinite(Number(qtyParam))
+                  ? Number(qtyParam)
+                  : parseInt(qtyParam, 10) || 1
+                : 1,
+              link: "",
+            },
+          ];
+        });
       }
-      return [
-        ...prev,
-        {
-          serviceId: service.storeScopedId,
-          serviceUid: service.uid,
-          name: service.name,
-          price: service.price,
-          quantity: safeQty,
-          link,
-        },
-      ];
-    });
-  };
-
-  const updateQuantity = (serviceId: number, qty: number): void => {
-    const safe = Number.isFinite(qty) ? qty : parseInt(String(qty), 10) || 0;
-    if (safe < 0) return;
-    setCart((prev) =>
-      prev.map((p) =>
-        p.serviceId === serviceId ? { ...p, quantity: safe } : p
-      )
-    );
-  };
-
-  const updateLink = (serviceId: number, link: string): void => {
-    setCart((prev) =>
-      prev.map((p) => (p.serviceId === serviceId ? { ...p, link } : p))
-    );
-  };
-
-  const removeFromCart = (serviceId: number): void => {
-    setCart((prev) => prev.filter((p) => p.serviceId !== serviceId));
-  };
+    }
+  }, [searchParams]);
 
   const effectiveQuantity = (qty: number): number =>
     dripEnabled ? qty * runs : qty;
@@ -162,6 +160,72 @@ export default function NewOrderPage() {
     }
     return preview;
   }, [dripEnabled, intervalMinutes, runs]);
+
+  const allServices = useMemo<Service[]>(() => {
+    return categoryWithServices.flatMap((cat) => cat.services || []);
+  }, [categoryWithServices]);
+
+  if (isLoading || isCategoriesLoading) {
+    return <Loading />;
+  }
+
+  if (filteredServices.length === 0) {
+    return (
+      <EmptyState
+        icon={Server}
+        title="No Service Found"
+        description="No service have been created yet."
+      />
+    );
+  }
+  const addToCart = (service: Service, qty = 1, link = ""): void => {
+    const safeQty = Number.isFinite(qty) ? qty : parseInt(String(qty), 10) || 0;
+    if (safeQty <= 0) return;
+    setCart((prev) => {
+      const existing = prev.find((p) => p.serviceUid === service.uid);
+      if (existing) {
+        return prev.map((p) =>
+          p.serviceUid === service.uid
+            ? { ...p, quantity: p.quantity + safeQty, link: link || p.link }
+            : p
+        );
+      }
+      return [
+        ...prev,
+        {
+          serviceId: service.storeScopedId,
+          serviceUid: service.uid,
+          name: service.name,
+          price:
+            typeof service.price === "string"
+              ? parseFloat(service.price)
+              : service.price,
+          quantity: safeQty,
+          link,
+        },
+      ];
+    });
+  };
+
+  const updateQuantity = (serviceUid: string, qty: number): void => {
+    const safe = Number.isFinite(qty) ? qty : parseInt(String(qty), 10) || 0;
+    if (safe < 0) return;
+    setCart((prev) =>
+      prev.map((p) =>
+        p.serviceUid === serviceUid ? { ...p, quantity: safe } : p
+      )
+    );
+  };
+
+  const updateLink = (serviceUid: string, link: string): void => {
+    setCart((prev) =>
+      prev.map((p) => (p.serviceUid === serviceUid ? { ...p, link } : p))
+    );
+  };
+
+  const removeFromCart = (serviceUid: string): void => {
+    setCart((prev) => prev.filter((p) => p.serviceUid !== serviceUid));
+  };
 
   const validate = (): string | null => {
     if (cart.length === 0) return "Cart must have at least one item.";
@@ -236,54 +300,6 @@ export default function NewOrderPage() {
     }
   };
 
-  // handle category/service in query params
-  useEffect(() => {
-    const catParam = searchParams?.get("category");
-    const svcParam = searchParams?.get("service");
-    const qtyParam = searchParams?.get("quantity");
-
-    if (!catParam && !svcParam) return;
-
-    if (catParam) {
-      const foundCat = categoryWithServices.find(
-        (c) => c.title.toLowerCase() === catParam.toLowerCase()
-      );
-      if (foundCat) setCategory(foundCat.title);
-    }
-
-    if (svcParam) {
-      const svc = categoryWithServices
-        .flatMap((c) => c.services || [])
-        .find((s) => String(s.storeScopedId) === String(svcParam));
-      if (svc) {
-        if (!catParam) setCategory(svc.category);
-        setCart((prev) => {
-          const exists = prev.find((p) => p.serviceId === svc.storeScopedId);
-          if (exists) return prev;
-          return [
-            ...prev,
-            {
-              serviceId: svc.storeScopedId,
-              serviceUid: svc.uid,
-              name: svc.name,
-              price: svc.price,
-              quantity: qtyParam
-                ? Number.isFinite(Number(qtyParam))
-                  ? Number(qtyParam)
-                  : parseInt(qtyParam, 10) || 1
-                : 1,
-              link: "",
-            },
-          ];
-        });
-      }
-    }
-  }, [searchParams]);
-
-  const allServices = useMemo<Service[]>(() => {
-    return categoryWithServices.flatMap((cat) => cat.services || []);
-  }, []);
-
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -338,6 +354,7 @@ export default function NewOrderPage() {
                   }
                   cartItems={cart.map((c) => ({
                     serviceId: c.serviceId,
+                    serviceUid: c.serviceUid,
                     quantity: c.quantity,
                     link: c.link,
                   }))}

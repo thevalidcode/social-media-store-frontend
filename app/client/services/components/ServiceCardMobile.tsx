@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Service } from "@/types";
 import { useCurrencyConverter } from "@/lib/currencyConverter";
 import { useAppContext } from "@/context/appContext";
+import Image from "next/image";
 
 interface Props {
   services: Service[];
@@ -30,14 +31,17 @@ export const ServicesCardsMobile = ({
           className="bg-card border border-border rounded-xl shadow-sm p-4"
         >
           <div className="flex gap-4">
-            <img
-              src={
-                s.icon ??
-                `https://picsum.photos/seed/service-${s.storeScopedId}/120`
-              }
-              alt={s.name}
-              className="w-20 h-20 rounded-lg object-cover flex-shrink-0"
-            />
+            {s.icon ? (
+              <Image
+                src={s.icon}
+                alt={s.name}
+                width={40}
+                height={40}
+                className="object-cover"
+              />
+            ) : (
+              <div className="text-muted-foreground text-xs">🧩</div>
+            )}
             <div className="flex-1 min-w-0 flex flex-col">
               <div className="flex items-start justify-between gap-2">
                 <div className="font-semibold truncate">{s.name}</div>

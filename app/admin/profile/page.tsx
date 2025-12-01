@@ -190,7 +190,7 @@ export default function AdminProfilePage() {
               <div className="grid gap-2">
                 <Label>Role</Label>
                 <Select disabled value={profile.role}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
                   <SelectContent>
@@ -211,7 +211,7 @@ export default function AdminProfilePage() {
               <div className="grid gap-2">
                 <Label>Currency</Label>
                 <Select value={userCurrency} onValueChange={setUserCurrency}>
-                  <SelectTrigger id="adminCurrency">
+                  <SelectTrigger id="adminCurrency" className="w-full">
                     <SelectValue placeholder="Select currency..." />
                   </SelectTrigger>
 

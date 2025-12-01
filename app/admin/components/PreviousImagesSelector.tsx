@@ -8,8 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CollectionName } from "@/types";
-import { UploadLog } from "@/types";
+import { CollectionName, UploadLog } from "@/types";
 
 interface PreviousImagesSelectorProps {
   onSelect: (image: UploadLog) => void;
@@ -23,49 +22,50 @@ export const PreviousImagesSelector = ({
   const { data: images, isLoading } = usePreviousImages(collection);
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-wrap gap-2">
-        {Array.from({ length: 6 }).map((_, idx) => (
-          <Skeleton key={idx} className="w-16 h-16 rounded" />
-        ))}
-      </div>
-    );
-  }
-
-  if (!images || images.length === 0) {
-    return (
-      <div className="text-sm text-muted-foreground">
-        No previous images found.
-      </div>
-    );
-  }
-
   return (
-    <DialogContent>
+    <DialogContent className="max-w-md">
       <DialogHeader>
-        <DialogTitle>Select a previous image</DialogTitle>
+        <DialogTitle>Choose an image</DialogTitle>
       </DialogHeader>
-      <div className="flex flex-wrap gap-2 mt-2">
-        {images.map((img) => (
-          <div
-            key={img.id}
-            onClick={() => {
-              setSelectedId(img.id);
-              onSelect(img);
-            }}
-            className={`w-16 h-16 rounded overflow-hidden cursor-pointer border-2 ${
-              selectedId === img.id ? "border-primary" : "border-transparent"
-            } hover:border-primary transition`}
-          >
-            <img
-              src={img.url}
-              alt={img.filename || "Previous Image"}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        ))}
-      </div>
+
+      {/* Loading State */}
+      {isLoading ? (
+        <div className="flex flex-wrap gap-2 mt-3">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Skeleton key={i} className="w-20 h-20 rounded-lg" />
+          ))}
+        </div>
+      ) : !images || images.length === 0 ? (
+        <p className="text-sm text-muted-foreground mt-3">
+          No previous images were found.
+        </p>
+      ) : (
+        <div className="flex flex-wrap gap-2 mt-3">
+          {images.map((img) => {
+            const isSelected = selectedId === img.id;
+
+            return (
+              <button
+                type="button"
+                key={img.id}
+                onClick={() => {
+                  setSelectedId(img.id);
+                  onSelect(img);
+                }}
+                className={`w-20 h-20 rounded-lg overflow-hidden border transition
+                  ${isSelected ? "border-primary shadow-sm" : "border-border"}
+                  hover:border-primary cursor-pointer`}
+              >
+                <img
+                  src={img.url}
+                  alt={img.filename || "Image"}
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            );
+          })}
+        </div>
+      )}
     </DialogContent>
   );
 };

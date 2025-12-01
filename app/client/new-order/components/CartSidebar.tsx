@@ -13,9 +13,11 @@ import { Button } from "@/components/ui/button";
 import type { Service } from "@/types";
 import { useCurrencyConverter } from "@/lib/currencyConverter";
 import { useAppContext } from "@/context/appContext";
+import Image from "next/image";
 
 interface CartItemLocal {
   serviceId: number;
+  serviceUid: string;
   name: string;
   price: number;
   quantity: number;
@@ -32,9 +34,9 @@ interface Props {
   runs: number;
   setRuns: (n: number) => void;
   grandTotal: number;
-  updateQuantity: (serviceId: number, qty: number) => void;
-  updateLink: (serviceId: number, link: string) => void;
-  removeFromCart: (serviceId: number) => void;
+  updateQuantity: (serviceUid: string, qty: number) => void;
+  updateLink: (serviceUid: string, link: string) => void;
+  removeFromCart: (serviceUid: string) => void;
   handleSubmit: () => Promise<void>;
   errors: string | null;
   submitting: boolean;
@@ -75,16 +77,22 @@ export const CartSidebar: React.FC<Props> = ({
         ) : (
           <ul className="space-y-4">
             {cart.map((c) => {
-              const svc = services.find((s) => s.id === c.serviceId)!;
+              const svc = services.find((s) => s.uid === c.serviceUid)!;
               const perUnit = perUnitPrice(c.price);
               const effQty = dripEnabled ? c.quantity * runs : c.quantity;
               return (
                 <li key={c.serviceId} className="flex gap-3 items-start">
-                  <img
-                    src={svc.icon}
-                    alt={svc.name}
-                    className="w-16 h-16 rounded-md object-cover"
-                  />
+                  {svc.icon ? (
+                    <Image
+                      src={svc.icon}
+                      alt={svc.name}
+                      width={64}
+                      height={64}
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="text-muted-foreground text-6xl">🧩</div>
+                  )}
                   <div className="flex-1">
                     <div className="flex justify-between items-start">
                       <div>
@@ -132,7 +140,7 @@ export const CartSidebar: React.FC<Props> = ({
                         placeholder="Enter link"
                         value={c.link}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          updateLink(c.serviceId, e.target.value)
+                          updateLink(c.serviceUid, e.target.value)
                         }
                       />
                       <div className="flex items-center gap-2 mt-2">
@@ -141,7 +149,7 @@ export const CartSidebar: React.FC<Props> = ({
                           variant="outline"
                           onClick={() =>
                             updateQuantity(
-                              c.serviceId,
+                              c.serviceUid,
                               Math.max(0, c.quantity - 1)
                             )
                           }
@@ -154,7 +162,7 @@ export const CartSidebar: React.FC<Props> = ({
                           value={c.quantity}
                           onChange={(e) =>
                             updateQuantity(
-                              c.serviceId,
+                              c.serviceUid,
                               parseInt(e.target.value || "0", 10)
                             )
                           }
@@ -163,7 +171,7 @@ export const CartSidebar: React.FC<Props> = ({
                           size="sm"
                           variant="outline"
                           onClick={() =>
-                            updateQuantity(c.serviceId, c.quantity + 1)
+                            updateQuantity(c.serviceUid, c.quantity + 1)
                           }
                         >
                           +
@@ -171,7 +179,7 @@ export const CartSidebar: React.FC<Props> = ({
                         <Button
                           size="sm"
                           variant="destructive"
-                          onClick={() => removeFromCart(c.serviceId)}
+                          onClick={() => removeFromCart(c.serviceUid)}
                         >
                           Remove
                         </Button>

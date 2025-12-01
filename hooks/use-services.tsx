@@ -21,10 +21,11 @@ interface CreateServiceProps {
   category: string;
   currency: CurrencyCode;
   description?: string;
-  price?: string;
+  price: string;
 }
 
 interface UpdateServiceProps {
+  uid: string;
   name?: string;
   type?: string;
   status?: string;
@@ -38,7 +39,7 @@ interface UpdateServiceProps {
   dripFeed?: boolean;
   category?: string;
   description?: string;
-  price?: number;
+  price?: string;
   position?: number;
 }
 
@@ -108,7 +109,9 @@ export const useCreateService = () => {
 
 // updating a service
 export const useUpdateService = () => {
-  const { api } = useAppContext();
+  const { api, storeId } = useAppContext();
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (service: UpdateServiceProps) => {
       const res = await api.patch(`/services`, service);
@@ -119,6 +122,7 @@ export const useUpdateService = () => {
     },
     onSuccess: () => {
       toast.success("Service updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["servicesByAdmin", storeId] });
     },
     onError: (error: any) => {
       if (error) {

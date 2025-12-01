@@ -78,7 +78,7 @@ export const OrderEditDialog = ({
               onValueChange={(val) => handleChange("status", val)}
               disabled={disabled}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>

@@ -8,14 +8,20 @@ import { useCurrencyConverter } from "@/lib/currencyConverter";
 import { useAppContext } from "@/context/appContext";
 import { ServiceDialog } from "../../services/components/ServiceDialog";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface Props {
   services: Service[];
   category: ServiceCategory;
-  cartItems: { serviceId: number; quantity: number; link: string }[];
+  cartItems: {
+    serviceId: number;
+    serviceUid: string;
+    quantity: number;
+    link: string;
+  }[];
   addToCart: (s: Service, qty?: number, link?: string) => void;
-  updateQuantity: (serviceId: number, qty: number) => void;
-  updateLink: (serviceId: number, link: string) => void;
+  updateQuantity: (serviceUid: string, qty: number) => void;
+  updateLink: (serviceUid: string, link: string) => void;
 }
 
 export const ServiceList: React.FC<Props> = ({
@@ -56,7 +62,7 @@ export const ServiceList: React.FC<Props> = ({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-5">
         {services.map((s) => {
-          const inCart = cartItems.find((c) => c.serviceId === s.storeScopedId) ?? {
+          const inCart = cartItems.find((c) => c.serviceUid === s.uid) ?? {
             quantity: 0,
             link: "",
           };
@@ -71,11 +77,17 @@ export const ServiceList: React.FC<Props> = ({
               className="rounded-xl shadow-sm border border-border hover:shadow-md transition-all duration-200 flex flex-col"
             >
               <CardHeader className="flex flex-row items-center gap-3 p-3">
-                <img
-                  src={s.icon}
-                  alt={s.name}
-                  className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-                />
+                {s.icon ? (
+                  <Image
+                    src={s.icon}
+                    alt={s.name}
+                    width={48}
+                    height={48}
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="text-muted-foreground text-5xl">🧩</div>
+                )}
                 <div className="flex-1 min-w-0">
                   <CardTitle className="truncate text-sm font-semibold">
                     {s.name}
@@ -120,7 +132,7 @@ export const ServiceList: React.FC<Props> = ({
                   placeholder="Enter link (required)"
                   value={inCart.link}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    updateLink(s.storeScopedId, e.target.value)
+                    updateLink(s.uid, e.target.value)
                   }
                   className="text-sm h-8"
                 />
@@ -132,7 +144,7 @@ export const ServiceList: React.FC<Props> = ({
                       variant="outline"
                       className="h-8 w-8 p-0"
                       onClick={() =>
-                        updateQuantity(s.storeScopedId, Math.max(0, inCart.quantity - 1))
+                        updateQuantity(s.uid, Math.max(0, inCart.quantity - 1))
                       }
                     >
                       -
@@ -144,7 +156,7 @@ export const ServiceList: React.FC<Props> = ({
                       value={inCart.quantity}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         updateQuantity(
-                          s.storeScopedId,
+                          s.uid,
                           parseInt(e.target.value || "0", 10)
                         )
                       }
@@ -194,6 +206,6 @@ const LabelAndTitle: React.FC<{ title: string }> = ({ title }) => (
   </div>
 );
 
-function perUnitPrice(price: number): number {
-  return price / 1000;
+function perUnitPrice(price: string): number {
+  return parseInt(price) / 1000;
 }

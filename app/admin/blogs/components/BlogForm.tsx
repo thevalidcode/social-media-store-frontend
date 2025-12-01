@@ -8,10 +8,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import WysiwygEditor from "@/components/WysiwygEditor";
 import { Blog } from "@/types";
-import { Image } from "lucide-react";
-import { useUploadImage } from "@/hooks/use-file";
-import { PreviousImagesSelector } from "../../components/PreviousImagesSelector";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import ImagePicker from "../../components/ImagePicker";
 
 interface BlogFormProps {
   blog: Blog;
@@ -25,7 +22,6 @@ export default function BlogForm({ blog, onSave, onCancel }: BlogFormProps) {
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
   const [img, setImg] = useState("");
-  const { mutateAsync: uploadImage } = useUploadImage();
 
   useEffect(() => {
     if (blog) {
@@ -69,13 +65,6 @@ export default function BlogForm({ blog, onSave, onCancel }: BlogFormProps) {
     onSave(updated);
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const response = await uploadImage({ file, collection: "blogs" });
-    setImg(response.url);
-  };
-
   return (
     <form
       onSubmit={(e) => {
@@ -114,26 +103,14 @@ export default function BlogForm({ blog, onSave, onCancel }: BlogFormProps) {
       </div>
 
       {/* Image */}
-      <div className="flex flex-col lg:gap-2 gap-1">
-        <Label htmlFor="provideImage">Image</Label>
-        <div className="flex items-center gap-2">
-          <Input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleFileUpload(e)}
-          />
-          <Image className="w-5 h-5 text-muted-foreground" />
-        </div>
-        <Dialog>
-          <DialogTrigger>Choose Previous Image</DialogTrigger>
-          <PreviousImagesSelector
-            collection="blogs"
-            onSelect={(img) => {
-              setImg(img.url);
-            }}
-          />
-        </Dialog>
-      </div>
+      <ImagePicker
+        label="Image"
+        collection="blogs"
+        value={img}
+        onChange={(data) => {
+          setImg(data.url);
+        }}
+      />
 
       {/* WYSIWYG Editor */}
       <div className="space-y-2">
@@ -143,7 +120,7 @@ export default function BlogForm({ blog, onSave, onCancel }: BlogFormProps) {
           initialContent={content}
           onChange={setContent}
           collection="blogs"
-          className="h-[420px]"
+          className="min-h-[420px]"
         />
       </div>
 

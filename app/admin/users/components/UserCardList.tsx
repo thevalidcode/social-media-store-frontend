@@ -43,7 +43,7 @@ export default function UserCardList({
               onCheckedChange={(v) => onSelect(u.storeScopedId, v as boolean)}
             />
             <img
-              src={u.image ?? `/avatar.png`}
+              src={u.image ?? `/images/default-profile.jpg`}
               alt={u.username}
               className="w-12 h-12 rounded-full object-cover"
             />

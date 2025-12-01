@@ -18,7 +18,7 @@ export interface ServicePublic {
   min: number;
   max: number;
   icon?: string;
-  price: number;
+  price: string;
   description?: string;
   dripFeed?: boolean;
   network?: string | null;
@@ -33,7 +33,7 @@ export interface ServicePublic {
 }
 
 export interface Service extends ServicePublic {
-  providerPrice?: number;
+  providerPrice?: string;
   providerId?: number;
   providerUid?: string;
   syncQuantity?: boolean;
