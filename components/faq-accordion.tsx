@@ -37,7 +37,7 @@ export function AccordionDemo({ data, title }: AccordionDemoProps) {
             <AccordionTrigger className="py-6 text-left font-semibold text-lg hover:no-underline">
               <span className="flex-1 pr-4">{faq.question}</span>
             </AccordionTrigger>
-            <AccordionContent className="pb-6 pr-8 text-muted-foreground">
+            <AccordionContent className="pb-6 pr-8">
               {faq.answer}
             </AccordionContent>
           </AccordionItem>

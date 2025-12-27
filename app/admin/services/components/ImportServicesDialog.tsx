@@ -3,6 +3,8 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -223,29 +225,34 @@ export default function ImportServicesDialog({
         onOpenChange(isOpen); // still call the parent handler
       }}
     >
-      <DialogContent className="max-w-lg">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] p-0 overflow-y-auto">
+        <DialogHeader className="px-6 py-4 border-b">
+          <DialogTitle className="flex items-center gap-2">
+            <CheckCircle2 className="h-5 w-5 text-green-500" />
+            Import Services from Provider
+          </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Import services from your connected providers to expand your catalog.
+          </DialogDescription>
+        </DialogHeader>
+
         {isProviderLoading ||
         isProviderServicesLoading ||
         isCategoriesLoading ? (
-          <Loading />
+          <div className="px-6 py-4">
+            <Loading />
+          </div>
         ) : (
-          <>
-            <DialogHeader>
-              <DialogTitle className="text-xl font-semibold">
-                Import Services from Provider
-              </DialogTitle>
-            </DialogHeader>
-
-            <AnimatePresence mode="wait">
-              {step === 1 && (
-                <motion.div
-                  key="step1"
-                  layout
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="space-y-5"
-                >
+          <AnimatePresence mode="wait">
+            {step === 1 && (
+              <motion.div
+                key="step1"
+                layout
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="px-6 py-4 space-y-5"
+              >
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-muted-foreground">
                       Select Provider
@@ -371,14 +378,14 @@ export default function ImportServicesDialog({
                     </div>
                   )}
 
-                  <div className="flex justify-end">
+                  <DialogFooter>
                     <Button
                       onClick={() => setStep(2)}
                       disabled={selected.length === 0 || !selectedProvider}
                     >
                       Next
                     </Button>
-                  </div>
+                  </DialogFooter>
                 </motion.div>
               )}
 
@@ -389,7 +396,7 @@ export default function ImportServicesDialog({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="space-y-4"
+                  className="px-6 py-4 space-y-5"
                 >
                   <div className="flex items-center justify-between mb-4">
                     <Label className="text-sm font-medium text-muted-foreground">
@@ -483,12 +490,12 @@ export default function ImportServicesDialog({
                       );
                     })}
                   </div>
-                  <div className="flex justify-between pt-4">
+                  <DialogFooter>
                     <Button variant="outline" onClick={() => setStep(1)}>
                       Back
                     </Button>
                     <Button onClick={handleImport}>Import</Button>
-                  </div>
+                  </DialogFooter>
                 </motion.div>
               )}
 
@@ -499,7 +506,7 @@ export default function ImportServicesDialog({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="flex flex-col items-center justify-center space-y-5 py-8"
+                  className="px-6 py-4 space-y-5"
                 >
                   {importMutation.isError ? (
                     <p className="text-sm text-red-500">
@@ -518,7 +525,9 @@ export default function ImportServicesDialog({
                       <p className="text-sm font-medium">
                         Services imported successfully!
                       </p>
-                      <Button onClick={handleClose}>Done</Button>
+                      <DialogFooter>
+                        <Button onClick={handleClose}>Done</Button>
+                      </DialogFooter>
                     </>
                   )}
                 </motion.div>

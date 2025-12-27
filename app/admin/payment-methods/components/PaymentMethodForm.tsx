@@ -56,7 +56,7 @@ export default function PaymentMethodForm({
       max: "",
       description: "",
       webhookUrl: "",
-      status: "INACTIVE",
+      status: "ACTIVE",
       feePercent: 0,
       secretKey: "",
     }
@@ -137,8 +137,8 @@ export default function PaymentMethodForm({
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] p-6 overflow-y-scroll">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] p-0 overflow-y-auto">
+          <DialogHeader className="px-6 py-4 border-b">
             <DialogTitle className="flex items-center gap-2">
               {initialData ? (
                 <>
@@ -161,7 +161,7 @@ export default function PaymentMethodForm({
           <AnimatePresence mode="wait">
             <motion.form
               onSubmit={handleSubmit}
-              className="space-y-5"
+              className="px-6 py-4 space-y-5"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
@@ -278,7 +278,7 @@ export default function PaymentMethodForm({
                 </div>
               )}
 
-              <DialogFooter className="pt-4">
+              <DialogFooter className="px-6 py-4 border-t">
                 <Button type="submit" className="w-full sm:w-auto">
                   {initialData ? "Save Changes" : "Add Gateway"}
                 </Button>
@@ -288,8 +288,8 @@ export default function PaymentMethodForm({
         </DialogContent>
       </Dialog>
       <Dialog open={showSignaturePopup} onOpenChange={setShowSignaturePopup}>
-        <DialogContent className="sm:max-w-[500px] p-6">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[500px] max-h-[90vh] p-0 overflow-y-auto">
+          <DialogHeader className="px-6 py-4 border-b">
             <DialogTitle>
               {initialData ? "Gateway Updated" : "Gateway Created"}
             </DialogTitle>
@@ -300,12 +300,14 @@ export default function PaymentMethodForm({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="mt-4">
-            <Label>Signature</Label>
-            <Input value={signature} readOnly className="mt-2" />
+          <div className="px-6 py-4 space-y-5">
+            <div className="mt-4">
+              <Label>Signature</Label>
+              <Input value={signature} readOnly className="mt-2" />
+            </div>
           </div>
 
-          <DialogFooter className="pt-4">
+          <DialogFooter className="px-6 py-4 border-t">
             <Button onClick={() => setShowSignaturePopup(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>

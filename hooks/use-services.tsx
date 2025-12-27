@@ -3,6 +3,7 @@
 import { useAppContext } from "@/context/appContext";
 import { CurrencyCode } from "@/lib/currencyConverter";
 import { Service, ServicePublic } from "@/types";
+import { normalizeApiError } from "@/utils/normalizeApiErrors";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -98,11 +99,11 @@ export const useCreateService = () => {
       queryClient.invalidateQueries({ queryKey: ["servicesByAdmin", storeId] });
     },
     onError: (error: any) => {
-      if (error) {
-        toast.error(error.response?.data.message || "Failed to create service");
-      } else {
-        toast.error("An unexpected error occurred while creating the service");
-      }
+      const errorMsg = normalizeApiError(
+        error,
+        "Failed to create service"
+      );
+      toast.error(errorMsg);
     },
   });
 };
@@ -125,11 +126,11 @@ export const useUpdateService = () => {
       queryClient.invalidateQueries({ queryKey: ["servicesByAdmin", storeId] });
     },
     onError: (error: any) => {
-      if (error) {
-        toast.error(error.response?.data.message || "Failed to update service");
-      } else {
-        toast.error("An unexpected error occurred while updating the service");
-      }
+      const errorMsg = normalizeApiError(
+        error,
+        "Failed to update service"
+      );
+      toast.error(errorMsg);
     },
   });
 };

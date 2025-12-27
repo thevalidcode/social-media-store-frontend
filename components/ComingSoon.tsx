@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TypographyH2, TypographyP } from "@/components/typography";
 
 interface ComingSoonProps {
   title?: string;
@@ -39,11 +40,11 @@ export const ComingSoon = ({
             <Sparkles className="w-8 h-8" />
           </motion.div>
 
-          <h1 className="text-2xl font-semibold text-foreground">{title}</h1>
+          <TypographyH2 className="text-2xl">{title}</TypographyH2>
 
-          <p className="text-sm text-muted-foreground max-w-sm">
+          <TypographyP className="text-sm text-muted-foreground max-w-sm">
             {description}
-          </p>
+          </TypographyP>
 
           {actionLabel && onAction && (
             <Button onClick={onAction} className="mt-2">

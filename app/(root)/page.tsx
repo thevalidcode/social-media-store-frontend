@@ -6,7 +6,7 @@ import { FaqSection } from "./components/faq";
 
 export default function Home() {
   return (
-    <div className="min-h-screen">
+    <div>
       <HeroSection />
       <StatsSection />
       <ServicesShowcase />

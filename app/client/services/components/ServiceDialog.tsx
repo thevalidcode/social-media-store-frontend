@@ -37,14 +37,16 @@ export const ServiceDialog = ({
   const { userCurrency } = useAppContext();
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl w-full">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] p-0 overflow-y-auto">
+        <DialogHeader className="px-6 py-4 border-b">
           <DialogTitle>{activeService?.name}</DialogTitle>
-          <DialogDescription>{activeService?.description}</DialogDescription>
+          <DialogDescription className="text-sm text-muted-foreground">
+            {activeService?.description}
+          </DialogDescription>
         </DialogHeader>
 
         {activeService && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+          <div className="px-6 py-4 space-y-5">
             <div className="md:col-span-1">
               {activeService.icon ? (
                 <img
@@ -129,7 +131,7 @@ export const ServiceDialog = ({
                   </div>
                 </div>
               </div>
-              <div className="mt-6 flex gap-3 ml-auto">
+              <DialogFooter>
                 <Button variant="ghost" onClick={onClose}>
                   Cancel
                 </Button>
@@ -143,11 +145,10 @@ export const ServiceDialog = ({
                 >
                   Order Now
                 </Button>
-              </div>
+              </DialogFooter>
             </div>
           </div>
         )}
-        <DialogFooter />
       </DialogContent>
     </Dialog>
   );

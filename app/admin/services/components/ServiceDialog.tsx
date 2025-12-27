@@ -3,6 +3,8 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -162,12 +164,14 @@ export default function ServiceDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] p-0 overflow-y-auto">
         {isCategoriesLoading || isProviderLoading ? (
-          <Loading />
+          <div className="px-6 py-4">
+            <Loading />
+          </div>
         ) : (
           <form onSubmit={handleSave}>
-            <DialogHeader className="flex justify-between items-center">
+            <DialogHeader className="px-6 py-4 border-b">
               <DialogTitle>
                 {isCategoryMode
                   ? editingItem
@@ -177,6 +181,18 @@ export default function ServiceDialog({
                   ? "Edit Service"
                   : "Add New Service"}
               </DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground">
+                {isCategoryMode
+                  ? editingItem
+                    ? "Update the category details below."
+                    : "Create a new category to organize your services."
+                  : editingItem
+                  ? "Update the service details below."
+                  : "Create a new service to add to your catalog."}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="px-6 py-4 space-y-5">
               {!editingItem && (
                 <div className="flex items-center gap-2">
                   <Label htmlFor="switch-mode" className="text-xs">
@@ -189,37 +205,37 @@ export default function ServiceDialog({
                   />
                 </div>
               )}
-            </DialogHeader>
 
-            {isCategoryMode ? (
-              <CategoryForm
-                category={newCategory}
-                setCategory={setNewCategory}
-                isEditing={editingItem ? true : false}
-              />
-            ) : (
-              <ServiceForm
-                service={newService}
-                setService={setNewService}
-                isEditing={editingItem ? true : false}
-                categoryOptions={categoryOptions}
-                providerOptions={providerOptions}
-              />
-            )}
+              {isCategoryMode ? (
+                <CategoryForm
+                  category={newCategory}
+                  setCategory={setNewCategory}
+                  isEditing={editingItem ? true : false}
+                />
+              ) : (
+                <ServiceForm
+                  service={newService}
+                  setService={setNewService}
+                  isEditing={editingItem ? true : false}
+                  categoryOptions={categoryOptions}
+                  providerOptions={providerOptions}
+                />
+              )}
 
-            <div className="pt-4 flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit">
-                {isCategoryMode
-                  ? editingItem
-                    ? "Update Category"
-                    : "Add Category"
-                  : editingItem
-                  ? "Update Service"
-                  : "Add Service"}
-              </Button>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  {isCategoryMode
+                    ? editingItem
+                      ? "Update Category"
+                      : "Add Category"
+                    : editingItem
+                    ? "Update Service"
+                    : "Add Service"}
+                </Button>
+              </DialogFooter>
             </div>
           </form>
         )}

@@ -16,6 +16,8 @@ import {
 import { useCurrencyConverter } from "@/lib/currencyConverter";
 import { useAppContext } from "@/context/appContext";
 import { EmptyState } from "@/components/empty-state";
+import { TypographyH2 } from "@/components/typography";
+import { BarChart3 } from "lucide-react";
 
 export default function Dashboard() {
   const { data, isLoading } = useGetUserDashboardStatistics();
@@ -60,6 +62,11 @@ export default function Dashboard() {
   ];
   return (
     <div className="space-y-4">
+      <div className="flex items-center gap-3 mb-6">
+        <BarChart3 className="h-8 w-8 text-primary" />
+        <TypographyH2 className="mb-0">Dashboard Overview</TypographyH2>
+      </div>
+
       <MetricsCards
         metrics={metrics.map((m) => ({
           title: m.label,

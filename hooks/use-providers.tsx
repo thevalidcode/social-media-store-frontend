@@ -1,7 +1,7 @@
 "use client";
 
 import { useAppContext } from "@/context/appContext";
-import { Provider, ProviderService } from "@/types";
+import { Provider, ProviderService, ServiceProvider } from "@/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 export interface ProviderProps {
@@ -43,6 +43,27 @@ export const useGetProviders = () => {
     queryKey: ["providers", storeId],
     queryFn: async () => {
       const res = await api.get<{ providers: Provider[] }>(`/providers`);
+      if (!res.data) {
+        throw new Error("Failed to fetch providers");
+      }
+      return res.data.providers;
+    },
+  });
+};
+
+// get all providers
+export const useGetAllServiceProviders = (
+  page = 1,
+  limit = 20,
+  search: string
+) => {
+  const { api, storeId } = useAppContext();
+  return useQuery({
+    queryKey: ["serviceProviders", storeId, page, limit, search],
+    queryFn: async () => {
+      const res = await api.get<{ providers: ServiceProvider[] }>(
+        `/providers/all?page=${page}&limit=${limit}&search=${search}`
+      );
       if (!res.data) {
         throw new Error("Failed to fetch providers");
       }

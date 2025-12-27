@@ -14,6 +14,7 @@ import { useGetBlogs } from "@/hooks/use-blog";
 import Loading from "@/app/loading";
 import { EmptyState } from "@/components/empty-state";
 import { BookOpen } from "lucide-react";
+import { TypographyH2 } from "@/components/typography";
 
 export default function BlogPage() {
   const [query, setQuery] = useState<string>("");
@@ -48,6 +49,10 @@ export default function BlogPage() {
 
   return (
     <main className="max-w-7xl mx-auto p-6">
+      <div className="flex items-center gap-3 mb-8">
+        <BookOpen className="h-8 w-8 text-primary" />
+        <TypographyH2 className="mb-0">Blog & Articles</TypographyH2>
+      </div>
       <div className="mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>

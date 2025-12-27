@@ -9,6 +9,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { HelpCircle, Shield, Clock, Users, Zap } from "lucide-react";
+import { TypographyH2, TypographyP } from "@/components/typography";
 
 const faqs = [
   {
@@ -116,15 +117,15 @@ export function FaqSection() {
             <HelpCircle className="w-4 h-4" />
             Frequently Asked Questions
           </div>
-          <h2 className="text-4xl sm:text-5xl font-bold mb-6">
+          <TypographyH2 className="mb-6">
             Got Questions?
             <br />
             <span className="text-primary">We've Got Answers</span>
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          </TypographyH2>
+          <TypographyP className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Find answers to the most common questions about our services,
             pricing, and how to get started.
-          </p>
+          </TypographyP>
         </motion.div>
 
         <div className="max-w-4xl mx-auto">
@@ -155,7 +156,7 @@ export function FaqSection() {
                     <AccordionTrigger className="text-left hover:no-underline py-6">
                       <span className="font-semibold">{faq.question}</span>
                     </AccordionTrigger>
-                    <AccordionContent className="pb-6 text-muted-foreground leading-relaxed">
+                    <AccordionContent className="pb-6 leading-relaxed">
                       {faq.answer}
                     </AccordionContent>
                   </AccordionItem>

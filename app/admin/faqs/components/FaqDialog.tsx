@@ -98,8 +98,8 @@ export default function FaqDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] p-0 overflow-y-auto">
+        <DialogHeader className="px-6 py-4 border-b">
           <DialogTitle className="flex items-center gap-2">
             {isEdit ? (
               <>
@@ -122,7 +122,7 @@ export default function FaqDialog({
 
         <form
           onSubmit={handleSubmit}
-          className="flex-1 flex flex-col gap-6 py-4"
+          className="px-6 py-4 space-y-5"
         >
           <div className="space-y-2">
             <Label htmlFor="question" className="text-sm font-medium">
@@ -152,7 +152,7 @@ export default function FaqDialog({
             />
           </div>
 
-          <DialogFooter className="gap-2">
+          <DialogFooter className="px-6 py-4 border-t gap-2">
             <Button
               type="button"
               variant="outline"

@@ -7,6 +7,7 @@ import { Pencil, Trash2, Plus, Search, BookOpen } from "lucide-react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -22,7 +23,7 @@ import {
   useGetBlogs,
   useUpdateBlog,
 } from "@/hooks/use-blog";
-import DeleteDialog from "../users/components/DeleteDialog";
+import DeleteDialog from "../components/DeleteDialog";
 import { EmptyState } from "@/components/empty-state";
 
 export default function AdminBlogsPage() {
@@ -246,17 +247,24 @@ export default function AdminBlogsPage() {
       )}
       {/* Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-4xl h-[85vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] p-0 overflow-y-auto">
+          <DialogHeader className="px-6 py-4 border-b">
             <DialogTitle>{isEditing ? "Edit Blog" : "Create Blog"}</DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              {isEditing
+                ? "Update your blog post details below."
+                : "Create a new blog post to share with your audience."}
+            </DialogDescription>
           </DialogHeader>
 
           {selectedBlog && (
-            <BlogForm
-              blog={selectedBlog}
-              onCancel={() => setIsDialogOpen(false)}
-              onSave={handleSave}
-            />
+            <div className="px-6 py-4">
+              <BlogForm
+                blog={selectedBlog}
+                onCancel={() => setIsDialogOpen(false)}
+                onSave={handleSave}
+              />
+            </div>
           )}
         </DialogContent>
       </Dialog>

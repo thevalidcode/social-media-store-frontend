@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -56,12 +57,15 @@ export const OrderEditDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] p-0 overflow-y-auto">
+        <DialogHeader className="px-6 py-4 border-b">
           <DialogTitle>Edit Order #{order.storeScopedId}</DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Update the order details and status below.
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
+        <div className="px-6 py-4 space-y-5">
           <div className="flex items-center justify-between">
             <Label htmlFor="syncOrder">Sync Order</Label>
             <Switch
@@ -132,7 +136,7 @@ export const OrderEditDialog = ({
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="px-6 py-4 border-t">
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
