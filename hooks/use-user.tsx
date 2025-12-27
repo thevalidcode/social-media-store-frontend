@@ -1,9 +1,8 @@
 "use client";
 import { useAppContext } from "@/context/appContext";
 import { User, UserStatus } from "@/types";
+import { normalizeApiError } from "@/utils/normalizeApiErrors";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
-import Decimal from "decimal.js";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 // Custom hook for user-related queries and mutations
@@ -63,23 +62,10 @@ export function useCreateUser() {
       toast.success("User created successfully");
     },
     onError: (error: unknown) => {
-      // Enhanced error extraction to handle various backend formats
-      let errorMsg = "An unexpected error occurred";
-      if (error instanceof AxiosError) {
-        // Try to extract error from common backend formats
-        const data = error.response?.data;
-        if (typeof data === "string") {
-          errorMsg = data;
-        } else if (data?.error) {
-          errorMsg = data.error;
-        } else if (data?.message) {
-          errorMsg = data.message;
-        } else {
-          errorMsg = "Failed to create user";
-        }
-      } else if (error instanceof Error) {
-        errorMsg = error.message;
-      }
+      const errorMsg = normalizeApiError(
+        error,
+        "Failed to create user"
+      );
       toast.error(errorMsg);
     },
   });
@@ -107,35 +93,20 @@ export function useUserLogin() {
           "Failed to login user: No response data received from server."
         );
       }
-      return res.data;
+      return res.data.user;
     },
     onSuccess: async (data) => {
-      const res = await api.get(`/stores/current-user`);
-      // Set user info in context, which also persists it to IndexedDB.
       setUserInfo({
-        ...res.data,
+        ...data,
       });
       // Redirect to the appropriate dashboard. The user session is now active.
       router.push("/client/dashboard");
     },
     onError: (error: unknown) => {
-      // Enhanced error extraction for better user feedback
-      let errorMsg = "An unexpected error occurred during login.";
-      if (error instanceof AxiosError) {
-        const data = error.response?.data;
-        if (typeof data === "string") {
-          errorMsg = data;
-        } else if (data?.error) {
-          errorMsg = data.error;
-        } else if (data?.message) {
-          errorMsg = data.message;
-        } else {
-          errorMsg =
-            "Failed to login user: Server returned an unknown error format.";
-        }
-      } else if (error instanceof Error) {
-        errorMsg = error.message;
-      }
+      const errorMsg = normalizeApiError(
+        error,
+        "Failed to login user"
+      );
       toast.error(errorMsg);
     },
   });
@@ -201,11 +172,11 @@ export function useDeleteMultipleUsers() {
       queryClient.invalidateQueries({ queryKey: ["users", storeId] });
     },
     onError: (error: unknown) => {
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data?.error || "Failed to delete users");
-      } else {
-        toast.error("Failed to delete users");
-      }
+      const errorMsg = normalizeApiError(
+        error,
+        "Failed to delete users"
+      );
+      toast.error(errorMsg);
     },
   });
 }
@@ -229,11 +200,11 @@ export const useDeleteASingleUser = () => {
       toast.success("User deleted successfully");
     },
     onError: (error: unknown) => {
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data?.error || "Failed to delete user");
-      } else {
-        toast.error("Failed to delete user");
-      }
+      const errorMsg = normalizeApiError(
+        error,
+        "Failed to delete user"
+      );
+      toast.error(errorMsg);
     },
   });
 };
@@ -264,11 +235,11 @@ export function useUpdateUser() {
       });
     },
     onError: (error: unknown) => {
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data?.error || "Failed to update user");
-      } else {
-        toast.error("Failed to update user");
-      }
+      const errorMsg = normalizeApiError(
+        error,
+        "Failed to update user"
+      );
+      toast.error(errorMsg);
     },
   });
 }
@@ -295,11 +266,11 @@ export function useUpdateUserByAdmin() {
       queryClient.invalidateQueries({ queryKey: ["users", storeId] });
     },
     onError: (error: unknown) => {
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data?.error || "Failed to update user");
-      } else {
-        toast.error("Failed to update user");
-      }
+      const errorMsg = normalizeApiError(
+        error,
+        "Failed to update user"
+      );
+      toast.error(errorMsg);
     },
   });
 }

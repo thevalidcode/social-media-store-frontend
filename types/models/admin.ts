@@ -20,4 +20,5 @@ export interface Admin {
   storeId: number; // Foreign key to store
   timestamp: string; // ISO date string
   lastSeen: string; // ISO date string
+  onboardingCompleted?: boolean;
 }

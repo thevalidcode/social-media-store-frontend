@@ -3,9 +3,10 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -89,8 +90,8 @@ export default function EditUserModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] p-0 overflow-y-auto">
+        <DialogHeader className="px-6 py-4 border-b">
           <DialogTitle className="text-xl font-semibold">
             Edit User Account
           </DialogTitle>
@@ -99,7 +100,7 @@ export default function EditUserModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-5 mt-2">
+        <div className="px-6 py-4 space-y-5">
           {/* Username */}
           <div className="space-y-1.5">
             <Label htmlFor="username">Username</Label>
@@ -192,8 +193,7 @@ export default function EditUserModal({
             )}
           </div>
 
-          {/* Actions */}
-          <div className="flex justify-end gap-3 pt-2">
+          <DialogFooter>
             <Button
               variant="outline"
               onClick={handleCancel}
@@ -209,7 +209,7 @@ export default function EditUserModal({
               <Save className="h-4 w-4" />
               Save Changes
             </Button>
-          </div>
+          </DialogFooter>
         </div>
       </DialogContent>
     </Dialog>

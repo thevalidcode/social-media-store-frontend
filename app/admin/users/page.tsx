@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import UserTable from "./components/UserTable";
 import UserCardList from "./components/UserCardList";
-import DeleteDialog from "./components/DeleteDialog";
+import DeleteDialog from "../components/DeleteDialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +25,7 @@ import {
 import { EmptyState } from "@/components/empty-state";
 import { Users } from "lucide-react";
 import Loading from "@/app/loading";
+import { TypographyH2 } from "@/components/typography";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[] | []>([]);
@@ -208,6 +209,11 @@ export default function UsersPage() {
 
   return (
     <main className="p-6 space-y-6">
+      <div className="flex items-center gap-3 mb-6">
+        <Users className="h-8 w-8 text-primary" />
+        <TypographyH2 className="mb-0">User Management</TypographyH2>
+      </div>
+
       {/* Header / controls */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-center gap-3 w-full md:w-auto">

@@ -59,7 +59,7 @@ export default function ImagePicker({
     <div className="flex flex-col lg:gap-2 gap-1">
       <Label>{label}</Label>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap md:flex-nowrap items-center gap-3">
         {/* File Upload */}
         <div className="flex w-full items-center gap-2 px-3 py-2 border rounded-md cursor-pointer hover:bg-accent transition text-sm">
           <Input

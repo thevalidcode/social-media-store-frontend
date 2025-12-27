@@ -1,7 +1,7 @@
 "use client";
 
 import Loading from "@/app/loading";
-import { TypographyH3, TypographyP } from "@/components/typography";
+import { TypographyH2, TypographyH3, TypographyP } from "@/components/typography";
 import { useGetFaqs } from "@/hooks/use-faqs";
 import { AccordionDemo as FaqAccordion } from "@/components/faq-accordion";
 import { EmptyState } from "@/components/empty-state";
@@ -27,7 +27,7 @@ export default function FaqPage() {
   return (
     <div className="container mx-auto px-4 py-12 space-y-6">
       <div className="text-center space-y-2">
-        <TypographyH3>Frequently Asked Questions</TypographyH3>
+        <TypographyH2 className="mb-4">Frequently Asked Questions</TypographyH2>
         <TypographyP className="text-muted-foreground max-w-2xl mx-auto">
           Find answers to common questions about our products, services, and
           platform. If you can't find what you're looking for, feel free to

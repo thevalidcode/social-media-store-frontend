@@ -17,7 +17,7 @@ import {
   useDeletePaymentGateway,
   useUpdatePaymentGateway,
 } from "@/hooks/use-paymentGateway";
-import DeleteDialog from "../../users/components/DeleteDialog";
+import DeleteDialog from "../../components/DeleteDialog";
 
 export default function PaymentMethodActions({
   gateway,

@@ -9,6 +9,7 @@ import { useGetSupportTicket } from "@/hooks/use-support";
 import Loading from "@/app/loading";
 import { EmptyState } from "@/components/empty-state";
 import { MessageCircle } from "lucide-react";
+import { TypographyH2 } from "@/components/typography";
 
 export default function SupportList() {
   const [selectedTickets, setSelectedTickets] = useState<string[]>([]);
@@ -59,6 +60,11 @@ export default function SupportList() {
 
   return (
     <div className="w-full space-y-6 p-6">
+      <div className="flex items-center gap-3 mb-6">
+        <MessageCircle className="h-8 w-8 text-primary" />
+        <TypographyH2 className="mb-0">Support Management</TypographyH2>
+      </div>
+
       <SupportToolbar
         selectedTickets={selectedTickets}
         statusFilter={statusFilter}

@@ -20,6 +20,7 @@ import {
   Star,
   Zap,
 } from "lucide-react";
+import { TypographyH2, TypographyP } from "@/components/typography";
 
 const services = [
   {
@@ -139,15 +140,15 @@ export function ServicesShowcase() {
             Premium Services
             <Zap className="w-4 h-4" />
           </div>
-          <h2 className="text-4xl sm:text-5xl font-bold mb-6">
+          <TypographyH2 className="mb-6">
             Complete Social Media
             <br />
             <span className="text-primary">Growth Solutions</span>
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          </TypographyH2>
+          <TypographyP className="text-xl text-muted-foreground max-w-3xl mx-auto">
             From followers to engagement, we provide everything you need to
             dominate social media and grow your brand.
-          </p>
+          </TypographyP>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

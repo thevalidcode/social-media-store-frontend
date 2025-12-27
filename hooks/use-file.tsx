@@ -3,6 +3,7 @@
 import { useAppContext } from "@/context/appContext";
 import { CollectionName } from "@/types";
 import { UploadLog } from "@/types/models/upload-log";
+import { normalizeApiError } from "@/utils/normalizeApiErrors";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
@@ -45,15 +46,11 @@ export function useUploadImage() {
     },
 
     onError: (error) => {
-      let message = "Failed to upload image";
-
-      if (error instanceof AxiosError) {
-        message = error.response?.data?.error || error.message;
-      } else if (error instanceof Error) {
-        message = error.message;
-      }
-
-      toast.error(message);
+      const errorMsg = normalizeApiError(
+        error,
+        "Failed to upload image"
+      );
+      toast.error(errorMsg);
     },
   });
 }

@@ -11,6 +11,16 @@ export interface Provider {
   sync?: boolean;
 }
 
+export interface ServiceProvider {
+  id: number;
+  uid: string;
+  name: string;
+  image: string | null;
+  url: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface ProviderService {
   service: number;
   name: string;

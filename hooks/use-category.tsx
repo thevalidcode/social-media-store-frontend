@@ -2,6 +2,7 @@
 
 import { useAppContext } from "@/context/appContext";
 import { Category, CategoryStatus } from "@/types";
+import { normalizeApiError } from "@/utils/normalizeApiErrors";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -47,13 +48,11 @@ export const useCreateCategory = () => {
       queryClient.invalidateQueries({ queryKey: ["categories", storeId] });
     },
     onError: (error: any) => {
-      if (error) {
-        toast.error(
-          error.response?.data.message || "Failed to create category"
-        );
-      } else {
-        toast.error("An unexpected error occurred while creating the category");
-      }
+      const errorMsg = normalizeApiError(
+        error,
+        "Failed to create category"
+      );
+      toast.error(errorMsg);
     },
   });
 };
@@ -76,13 +75,11 @@ export const useUpdateCategory = () => {
       queryClient.invalidateQueries({ queryKey: ["categories", storeId] });
     },
     onError: (error: any) => {
-      if (error) {
-        toast.error(
-          error.response?.data.message || "Failed to update category"
-        );
-      } else {
-        toast.error("An unexpected error occurred while updating the category");
-      }
+      const errorMsg = normalizeApiError(
+        error,
+        "Failed to update category"
+      );
+      toast.error(errorMsg);
     },
   });
 };

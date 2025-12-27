@@ -1,6 +1,7 @@
 "use client";
 
 import { useAppContext } from "@/context/appContext";
+import { normalizeApiError } from "@/utils/normalizeApiErrors";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
@@ -44,13 +45,11 @@ export function useUpdateStoreSettings() {
       queryClient.invalidateQueries({ queryKey: ["storeSettings", storeId] });
     },
     onError: (error: unknown) => {
-      let message = "Failed to update store settings";
-      if (error instanceof AxiosError) {
-        message = error.response?.data?.error || error.message || message;
-      } else if (error instanceof Error) {
-        message = error.message;
-      }
-      toast.error(message);
+      const errorMsg = normalizeApiError(
+        error,
+        "Failed to update store settings"
+      );
+      toast.error(errorMsg);
     },
   });
 }
@@ -92,13 +91,11 @@ export function useUpdateStoreDesign() {
       queryClient.invalidateQueries({ queryKey: ["storeDesign", storeId] });
     },
     onError: (error: unknown) => {
-      let message = "Failed to update store styles";
-      if (error instanceof AxiosError) {
-        message = error.response?.data?.error || error.message || message;
-      } else if (error instanceof Error) {
-        message = error.message;
-      }
-      toast.error(message);
+      const errorMsg = normalizeApiError(
+        error,
+        "Failed to update store styles"
+      );
+      toast.error(errorMsg);
     },
   });
 }

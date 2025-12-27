@@ -27,7 +27,7 @@ export function TypographyH2({
 }) {
   return (
     <h2
-      className={`scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0 ${
+      className={`scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0 inter ${
         className || ""
       }`}
     >
@@ -45,7 +45,7 @@ export function TypographyH3({
 }) {
   return (
     <h3
-      className={`scroll-m-20 text-2xl font-semibold tracking-tight ${
+      className={`scroll-m-20 text-2xl font-semibold tracking-tight lato ${
         className || ""
       }`}
     >
@@ -63,7 +63,7 @@ export function TypographyH4({
 }) {
   return (
     <h4
-      className={`scroll-m-20 text-xl font-semibold tracking-tight ${
+      className={`scroll-m-20 text-xl font-semibold tracking-tight inter ${
         className || ""
       }`}
     >

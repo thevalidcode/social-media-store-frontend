@@ -13,7 +13,7 @@ import Loading from "@/app/loading";
 import { EmptyState } from "@/components/empty-state";
 import { Shield } from "lucide-react";
 import Pagination from "@/components/pagination";
-import DeleteDialog from "../../users/components/DeleteDialog";
+import DeleteDialog from "../../components/DeleteDialog";
 import AddService from "./ServiceDialog";
 import ServiceDialog from "./ServiceDialog";
 

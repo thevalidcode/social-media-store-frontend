@@ -12,6 +12,7 @@ import {
   Twitter,
   TrendingUp,
 } from "lucide-react";
+import { TypographyH2, TypographyP } from "@/components/typography";
 
 const testimonials = [
   {
@@ -102,15 +103,15 @@ export function TestimonialsSection() {
             Customer Stories
             <TrendingUp className="w-4 h-4" />
           </div>
-          <h2 className="text-4xl sm:text-5xl font-bold mb-6">
+          <TypographyH2 className="mb-6">
             What Our Customers
             <br />
             <span className="text-primary">Are Saying</span>
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          </TypographyH2>
+          <TypographyP className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Join thousands of satisfied customers who have transformed their
             social media presence with our services.
-          </p>
+          </TypographyP>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -193,7 +194,7 @@ export function TestimonialsSection() {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="mt-16 text-center"
         >
-          <div className="inline-flex items-center gap-8 px-8 py-4 rounded-2xl bg-muted/50 border border-border/50">
+          <div className="inline-flex items-center md:gap-8 gap-4 md:px-8 px-4 py-4 rounded-2xl bg-muted/50 border border-border/50">
             <div className="text-center">
               <div className="text-2xl font-bold text-primary">4.9/5</div>
               <div className="text-sm text-muted-foreground">

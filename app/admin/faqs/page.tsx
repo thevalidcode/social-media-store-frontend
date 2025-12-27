@@ -40,6 +40,7 @@ import { toast } from "sonner";
 import FaqDialog from "./components/FaqDialog";
 import { Faq } from "@/types/models/faq";
 import { EmptyState } from "@/components/empty-state";
+import { TypographyH2 } from "@/components/typography";
 
 export default function FaqPage() {
   const [isOpen, setIsOpen] = useState(false);
@@ -155,9 +156,7 @@ export default function FaqPage() {
             <div className="flex items-center gap-3">
               <HelpCircle className="h-8 w-8 text-primary" />
               <div>
-                <CardTitle className="text-2xl font-bold">
-                  FAQ Management
-                </CardTitle>
+                <TypographyH2 className="text-2xl mb-1">FAQ Management</TypographyH2>
                 <CardDescription>
                   Manage frequently asked questions for your application
                 </CardDescription>
