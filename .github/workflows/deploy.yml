@@ -40,8 +40,8 @@ jobs:
             npm run build
 
             PORT=4340 pm2 describe social-media-store-frontend > /dev/null \
-              && pm2 restart social-media-store-frontend \
-              || pm2 start npm --name social-media-store-frontend -- start
+              && PORT=4340 pm2 restart social-media-store-frontend --update-env \
+              || PORT=4340 pm2 start npm --name social-media-store-frontend -- start
 
             pm2 save
 
