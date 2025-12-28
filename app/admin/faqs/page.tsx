@@ -149,7 +149,7 @@ export default function FaqPage() {
     );
   }
   return (
-    <div className=" p-2 lg:p-6">
+    <div>
       <Card className="bg-transparent shadow-none border border-muted/50">
         <CardHeader>
           <div className="flex items-center justify-between">

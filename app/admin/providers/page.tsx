@@ -150,7 +150,7 @@ export default function ProvidersPage() {
   }
 
   return (
-    <div className="p-2 lg:p-6">
+    <div>
       <div className="space-y-4">
         {/* Top Actions */}
         <div className="flex justify-end items-center gap-2">

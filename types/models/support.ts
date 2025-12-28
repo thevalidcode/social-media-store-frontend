@@ -50,7 +50,6 @@ export interface SupportTicket {
  */
 export interface SupportTicketPublic
   extends Omit<SupportTicket, "storeId" | "userUid" | "messages"> {
-  lastUpdate: string;
   messages: {
     senderType: MessageSenderType;
     message: string;

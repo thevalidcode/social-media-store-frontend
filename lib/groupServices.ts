@@ -1,8 +1,8 @@
-import { Service, ServiceCategory } from "@/types";
+import { Category, Service, ServiceCategory } from "@/types";
 
 export function groupServicesByCategory(
   services: Service[],
-  categories: any[]
+  categories: Category[]
 ): ServiceCategory[] {
   const grouped: Record<string, Service[]> = {};
 
@@ -27,9 +27,7 @@ export function groupServicesByCategory(
 
     return {
       title: meta?.name || categoryName,
-      icon:
-        meta?.icon ||
-        "https://picsum.photos/seed/default/64",
+      icon: meta?.icon || "https://picsum.photos/seed/default/64",
       services,
     };
   });

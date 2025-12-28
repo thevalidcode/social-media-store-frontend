@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { CreateBulkOrdeProps, useCreateBulkOrder } from "@/hooks/use-order";
+import { CreateBulkOrderProps, useCreateBulkOrder } from "@/hooks/use-order";
 import { useAppContext } from "@/context/appContext";
 import { useGetServicesByPublic } from "@/hooks/use-services";
 import { groupServicesByCategory } from "@/lib/groupServices";
@@ -265,7 +265,7 @@ export default function NewOrderPage() {
         totalPrice: grandTotal,
       };
 
-      const orders: CreateBulkOrdeProps = {
+      const orders: CreateBulkOrderProps = {
         orders: cart.map((c) => ({
           serviceUid: c.serviceUid,
           quantity: effectiveQuantity(c.quantity),

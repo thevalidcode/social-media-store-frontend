@@ -124,12 +124,7 @@ export function OrdersTab() {
   ];
 
   return (
-    <div className="w-full max-w-[90rem] mx-auto flex flex-col gap-6 ">
-      <div className="flex items-center gap-3 mb-6">
-        <ShoppingCart className="h-8 w-8 text-primary" />
-        <TypographyH2 className="mb-0">Order Management</TypographyH2>
-      </div>
-
+    <div className="w-full max-w-[90rem] mx-auto flex flex-col gap-6 px-3">
       <Tabs defaultValue="all" className="w-full">
         <TabsList
           className="relative z-50 flex flex-wrap w-full grid-cols-2 gap-3 p-1 bg-muted/50

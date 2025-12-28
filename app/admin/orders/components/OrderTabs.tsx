@@ -119,7 +119,7 @@ export function OrdersTab() {
   ];
 
   return (
-    <div className="w-full mx-auto flex flex-col gap-6 ">
+    <div className="w-full mx-auto flex flex-col gap-6">
       <Tabs defaultValue="all" className="w-full">
         <TabsList
           className="relative z-50 flex flex-wrap w-full grid-cols-2 gap-3 p-1 bg-muted/50

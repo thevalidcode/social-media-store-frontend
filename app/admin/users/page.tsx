@@ -208,12 +208,7 @@ export default function UsersPage() {
   };
 
   return (
-    <main className="p-6 space-y-6">
-      <div className="flex items-center gap-3 mb-6">
-        <Users className="h-8 w-8 text-primary" />
-        <TypographyH2 className="mb-0">User Management</TypographyH2>
-      </div>
-
+    <main className="space-y-6">
       {/* Header / controls */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-center gap-3 w-full md:w-auto">

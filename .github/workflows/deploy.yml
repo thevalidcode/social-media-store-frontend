@@ -1,0 +1,51 @@
+name: 🚀 Deploy Next.js to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repo
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Connect to VPS and deploy
+      - name: 🚀 Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: 2022
+          script: |
+            echo "Deploying Next.js app..."
+
+            # Go to project directory
+            cd social-media-store/frontend
+
+            # Pull latest code
+            git reset --hard
+            git clean -fd
+            git pull origin main
+
+            # Install dependencies (omit dev for production)
+            npm ci --omit=dev
+
+            # Build Next.js app
+            npm run build
+
+            # Start/restart PM2 process
+            PORT=4340 pm2 describe social-media-store-frontend > /dev/null \
+              && pm2 restart social-media-store-frontend \
+              || pm2 start "npm start" --name social-media-store-frontend
+
+            # Save PM2 process list
+            pm2 save
+
+            echo "Deployment completed!"

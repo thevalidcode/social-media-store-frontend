@@ -61,7 +61,7 @@ export function useUpdateAdmin() {
     mutationFn: async (data: UpdateAdminProps) => {
       const res = await api.patch(`/admins`, data);
       if (!res.data) throw new Error("Failed to update admin");
-      return res.data.admin;
+      return res.data;
     },
     onSuccess: (updatedAdmin: any) => {
       toast.success("Admin updated successfully");

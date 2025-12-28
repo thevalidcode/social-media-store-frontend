@@ -49,10 +49,6 @@ export default function BlogPage() {
 
   return (
     <main className="max-w-7xl mx-auto p-6">
-      <div className="flex items-center gap-3 mb-8">
-        <BookOpen className="h-8 w-8 text-primary" />
-        <TypographyH2 className="mb-0">Blog & Articles</TypographyH2>
-      </div>
       <div className="mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>

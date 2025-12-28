@@ -1,6 +1,6 @@
 "use client";
 
-import { useAppContext } from "@/context/appContext";
+import { GeneralSettingProps, useAppContext } from "@/context/appContext";
 import { normalizeApiError } from "@/utils/normalizeApiErrors";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
@@ -94,6 +94,30 @@ export function useUpdateStoreDesign() {
       const errorMsg = normalizeApiError(
         error,
         "Failed to update store styles"
+      );
+      toast.error(errorMsg);
+    },
+  });
+}
+
+// update onboarding completed status
+export function useUpdateOnboardingCompleted() {
+  const { api, setGeneralSetting, storeId } = useAppContext();
+  return useMutation({
+    mutationFn: async () => {
+      const res = await api.put(`/stores/${storeId}/onboarding-completed`);
+      if (!res.data) throw new Error("Failed to update onboarding status");
+      return res.data.setting;
+    },
+    onSuccess: (updatedSetting: GeneralSettingProps) => {
+      setGeneralSetting({
+        ...updatedSetting,
+      });
+    },
+    onError: (error: unknown) => {
+      const errorMsg = normalizeApiError(
+        error,
+        "Failed to update onboarding status"
       );
       toast.error(errorMsg);
     },

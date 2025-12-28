@@ -32,10 +32,6 @@ export default function ServicesPage() {
   const categoryWithServices = groupServicesByCategory(services!, categories!);
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3 mb-6">
-        <Shield className="h-8 w-8 text-primary" />
-        <TypographyH2 className="mb-0">Available Services</TypographyH2>
-      </div>
       <ServicesList categoryWithServices={categoryWithServices} />
     </div>
   );

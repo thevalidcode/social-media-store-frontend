@@ -2,9 +2,12 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { Settings, Users, ShoppingCart, Camera } from "lucide-react";
+
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -13,171 +16,164 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Settings, Users, ShoppingCart } from "lucide-react";
-import { useRouter } from "next/navigation";
+
 import { currency } from "@/app/_docs/doc";
 import { useAppContext } from "@/context/appContext";
-import { Admin } from "@/types";
 import { useUpdateAdmin } from "@/hooks/use-admin";
 import { useUploadImage } from "@/hooks/use-file";
+import type { Admin } from "@/types";
 import { toast } from "sonner";
 
 export default function AdminProfilePage() {
+  const router = useRouter();
   const { adminInfo, userCurrency, setUserCurrency } = useAppContext();
+
   const [profile, setProfile] = useState<Admin>(adminInfo!);
   const [editing, setEditing] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+
   const { mutateAsync: updateAdmin } = useUpdateAdmin();
   const { mutateAsync: uploadImage } = useUploadImage();
 
-  const router = useRouter();
+  if (!profile) return null;
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = e.target;
     setProfile((prev) => ({ ...prev, [name]: value }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    // Sanitize profile to match UpdateAdminProps type
-    const sanitizedProfile = {
-      ...profile,
+    await updateAdmin({
       fullName: profile.fullName ?? undefined,
-      image: profile.image ?? undefined,
-    };
+      username: profile.username,
+      image: profile.image || "",
+      email: profile.email,
+    });
 
-    updateAdmin(sanitizedProfile);
+    toast.success("Profile updated");
     setEditing(false);
   }
 
-  if (!profile) return null;
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] ?? null;
-    const response = await uploadImage({ file: file!, collection: "admins" });
-    await updateAdmin({ image: response.url });
-    setProfile((prev) => ({ ...prev, image: response.url }));
-  };
+    try {
+      setUploadingImage(true);
+      const res = await uploadImage({
+        file,
+        collection: "admins",
+      });
+
+      await updateAdmin({ image: res.url });
+      setProfile((prev) => ({ ...prev, image: res.url }));
+    } catch {
+      toast.error("Image upload failed");
+    } finally {
+      setUploadingImage(false);
+    }
+  }
 
   return (
-    <main className="min-h-screen w-full p-6">
+    <main className="min-h-screen w-full p-6 bg-background">
       <motion.section
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="w-full max-w-5xl mx-auto"
+        transition={{ duration: 0.25 }}
+        className="mx-auto max-w-5xl"
       >
-        <Card className="p-8 rounded-2xl shadow-sm">
-          <div className="flex flex-col sm:flex-row gap-8 items-start">
-            <div className="relative w-32 h-32">
+        <Card className="rounded-2xl p-8 shadow-sm">
+          {/* Profile Header */}
+          <div className="flex flex-col gap-8 sm:flex-row">
+            <div className="relative h-32 w-32 shrink-0">
               <img
-                src={profile?.image ?? "/images/default-profile.jpg"}
-                alt={profile.fullName ?? "Admin Profile"}
-                className="w-32 h-32 rounded-full object-cover border border-primary/40"
+                src={profile.image ?? "/images/default-profile.jpg"}
+                alt="Profile"
+                className="h-32 w-32 rounded-full object-cover border"
               />
 
               {editing && (
-                <label
-                  htmlFor="profile-upload"
-                  className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer transition-opacity"
-                >
-                  <span className="text-white flex flex-col items-center gap-1">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M15.232 5.232l3.536 3.536M9 13l6 6 6-6-6-6-6 6z"
-                      />
-                    </svg>
-                    <span className="text-xs">Edit</span>
-                  </span>
+                <label className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/50 opacity-0 transition hover:opacity-100">
+                  <Camera className="h-6 w-6 text-white" />
                   <Input
                     type="file"
-                    id="profile-upload"
                     accept="image/*"
                     className="hidden"
-                    onChange={handleFileUpload} // your upload handler
+                    disabled={uploadingImage}
+                    onChange={handleImageUpload}
                   />
                 </label>
               )}
             </div>
 
-            <div className="flex-1 space-y-2">
+            <div className="flex-1">
               <h1 className="text-2xl font-semibold">{profile.fullName}</h1>
-              <p className="text-sm">@{profile.username}</p>
-              <p className="text-sm opacity-80">
+              <p className="text-sm text-muted-foreground">
+                @{profile.username}
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
                 Joined {new Date(profile.timestamp).toLocaleDateString()}
               </p>
 
-              <div className="flex gap-3 mt-4">
-                <Button
-                  onClick={() => setEditing((prev) => !prev)}
-                  variant="outline"
-                >
-                  {editing ? "Cancel" : "Edit Profile"}
+              <div className="mt-6">
+                <Button variant="outline" onClick={() => setEditing((v) => !v)}>
+                  {editing ? "Cancel Editing" : "Edit Profile"}
                 </Button>
               </div>
             </div>
           </div>
 
+          {/* Management Shortcuts */}
           {!editing && (
-            <div className="grid sm:grid-cols-3 gap-4 mt-10">
-              <Card
-                onClick={() => router.push("/admin/users")}
-                className="p-5 text-center hover:bg-accent transition-colors cursor-pointer"
-              >
-                <Users className="mx-auto mb-2 text-primary" />
-                <p className="font-medium">Manage Users</p>
-              </Card>
-              <Card
-                onClick={() => router.push("/admin/orders")}
-                className="p-5 text-center hover:bg-accent transition-colors cursor-pointer"
-              >
-                <ShoppingCart className="mx-auto mb-2 text-primary" />
-                <p className="font-medium">Manage Orders</p>
-              </Card>
-              <Card
-                onClick={() => router.push("/admin/settings")}
-                className="p-5 text-center hover:bg-accent transition-colors cursor-pointer"
-              >
-                <Settings className="mx-auto mb-2 text-primary" />
-                <p className="font-medium">System Settings</p>
-              </Card>
-            </div>
+            <section className="mt-10 space-y-4">
+              <h2 className="text-sm font-medium text-muted-foreground">
+                Administration
+              </h2>
+
+              <div className="grid gap-4 sm:grid-cols-3">
+                <AdminCard
+                  icon={Users}
+                  label="Users"
+                  onClick={() => router.push("/admin/users")}
+                />
+                <AdminCard
+                  icon={ShoppingCart}
+                  label="Orders"
+                  onClick={() => router.push("/admin/orders")}
+                />
+                <AdminCard
+                  icon={Settings}
+                  label="Settings"
+                  onClick={() => router.push("/admin/settings")}
+                />
+              </div>
+            </section>
           )}
 
+          {/* Edit Form */}
           {editing && (
-            <form onSubmit={handleSubmit} className="mt-10 space-y-5">
-              <div className="grid gap-2">
-                <Label>Full Name</Label>
+            <form onSubmit={handleSubmit} className="mt-12 space-y-6">
+              <Field label="Full Name">
                 <Input
                   name="fullName"
-                  type="text"
                   value={profile.fullName || ""}
                   onChange={handleChange}
                   required
                 />
-              </div>
+              </Field>
 
-              <div className="grid gap-2">
-                <Label>Username</Label>
+              <Field label="Username">
                 <Input
                   name="username"
                   value={profile.username}
                   onChange={handleChange}
                   required
                 />
-              </div>
+              </Field>
 
-              <div className="grid gap-2">
-                <Label>Email</Label>
+              <Field label="Email">
                 <Input
                   name="email"
                   type="email"
@@ -185,13 +181,12 @@ export default function AdminProfilePage() {
                   onChange={handleChange}
                   required
                 />
-              </div>
+              </Field>
 
-              <div className="grid gap-2">
-                <Label>Role</Label>
+              <Field label="Role">
                 <Select disabled value={profile.role}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select role" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="SUPER">Super Admin</SelectItem>
@@ -206,29 +201,27 @@ export default function AdminProfilePage() {
                     </SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
 
-              <div className="grid gap-2">
-                <Label>Currency</Label>
+              <Field label="Currency">
                 <Select value={userCurrency} onValueChange={setUserCurrency}>
-                  <SelectTrigger id="adminCurrency" className="w-full">
-                    <SelectValue placeholder="Select currency..." />
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select currency" />
                   </SelectTrigger>
-
                   <SelectContent>
-                    {Object.entries(currency).map(([key, value]) => (
-                      <SelectItem key={key} value={key}>
-                        {key} - {value.split("|")[0]}
+                    {Object.entries(currency).map(([k, v]) => (
+                      <SelectItem key={k} value={k}>
+                        {k} - {v.split("|")[0]}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
 
-              <div className="flex justify-end gap-3 pt-3">
+              <div className="flex justify-end gap-3 pt-4">
                 <Button
-                  variant="ghost"
                   type="button"
+                  variant="ghost"
                   onClick={() => setEditing(false)}
                 >
                   Cancel
@@ -240,5 +233,44 @@ export default function AdminProfilePage() {
         </Card>
       </motion.section>
     </main>
+  );
+}
+
+/* ----------------- Small helpers ----------------- */
+
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="grid gap-2">
+      <Label>{label}</Label>
+      {children}
+    </div>
+  );
+}
+
+function AdminCard({
+  icon: Icon,
+  label,
+  onClick,
+}: {
+  icon: React.ElementType;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <Card
+      onClick={onClick}
+      className="cursor-pointer rounded-xl border bg-secondary/40 p-4 transition hover:bg-secondary"
+    >
+      <div className="flex items-center gap-3">
+        <Icon className="h-4 w-4 text-muted-foreground" />
+        <span className="text-sm font-medium">{label}</span>
+      </div>
+    </Card>
   );
 }

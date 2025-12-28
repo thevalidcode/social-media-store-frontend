@@ -15,12 +15,12 @@ import {
 } from "lucide-react";
 import { useCurrencyConverter } from "@/lib/currencyConverter";
 import { useAppContext } from "@/context/appContext";
-import { EmptyState } from "@/components/empty-state";
-import { TypographyH2 } from "@/components/typography";
-import { BarChart3 } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";import { useGetCategories } from "@/hooks/use-category";
 
 export default function Dashboard() {
   const { data, isLoading } = useGetUserDashboardStatistics();
+  const { data: categories, isLoading: isCategoriesLoading } =
+    useGetCategories();
 
   const { userCurrency } = useAppContext();
 
@@ -61,12 +61,7 @@ export default function Dashboard() {
     },
   ];
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-3 mb-6">
-        <BarChart3 className="h-8 w-8 text-primary" />
-        <TypographyH2 className="mb-0">Dashboard Overview</TypographyH2>
-      </div>
-
+    <div className="space-y-4 px-3">
       <MetricsCards
         metrics={metrics.map((m) => ({
           title: m.label,
@@ -102,7 +97,7 @@ export default function Dashboard() {
           description="No service has been created yet."
         />
       ) : (
-        <RecentActivity services={data?.recentlyAddedServices} />
+        <RecentActivity services={data?.recentlyAddedServices} categories={categories||[]} />
       )}
     </div>
   );

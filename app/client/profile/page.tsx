@@ -2,9 +2,11 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Eye, EyeOff, RefreshCw, Camera } from "lucide-react";
+
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -13,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Eye, EyeOff, RefreshCw } from "lucide-react";
+
 import CurrencySelect from "@/components/CurrencySelect";
 import { useAppContext } from "@/context/appContext";
 import { useUpdateUser } from "@/hooks/use-user";
@@ -28,7 +30,8 @@ export default function UserProfilePage() {
   const { mutate } = useUpdateUser();
 
   const { mutateAsync: updateUser } = useUpdateUser();
-  const { mutateAsync: uploadImage } = useUploadImage();
+  const { mutateAsync: uploadImage, isPending: uploadingImage } =
+    useUploadImage();
 
   const convert = useCurrencyConverter();
 
@@ -71,99 +74,78 @@ export default function UserProfilePage() {
   };
 
   return (
-    <main className="min-h-screen w-full p-6">
+    <main className="min-h-screen w-full p-6 bg-background">
       <motion.section
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="w-full max-w-5xl mx-auto"
+        transition={{ duration: 0.25 }}
+        className="mx-auto max-w-5xl"
       >
-        <Card className="p-8 rounded-2xl shadow-sm">
-          <div className="flex flex-col sm:flex-row gap-8 items-start">
-            <div className="relative w-32 h-32">
+        <Card className="rounded-2xl p-8 shadow-sm">
+          {/* Header */}
+          <div className="flex flex-col gap-8 sm:flex-row">
+            <div className="relative h-32 w-32 shrink-0">
               <img
-                src={userInfo?.image ?? "/images/default-profile.jpg"}
-                alt={userInfo.fullName ?? "Admin Profile"}
-                className="w-32 h-32 rounded-full object-cover border border-primary/40"
+                src={userInfo.image ?? "/images/default-profile.jpg"}
+                alt="Profile"
+                className="h-32 w-32 rounded-full object-cover border"
               />
 
               {editing && (
-                <label
-                  htmlFor="profile-upload"
-                  className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 hover:opacity-100 cursor-pointer transition-opacity"
-                >
-                  <span className="text-white flex flex-col items-center gap-1">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M15.232 5.232l3.536 3.536M9 13l6 6 6-6-6-6-6 6z"
-                      />
-                    </svg>
-                    <span className="text-xs">Edit</span>
-                  </span>
+                <label className="absolute inset-0 flex cursor-pointer items-center justify-center rounded-full bg-black/50 opacity-0 transition hover:opacity-100">
+                  <Camera className="h-6 w-6 text-white" />
                   <Input
                     type="file"
-                    id="profile-upload"
                     accept="image/*"
+                    disabled={uploadingImage}
                     className="hidden"
-                    onChange={handleFileUpload} // your upload handler
+                    onChange={handleFileUpload}
                   />
                 </label>
               )}
             </div>
 
-            <div className="flex-1 space-y-2">
+            <div className="flex-1">
               <h1 className="text-2xl font-semibold">
                 {userInfo.fullName || "Unnamed User"}
               </h1>
-              <p className="text-sm">@{userInfo.username}</p>
-              <p className="text-sm opacity-80">
+              <p className="text-sm text-muted-foreground">
+                @{userInfo.username}
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
                 Joined {new Date(userInfo.timestamp).toLocaleDateString()}
               </p>
 
-              <div className="flex gap-3 mt-4">
-                <Button
-                  onClick={() => setEditing((prev) => !prev)}
-                  variant="outline"
-                >
-                  {editing ? "Cancel" : "Edit Profile"}
+              <div className="mt-6">
+                <Button variant="outline" onClick={() => setEditing((v) => !v)}>
+                  {editing ? "Cancel Editing" : "Edit Profile"}
                 </Button>
               </div>
             </div>
           </div>
 
+          {/* Edit Form */}
           {editing && (
-            <form onSubmit={handleSubmit} className="mt-10 space-y-5">
-              <div className="grid gap-2">
-                <Label>Full Name</Label>
+            <form onSubmit={handleSubmit} className="mt-12 space-y-6">
+              <Field label="Full Name">
                 <Input
                   name="fullName"
                   value={userInfo.fullName || ""}
                   onChange={handleChange}
                   required
                 />
-              </div>
+              </Field>
 
-              <div className="grid gap-2">
-                <Label>Username</Label>
+              <Field label="Username">
                 <Input
                   name="username"
                   value={userInfo.username}
                   onChange={handleChange}
                   required
                 />
-              </div>
+              </Field>
 
-              <div className="grid gap-2">
-                <Label>Email</Label>
+              <Field label="Email">
                 <Input
                   name="email"
                   type="email"
@@ -171,13 +153,12 @@ export default function UserProfilePage() {
                   onChange={handleChange}
                   required
                 />
-              </div>
+              </Field>
 
-              <div className="grid gap-2">
-                <Label>Role</Label>
-                <Select disabled defaultValue={userInfo.role}>
+              <Field label="Role">
+                <Select disabled value={userInfo.role}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="User Role" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="BASIC">Basic</SelectItem>
@@ -186,12 +167,11 @@ export default function UserProfilePage() {
                     <SelectItem value="PARTNER">Partner</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
 
-              <div className="grid gap-2">
-                <Label>Balance</Label>
+              <Field label="Balance">
                 <Input
-                  name="balance"
+                  disabled
                   value={
                     convert(
                       userInfo.currency,
@@ -201,57 +181,48 @@ export default function UserProfilePage() {
                       false
                     ).amount
                   }
-                  disabled
                 />
-              </div>
+              </Field>
 
-              <div className="grid gap-2">
-                <Label>Currency</Label>
+              <Field label="Currency">
                 <CurrencySelect />
                 <p className="text-sm text-muted-foreground">
                   Selected currency: {userCurrency}
                 </p>
-              </div>
+              </Field>
 
-              <div className="grid gap-2">
-                <Label>API Key</Label>
+              <Field label="API Key">
                 <div className="flex gap-2">
                   <Input
-                    name="apiKey"
-                    value={showApiKey ? userInfo?.apiKey : maskedKey}
                     readOnly
+                    value={showApiKey ? userInfo.apiKey : maskedKey}
                   />
+
                   <Button
-                    variant="secondary"
                     type="button"
-                    onClick={() => {
-                      if (btnApiKeyVisible) {
-                        setShowApiKey(!showApiKey);
-                      }
-                    }}
+                    variant="secondary"
                     disabled={!btnApiKeyVisible}
+                    onClick={() => setShowApiKey((v) => !v)}
                   >
                     {showApiKey ? (
-                      <EyeOff className="w-4 h-4 mr-1" />
+                      <EyeOff className="mr-1 h-4 w-4" />
                     ) : (
-                      <Eye className="w-4 h-4 mr-1" />
+                      <Eye className="mr-1 h-4 w-4" />
                     )}
                     {showApiKey ? "Hide" : "Reveal"}
                   </Button>
-                  <Button
-                    variant="default"
-                    type="button"
-                    onClick={regenerateApiKey}
-                  >
-                    <RefreshCw className="w-4 h-4 mr-1" /> Regenerate
+
+                  <Button type="button" onClick={regenerateApiKey}>
+                    <RefreshCw className="mr-1 h-4 w-4" />
+                    Regenerate
                   </Button>
                 </div>
-              </div>
+              </Field>
 
-              <div className="flex justify-end gap-3 pt-3">
+              <div className="flex justify-end gap-3 pt-4">
                 <Button
-                  variant="ghost"
                   type="button"
+                  variant="ghost"
                   onClick={() => setEditing(false)}
                 >
                   Cancel
@@ -263,5 +234,22 @@ export default function UserProfilePage() {
         </Card>
       </motion.section>
     </main>
+  );
+}
+
+/* ---------------- helpers ---------------- */
+
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="grid gap-2">
+      <Label>{label}</Label>
+      {children}
+    </div>
   );
 }

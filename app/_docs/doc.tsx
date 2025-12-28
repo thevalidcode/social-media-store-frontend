@@ -43,15 +43,6 @@ export const services = [
   },
 ];
 
-export const ordersData = [
-  { month: "January", orders: 186, completed: 80 },
-  { month: "February", orders: 305, completed: 200 },
-  { month: "March", orders: 237, completed: 120 },
-  { month: "April", orders: 73, completed: 190 },
-  { month: "May", orders: 209, completed: 130 },
-  { month: "June", orders: 214, completed: 140 },
-];
-
 export const ordersConfig = {
   orders: {
     label: "Orders",
@@ -61,16 +52,7 @@ export const ordersConfig = {
     label: "Completed",
     color: "#f97316",
   },
-} satisfies ChartConfig;
-
-export const paymentsData = [
-  { month: "January", successful: 12000, failed: 2000 },
-  { month: "February", successful: 19000, failed: 3500 },
-  { month: "March", successful: 15000, failed: 2800 },
-  { month: "April", successful: 8000, failed: 2200 },
-  { month: "May", successful: 14000, failed: 2500 },
-  { month: "June", successful: 16000, failed: 3000 },
-];
+} satisfies ChartConfig
 
 export const paymentsConfig = {
   successful: {

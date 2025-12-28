@@ -8,7 +8,7 @@ import { get, set } from "idb-keyval";
 import { CurrencyCode } from "@/lib/currencyConverter";
 import { Admin, User } from "@/types";
 
-interface GeneralSettingProps {
+export interface GeneralSettingProps {
   storeName: string;
   logoUrl: string;
   storeDescription: string;
@@ -16,6 +16,7 @@ interface GeneralSettingProps {
   storeId: number;
   faviconUrl: string;
   defaultClientCurrency: string;
+  onboardingCompleted: boolean;
 }
 
 interface CurrencyRates {
@@ -36,6 +37,7 @@ interface AppContextType {
   isLoading: boolean;
   isRatesLoading: boolean;
   isAuthLoading: boolean;
+  setGeneralSetting: (setting: GeneralSettingProps | null) => void;
   rates?: CurrencyRates;
   userCurrency: CurrencyCode;
   setUserCurrency: (currency: string) => void;
@@ -228,6 +230,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         setStoreId: handleSetStoreId,
         isRatesLoading,
         rates,
+        setGeneralSetting,
         domain,
         isLoading,
         generalSetting,

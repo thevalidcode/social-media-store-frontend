@@ -139,7 +139,7 @@ export default function AdminBlogsPage() {
     .map((u) => u.title);
 
   return (
-    <main className="max-w-7xl mx-auto p-6">
+    <main className="max-w-7xl mx-auto">
       {filteredBlogs.length === 0 ? (
         <EmptyState
           icon={BookOpen}

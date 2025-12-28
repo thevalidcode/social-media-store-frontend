@@ -45,20 +45,12 @@ export default function AddFunds() {
   const selectedMethod = PAYMENT_METHODS.find((m) => m.platform === method)!;
 
   // Convert min/max requirement from USD to user's currency
-  const minAmount = convert(
-    "USD",
-    userCurrency,
-    selectedMethod?.min,
-    false,
-    false
-  ).amount;
-  const maxAmount = convert(
-    "USD",
-    userCurrency,
-    selectedMethod?.max,
-    false,
-    false
-  ).amount;
+  const minAmount = parseInt(
+    convert("USD", userCurrency, selectedMethod?.min, false, false).amount
+  );
+  const maxAmount = parseInt(
+    convert("USD", userCurrency, selectedMethod?.max, false, false).amount
+  );
 
   const amt = parseFloat(String(amount)) || 0;
   const percent = selectedMethod?.feePercent ?? 0;
