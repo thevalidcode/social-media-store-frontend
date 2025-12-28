@@ -25,7 +25,7 @@ jobs:
             # Clone repo if it does not exist
             if [ ! -d "social-media-store/frontend/.git" ]; then
               echo "Repository not found. Cloning..."
-              git clone git@github.com:thevalicode/social-media-store-frontend.git social-media-store/frontend
+              git clone git@github.com:thevalidcode/social-media-store-frontend.git social-media-store/frontend
             else
               echo "Repository found. Updating..."
             fi
@@ -36,7 +36,7 @@ jobs:
             git clean -fd
             git pull origin main
 
-            npm ci --omit=dev
+            npm i --omit=dev
             npm run build
 
             PORT=4340 pm2 describe social-media-store-frontend > /dev/null \
