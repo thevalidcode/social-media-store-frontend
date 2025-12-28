@@ -1,4 +1,4 @@
-# Valid Panel -- Social Media Store 🚀
+# Valid Panel - Social Media Store 🚀
 
 ## Overview
 
