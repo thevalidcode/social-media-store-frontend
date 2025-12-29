@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import axios, { AxiosInstance } from "axios";
 import { createContext, useContext, useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { get, set } from "idb-keyval";
 import { CurrencyCode } from "@/lib/currencyConverter";
@@ -62,6 +63,7 @@ const API_URL =
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
+  const router = useRouter();
   const [storeId, setStoreId] = useState<number | null>(() => {
     if (typeof window === "undefined") return null;
     const storedStoreId = localStorage.getItem("storeId");
@@ -194,7 +196,22 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     retry: false,
   });
 
-  const { isLoading: isStoreGeneralSettingsLoading } = useQuery({
+  // Redirect to store not found when store lookup fails
+  useEffect(() => {
+    if (error && typeof window !== "undefined" && !isLoading) {
+      const currentPath = window.location.pathname;
+      // Only redirect if not already on a public or store-not-found page
+      if (
+        !currentPath.startsWith("/store-not-found") &&
+        !currentPath.startsWith("/(root)") &&
+        !currentPath.startsWith("/")
+      ) {
+        router.push("/store-not-found?reason=not-found");
+      }
+    }
+  }, [error, isLoading, router]);
+
+  const { isLoading: isStoreGeneralSettingsLoading, error: settingsError } = useQuery({
     queryKey: ["storeSettings", storeId],
     queryFn: async () => {
       const res = await api.get(`/stores/${storeId}/general-data`);
@@ -204,7 +221,28 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       setGeneralSetting(res.data);
       return res.data;
     },
+    enabled: !!storeId,
   });
+
+  // Redirect to store not found when settings are missing
+  useEffect(() => {
+    if (
+      settingsError &&
+      typeof window !== "undefined" &&
+      !isStoreGeneralSettingsLoading &&
+      storeId
+    ) {
+      const currentPath = window.location.pathname;
+      // Only redirect if not already on a public or store-not-found page
+      if (
+        !currentPath.startsWith("/store-not-found") &&
+        !currentPath.startsWith("/(root)") &&
+        !currentPath.startsWith("/")
+      ) {
+        router.push("/store-not-found?reason=missing-settings");
+      }
+    }
+  }, [settingsError, isStoreGeneralSettingsLoading, storeId, router]);
 
   const { isLoading: isRatesLoading } = useQuery({
     queryKey: ["rates"],
