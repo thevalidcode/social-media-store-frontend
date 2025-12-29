@@ -8,6 +8,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    concurrency:
+      group: nextjs-deploy
+      cancel-in-progress: true
 
     steps:
       - name: 🚀 Deploy via SSH
@@ -18,25 +21,34 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 2022
           script: |
+            set -e
+
             echo "Deploying Next.js app..."
 
+            # Prevent race conditions on rapid pushes
+            exec 9>/tmp/social-media-store-frontend.lock
+            flock -n 9 || exit 0
+
             cd ~ || exit 1
+
+            # Ensure base directory exists
+            mkdir -p social-media-store
 
             # Clone repo if it does not exist
             if [ ! -d "social-media-store/frontend/.git" ]; then
               echo "Repository not found. Cloning..."
-              git clone git@github.com:thevalidcode/social-media-store-frontend.git social-media-store/frontend
+              git clone https://github.com/thevalidcode/social-media-store-frontend.git social-media-store/frontend
             else
               echo "Repository found. Updating..."
             fi
 
             cd social-media-store/frontend || exit 1
 
-            git reset --hard
+            git fetch origin main
+            git reset --hard origin/main
             git clean -fd
-            git pull origin main
 
-            npm i --omit=dev
+            npm ci --omit=dev
             npm run build
 
             PORT=4340 pm2 describe social-media-store-frontend > /dev/null \
