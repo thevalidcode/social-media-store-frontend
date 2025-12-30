@@ -201,28 +201,25 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     if (error && typeof window !== "undefined" && !isLoading) {
       const currentPath = window.location.pathname;
       // Only redirect if not already on a public or store-not-found page
-      if (
-        !currentPath.startsWith("/store-not-found") &&
-        !currentPath.startsWith("/(root)") &&
-        !currentPath.startsWith("/")
-      ) {
+      if (!currentPath.startsWith("/store-not-found")) {
         router.push("/store-not-found?reason=not-found");
       }
     }
   }, [error, isLoading, router]);
 
-  const { isLoading: isStoreGeneralSettingsLoading, error: settingsError } = useQuery({
-    queryKey: ["storeSettings", storeId],
-    queryFn: async () => {
-      const res = await api.get(`/stores/${storeId}/general-data`);
-      if (!res.data) {
-        throw new Error("No General Settings found for this store");
-      }
-      setGeneralSetting(res.data);
-      return res.data;
-    },
-    enabled: !!storeId,
-  });
+  const { isLoading: isStoreGeneralSettingsLoading, error: settingsError } =
+    useQuery({
+      queryKey: ["storeSettings", storeId],
+      queryFn: async () => {
+        const res = await api.get(`/stores/${storeId}/general-data`);
+        if (!res.data) {
+          throw new Error("No General Settings found for this store");
+        }
+        setGeneralSetting(res.data);
+        return res.data;
+      },
+      enabled: !!storeId,
+    });
 
   // Redirect to store not found when settings are missing
   useEffect(() => {
@@ -234,11 +231,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     ) {
       const currentPath = window.location.pathname;
       // Only redirect if not already on a public or store-not-found page
-      if (
-        !currentPath.startsWith("/store-not-found") &&
-        !currentPath.startsWith("/(root)") &&
-        !currentPath.startsWith("/")
-      ) {
+      if (!currentPath.startsWith("/store-not-found")) {
         router.push("/store-not-found?reason=missing-settings");
       }
     }
