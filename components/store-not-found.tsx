@@ -12,7 +12,6 @@ import {
   Zap,
   ShieldAlert,
 } from "lucide-react";
-import Link from "next/link";
 
 interface StoreNotFoundProps {
   reason?: "not-found" | "missing-settings" | "error";
@@ -140,7 +139,9 @@ export const StoreNotFound = ({
 
         {/* Main Card */}
         <motion.div variants={itemVariants}>
-          <Card className={`border-2 ${config.borderColor} ${config.bgColor} backdrop-blur-sm shadow-lg`}>
+          <Card
+            className={`border-2 ${config.borderColor} ${config.bgColor} backdrop-blur-sm shadow-lg`}
+          >
             <div className="flex flex-col items-center justify-center space-y-6 p-8 md:p-12">
               {/* Icon Container */}
               <motion.div
@@ -183,18 +184,20 @@ export const StoreNotFound = ({
                 variants={itemVariants}
                 className="flex flex-col sm:flex-row gap-4 w-full justify-center pt-4"
               >
-                <Link href="/" className="w-full sm:w-auto">
-                  <Button
-                    size="lg"
-                    className="w-full sm:w-auto group"
-                  >
+                <a href="/" className="w-full sm:w-auto">
+                  <Button size="lg" className="w-full sm:w-auto group">
                     <Home className="w-5 h-5 mr-2" />
                     Go to Home
                     <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
-                </Link>
+                </a>
 
-                <a href="https://validpanel.com" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+                <a
+                  href="https://validpanel.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto"
+                >
                   <Button
                     size="lg"
                     variant="outline"
@@ -235,7 +238,7 @@ export const StoreNotFound = ({
                     <p className="text-sm text-muted-foreground">
                       Reach out to our support team at{" "}
                       <a
-                        href="https://validpanel.com"
+                        href="https://validpanel.com/contact-us"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:underline font-medium"
