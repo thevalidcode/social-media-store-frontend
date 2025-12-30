@@ -1,18 +1,11 @@
 "use client";
 
-import { useAppContext } from "@/context/appContext";
 import { useEffect } from "react";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const { generalSetting } = useAppContext();
-
   useEffect(() => {
-    if (generalSetting) {
-      document.title = `Store Error`;
-    } else {
-      document.title = "Loading…";
-    }
-  }, [generalSetting]);
+    document.title = `Store Error`;
+  }, []);
 
   return <div>{children}</div>;
 }
