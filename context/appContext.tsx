@@ -222,20 +222,20 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
   // Redirect to store not found when settings are missing
-  // useEffect(() => {
-  //   if (
-  //     settingsError &&
-  //     typeof window !== "undefined" &&
-  //     !isStoreGeneralSettingsLoading &&
-  //     storeId
-  //   ) {
-  //     const currentPath = window.location.pathname;
-  //     // Only redirect if not already on a public or store-not-found page
-  //     if (!currentPath.startsWith("/store-not-found")) {
-  //       router.push("/store-not-found?reason=missing-settings");
-  //     }
-  //   }
-  // }, [settingsError, isStoreGeneralSettingsLoading, storeId, router]);
+  useEffect(() => {
+    if (
+      settingsError &&
+      typeof window !== "undefined" &&
+      !isStoreGeneralSettingsLoading &&
+      storeId
+    ) {
+      const currentPath = window.location.pathname;
+      // Only redirect if not already on a public or store-not-found page
+      if (!currentPath.startsWith("/store-not-found")) {
+        router.push("/store-not-found?reason=missing-settings");
+      }
+    }
+  }, [settingsError, isStoreGeneralSettingsLoading, storeId, router]);
 
   const { isLoading: isRatesLoading } = useQuery({
     queryKey: ["rates"],
