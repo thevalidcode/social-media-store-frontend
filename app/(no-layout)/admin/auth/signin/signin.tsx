@@ -189,13 +189,13 @@ export default function Signin() {
 
           {/* Additional Links */}
           <div className="flex flex-col items-center space-y-4 text-xs">
-            <a
-              href="#"
+            <Link
+              href="/admin/auth/forgot-password"
               className="text-primary hover:underline flex items-center gap-1"
             >
               <Mail className="w-3 h-3" />
               Forgot your password?
-            </a>
+            </Link>
           </div>
 
           {/* Sign Up Link */}

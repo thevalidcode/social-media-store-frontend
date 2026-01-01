@@ -12,6 +12,8 @@ import {
   Store,
   Users,
   BarChart3,
+  AlertCircle,
+  Lock,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -80,6 +82,21 @@ export function HomeOnboarding() {
             </p>
           </div>
 
+          <div className="rounded-md border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/20 p-4">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+              <div className="space-y-1">
+                <h3 className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+                  Security Required
+                </h3>
+                <p className="text-sm text-amber-800 dark:text-amber-300">
+                  You must reset your admin password before accessing the admin
+                  panel.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-3">
             <h4 className="text-sm font-medium text-foreground">
               Recommended next steps
@@ -88,11 +105,11 @@ export function HomeOnboarding() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
                 <span className="font-medium text-foreground">1.</span>
-                Access the admin panel
+                Reset your admin password (security required)
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-medium text-foreground">2.</span>
-                Sign in using your Valid Panel credentials
+                Sign in using your Valid Panel email and the new password
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-medium text-foreground">3.</span>
@@ -127,13 +144,27 @@ export function HomeOnboarding() {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button onClick={handleVisitAdmin} size="lg" className="flex-1">
+            <Button
+              onClick={() => router.push("/admin/auth/forgot-password")}
+              size="lg"
+              className="flex-1"
+            >
+              <Lock className="mr-2 h-4 w-4" />
+              Reset Admin Password
+            </Button>
+
+            <Button
+              onClick={handleVisitAdmin}
+              variant="outline"
+              size="lg"
+              className="flex-1"
+            >
               Go to Admin Panel
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
 
             <Button
-              variant="outline"
+              variant="ghost"
               onClick={handleDismiss}
               size="lg"
               className="flex-1"

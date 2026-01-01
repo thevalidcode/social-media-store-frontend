@@ -18,11 +18,16 @@ export default function RootLayout({
 
   if (isLoading) <Loading />;
 
+  const pathname = window.location.pathname;
   useEffect(() => {
     if (!isLoading && !error && userInfo) {
-      router.push("/client/dashboard");
+      const excludePaths = ["/auth/forgot-password", "/auth/reset-password"];
+
+      if (!excludePaths.some((path) => pathname.includes(path))) {
+        router.push("/client/dashboard");
+      }
     }
-  }, [isLoading, error, userInfo, router]);
+  }, [isLoading, error, userInfo, pathname]);
 
   useEffect(() => {
     if (generalSetting) {
@@ -31,10 +36,6 @@ export default function RootLayout({
       document.title = "Loading…";
     }
   }, [generalSetting]);
-
-  if (error) {
-    return <div>Error: {error.message}</div>;
-  }
 
   return (
     <Wrapper>

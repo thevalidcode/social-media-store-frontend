@@ -99,3 +99,43 @@ export function useUpdateOnboardingCompleted() {
     },
   });
 }
+
+interface ForgetPasswordProps {
+  email: string;
+}
+
+export function useForgotPassword() {
+  const { api } = useAppContext();
+  return useMutation({
+    mutationFn: async (data: ForgetPasswordProps) => {
+      const res = await api.post(`/admins/forgot-password`, data);
+      if (!res.data) throw new Error("Failed to send email");
+      return res.data;
+    },
+    onError: (error: unknown) => {
+      const errorMsg = normalizeApiError(error, "Failed to send email");
+      toast.error(errorMsg);
+    },
+  });
+}
+
+interface ResetPasswordProps {
+  token: string;
+  email: string;
+  password: string;
+}
+
+export function useResetPassword() {
+  const { api } = useAppContext();
+  return useMutation({
+    mutationFn: async (data: ResetPasswordProps) => {
+      const res = await api.post(`/admins/reset-password`, data);
+      if (!res.data) throw new Error("Failed to reset password");
+      return res.data;
+    },
+    onError: (error: unknown) => {
+      const errorMsg = normalizeApiError(error, "Failed to reset password");
+      toast.error(errorMsg);
+    },
+  });
+}

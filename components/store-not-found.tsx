@@ -269,7 +269,8 @@ export const StoreNotFound = ({
           variants={itemVariants}
           className="text-center text-sm text-muted-foreground mt-8"
         >
-          Error Code: STORE_NOT_FOUND • {new Date().toLocaleDateString()}
+          Reason: {reason.toUpperCase().replace(/-/g, "_")} •{" "}
+          {new Date().toLocaleDateString()}
         </motion.p>
       </motion.div>
     </div>
