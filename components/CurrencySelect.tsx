@@ -26,7 +26,7 @@ export default function CurrencySelect() {
 
   return (
     <Select value={userCurrency} onValueChange={setUserCurrency}>
-      <SelectTrigger>
+      <SelectTrigger className="w-full">
         <SelectValue placeholder="Select currency" />
       </SelectTrigger>
 
