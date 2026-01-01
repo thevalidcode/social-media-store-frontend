@@ -20,7 +20,8 @@ export default function StoreNotFoundPage() {
   const reason = (searchParams.get("reason") || "not-found") as
     | "not-found"
     | "missing-settings"
-    | "error";
+    | "error"
+    | "page-not-found";
   const storeName = searchParams.get("storeName") || undefined;
 
   return <StoreNotFound reason={reason} storeName={storeName} />;

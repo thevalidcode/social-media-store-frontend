@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 interface StoreNotFoundProps {
-  reason?: "not-found" | "missing-settings" | "error";
+  reason?: "not-found" | "missing-settings" | "error" | "page-not-found";
   storeName?: string;
   showAnimation?: boolean;
 }
@@ -87,6 +87,17 @@ const getErrorConfig = (reason: string) => {
         color: "text-red-600 dark:text-red-400",
         bgColor: "bg-red-50 dark:bg-red-950/20",
         borderColor: "border-red-200 dark:border-red-800",
+      };
+    case "page-not-found":
+      return {
+        icon: AlertCircle,
+        title: "Page Not Found",
+        description:
+          "The page you're looking for doesn't exist. It may have been moved or deleted.",
+        actionText: "Go Home",
+        color: "text-purple-600 dark:text-purple-400",
+        bgColor: "bg-purple-50 dark:bg-purple-950/20",
+        borderColor: "border-purple-200 dark:border-purple-800",
       };
     case "not-found":
     default:
