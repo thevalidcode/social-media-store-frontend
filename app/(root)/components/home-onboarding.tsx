@@ -19,16 +19,15 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export function HomeOnboarding() {
-  const { adminInfo, generalSetting, isStoreGeneralSettingsLoading } =
+  const { generalSetting, isStoreGeneralSettingsLoading } =
     useAppContext();
   const updateOnboarding = useUpdateOnboardingCompleted();
   const router = useRouter();
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
-    // Show onboarding if user is admin and onboarding is not completed
+    // Show onboarding if onboarding is not completed
     if (
-      adminInfo &&
       generalSetting &&
       !generalSetting.onboardingCompleted &&
       !isStoreGeneralSettingsLoading
@@ -37,7 +36,7 @@ export function HomeOnboarding() {
     } else {
       setShowOnboarding(false);
     }
-  }, [adminInfo, generalSetting, isStoreGeneralSettingsLoading]);
+  },  [generalSetting, isStoreGeneralSettingsLoading]);
 
   const handleVisitAdmin = () => {
     router.push("/admin/auth/signin");
