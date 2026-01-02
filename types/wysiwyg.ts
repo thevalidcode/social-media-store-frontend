@@ -9,6 +9,7 @@ export type CollectionName =
   | "providers"
   | "categories"
   | "services"
+  | "pages"
   | "payment-gateways";
 
 import { Editor } from "@tiptap/react";

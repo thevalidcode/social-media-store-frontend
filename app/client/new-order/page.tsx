@@ -9,6 +9,7 @@ import { CategorySelect } from "./components/CategorySelect";
 import { ServiceList } from "./components/ServiceList";
 import { CartSidebar } from "./components/CartSidebar";
 import { CartMobile } from "./components/CartMobile";
+import { PageContent } from "@/app/(root)/components/page-content";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -305,6 +306,7 @@ export default function NewOrderPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left */}
         <div className="lg:col-span-2 space-y-6">
+          <PageContent pageType="ORDER" />
           <Card className="p-4 shadow-lg hover:shadow-2xl transition-shadow duration-300">
             <CardHeader>
               <CardTitle className="text-2xl font-semibold">

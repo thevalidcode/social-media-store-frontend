@@ -2,6 +2,7 @@
 
 import { TypographySmall, TypographyH2 } from "@/components/typography";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PageContent } from "@/app/(root)/components/page-content";
 import {
   AlertCircle,
   Ban,
@@ -125,6 +126,7 @@ export function OrdersTab() {
 
   return (
     <div className="w-full max-w-[90rem] mx-auto flex flex-col gap-6 px-3">
+      <PageContent pageType="ORDERS" />
       <Tabs defaultValue="all" className="w-full">
         <TabsList
           className="relative z-50 flex flex-wrap w-full grid-cols-2 gap-3 p-1 bg-muted/50

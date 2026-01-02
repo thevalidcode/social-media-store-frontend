@@ -11,6 +11,7 @@ import { SortSelector } from "./SortSelector";
 import { ServicesTableDesktop } from "./ServicesListDesktop";
 import { ServicesCardsMobile } from "./ServiceCardMobile";
 import { ServiceDialog } from "./ServiceDialog";
+import { PageContent } from "@/app/(root)/components/page-content";
 
 type Props = {
   categoryWithServices?: ServiceCategory[];
@@ -82,6 +83,9 @@ export default function ServicesList({
 
   return (
     <div className="space-y-6">
+      {/* Page Content */}
+      <PageContent pageType="SERVICES" />
+
       {/* Controls */}
       {showControls && selectedCategory && (
         <div className="flex flex-col md:flex-row md:items-center gap-4 justify-between">

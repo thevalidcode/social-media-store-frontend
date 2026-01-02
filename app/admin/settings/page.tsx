@@ -3,7 +3,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import {
@@ -11,12 +10,12 @@ import {
   Palette,
   Shield,
   Menu,
-  Sparkles,
-  ArrowLeft,
+  FileText,
 } from "lucide-react";
 import { useState } from "react";
 import GeneralSettingsForm from "../components/general-setting";
 import DesignSettingsForm from "../components/theme";
+import PageManager from "../components/pages/PageManager";
 import { useRouter } from "next/navigation";
 import { TypographyH2 } from "@/components/typography";
 
@@ -39,6 +38,13 @@ export default function SettingsPage() {
       description: "Theme and appearance customization",
       icon: Palette,
       component: DesignSettingsForm,
+    },
+    {
+      id: "pages",
+      label: "Pages",
+      description: "Manage page content and policies",
+      icon: FileText,
+      component: PageManager,
     },
     {
       id: "security",

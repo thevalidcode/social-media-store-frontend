@@ -107,7 +107,7 @@ export default function Signup() {
   const handleGoogleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     router.push(
-      `https://auth.validpanel.com/api/auth/social-media-store/google?storeId=${storeId}&redirect=${domain}/client/dashboard`,
+      `https://auth.validpanel.com/api/auth/social-media-store/google?storeId=${storeId}&redirect=${domain}/client/dashboard`
     );
   };
   const handleSubmit = (e: React.FormEvent) => {
@@ -144,7 +144,7 @@ export default function Signup() {
           onSuccess: () => {
             router.push("/auth/signin");
           },
-        },
+        }
       );
       queryClient.invalidateQueries({ queryKey: ["users"] });
     }
@@ -285,21 +285,21 @@ export default function Signup() {
           {/* Additional Links */}
           <div className="flex flex-col items-center space-y-4 text-xs">
             <div className="flex space-x-4">
-              <a href="#" className="hover:underline">
+              <Link href="/terms-of-service" className="hover:underline">
                 Terms of Service
-              </a>
+              </Link>
               <span>•</span>
-              <a href="#" className="hover:underline">
+              <Link href="/privacy-policy" className="hover:underline">
                 Privacy Policy
-              </a>
+              </Link>
             </div>
-            <a
-              href="#"
+            <Link
+              href="/auth/forgot-password"
               className="text-primary hover:underline flex items-center gap-1"
             >
               <Mail className="w-3 h-3" />
               Forgot your password?
-            </a>
+            </Link>
           </div>
 
           {/* Sign In Link */}
