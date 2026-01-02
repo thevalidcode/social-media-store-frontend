@@ -81,12 +81,12 @@ export default function Signin() {
   const handleGoogleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     router.push(
-      `https://auth.validpanel.com/api/auth/store/google?storeId=${storeId}&redirect=https://${domain}/auth/signin`
+      `https://auth.validpanel.com/api/auth/social-media-store/google?storeId=${storeId}&redirect=https://${domain}/auth/signin`
     );
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8">
+    <div className="flex items-center justify-center p-2 mt-20">
       <Card className="w-full max-w-md shadow-xl mx-auto">
         <CardContent className="space-y-8 p-6 sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -111,22 +111,23 @@ export default function Signin() {
             {/* Password Field */}
             <div className="space-y-2.5">
               <Label htmlFor="password">Password</Label>
-              <div className="relative">
+              <div className="relative flex items-center">
                 <Input
                   id="password"
                   name="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
+                  placeholder="Create a password"
                   value={formData.password}
                   onChange={handleInputChange}
                   className={errors.password ? "border-destructive" : ""}
+                  autoComplete="new-password"
                   required
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-0 top-0 h-12 px-3 py-2 hover:bg-transparent"
+                  className="absolute cursor-pointer right-0"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (

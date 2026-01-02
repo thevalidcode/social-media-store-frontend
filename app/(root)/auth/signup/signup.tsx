@@ -107,9 +107,10 @@ export default function Signup() {
   const handleGoogleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     router.push(
-      `https://auth.validpanel.com/api/auth/social-media-store/google?storeId=${storeId}&redirect=${domain}/client/dashboard`
+      `https://auth.validpanel.com/api/auth/social-media-store/google?storeId=${storeId}&redirect=${domain}/auth/siginin`
     );
   };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
@@ -151,7 +152,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex items-center justify-center p-4 md:p-8 mt-16">
+    <div className="flex items-center justify-center p-2 mt-20">
       <Card className="w-full max-w-md shadow-xl mx-auto">
         <CardContent className="space-y-8 p-6 sm:p-8">
           {/* Signup Form */}
@@ -204,7 +205,7 @@ export default function Signup() {
             {/* Password Field */}
             <div className="space-y-2.5">
               <Label htmlFor="password">Password</Label>
-              <div className="relative">
+              <div className="relative flex items-center">
                 <Input
                   id="password"
                   name="password"
@@ -220,7 +221,7 @@ export default function Signup() {
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-0 top-0 h-12 px-3 py-2 hover:bg-transparent"
+                  className="absolute cursor-pointer right-0"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
