@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import parse from "html-react-parser";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetPageByType } from "@/hooks/use-pages";
 import { PageStatus, PageType } from "@/types";
@@ -22,17 +21,8 @@ const shouldUseFullWidth = (pageType: PageType, fullWidth?: boolean) => {
   return pageType === "TERMS_OF_SERVICE" || pageType === "PRIVACY_POLICY";
 };
 
-const shouldShowStatus = (pageType: PageType) => {
-  return pageType !== "TERMS_OF_SERVICE" && pageType !== "PRIVACY_POLICY";
-};
-
 const shouldRenderEmpty = (pageType: PageType) => {
   return pageType === "TERMS_OF_SERVICE" || pageType === "PRIVACY_POLICY";
-};
-
-const statusTone: Record<PageStatus, string> = {
-  ACTIVE: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-100",
-  INACTIVE: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-100",
 };
 
 export function PageContent({
@@ -40,13 +30,10 @@ export function PageContent({
   heading,
   description,
   fullWidth,
-  showStatus,
 }: PageContentProps) {
   const { data: page, isLoading } = useGetPageByType(pageType);
 
   const useFullWidth = shouldUseFullWidth(pageType, fullWidth);
-  const displayStatus = showStatus ?? shouldShowStatus(pageType);
-  const renderEmptyState = shouldRenderEmpty(pageType);
 
   const renderSkeleton = () => (
     <Card className={useFullWidth ? "shadow-sm" : "shadow-sm"}>
@@ -68,7 +55,9 @@ export function PageContent({
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted">
           <AlertCircle className="h-6 w-6 text-muted-foreground" />
         </div>
-        <h2 className="text-lg font-semibold text-foreground">No content available</h2>
+        <h2 className="text-lg font-semibold text-foreground">
+          No content available
+        </h2>
         <p className="text-sm text-muted-foreground">
           Content for this page has not been published yet.
         </p>
@@ -95,9 +84,6 @@ export function PageContent({
               </p>
             )}
           </div>
-          {showStatus && page?.status && displayStatus && (
-            <Badge className={statusTone[page.status] || ""}>{page.status}</Badge>
-          )}
         </div>
       )}
 
@@ -108,18 +94,24 @@ export function PageContent({
   );
 
   // Don't render anything if no content and not a legal page
-  if (!isLoading && !page?.content && !renderEmptyState) {
+  if (!isLoading && !page?.content && !shouldRenderEmpty(pageType)) {
     return null;
   }
 
   return (
     <section className="bg-background py-10 sm:py-14">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className={useFullWidth ? "max-w-6xl mx-auto" : "max-w-5xl mx-auto"}>
+        <div
+          className={useFullWidth ? "max-w-6xl mx-auto" : "max-w-5xl mx-auto"}
+        >
           {isLoading && renderSkeleton()}
-          {!isLoading && !page?.content && renderEmptyState && renderEmpty()}
-          {!isLoading && page?.content && (
-            useFullWidth ? (
+          {!isLoading &&
+            !page?.content &&
+            shouldRenderEmpty(pageType) &&
+            renderEmpty()}
+          {!isLoading &&
+            page?.content &&
+            (useFullWidth ? (
               <div className="rounded-2xl border bg-card shadow-sm p-6 sm:p-8">
                 {renderContent()}
               </div>
@@ -129,8 +121,7 @@ export function PageContent({
                   {renderContent()}
                 </CardContent>
               </Card>
-            )
-          )}
+            ))}
         </div>
       </div>
     </section>

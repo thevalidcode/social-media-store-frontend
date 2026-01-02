@@ -21,7 +21,12 @@ export default function RootLayout({
   const pathname = window.location.pathname;
   useEffect(() => {
     if (!isLoading && !error && userInfo) {
-      const excludePaths = ["/auth/forgot-password", "/auth/reset-password"];
+      const excludePaths = [
+        "/auth/forgot-password",
+        "/auth/reset-password",
+        "/terms-of-service",
+        "/privacy-policy",
+      ];
 
       if (!excludePaths.some((path) => pathname.includes(path))) {
         router.push("/client/dashboard");

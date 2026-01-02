@@ -14,9 +14,5 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     }
   }, [generalSetting]);
 
-  return (
-    <div className="h-[calc(100vh-4rem)] flex items-center justify-center p-4 md:p-8 mt-16">
-      {children}
-    </div>
-  );
+  return <div className="mt-16">{children}</div>;
 }
