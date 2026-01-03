@@ -184,7 +184,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const { error, isLoading } = useQuery({
     queryKey: ["storeId", domain],
     queryFn: async () => {
-      const res = await axios.get(`${API_URL}/stores/data?domain=${domain}`);
+      const res = await api.get(`/stores/data?domain=${domain}`);
       if (!res.data || !res.data.storeId) {
         throw new Error("No storeId found for this domain");
       }
@@ -192,7 +192,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       handleSetStoreId(storeId);
       return storeId;
     },
-    enabled: typeof window !== "undefined" && storeId === null,
+    enabled: typeof window !== "undefined",
     retry: false,
   });
 
