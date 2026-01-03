@@ -62,10 +62,7 @@ export function useCreateUser() {
       toast.success("User created successfully");
     },
     onError: (error: unknown) => {
-      const errorMsg = normalizeApiError(
-        error,
-        "Failed to create user"
-      );
+      const errorMsg = normalizeApiError(error, "Failed to create user");
       toast.error(errorMsg);
     },
   });
@@ -103,10 +100,7 @@ export function useUserLogin() {
       router.push("/client/dashboard");
     },
     onError: (error: unknown) => {
-      const errorMsg = normalizeApiError(
-        error,
-        "Failed to login user"
-      );
+      const errorMsg = normalizeApiError(error, "Failed to login user");
       toast.error(errorMsg);
     },
   });
@@ -172,10 +166,7 @@ export function useDeleteMultipleUsers() {
       queryClient.invalidateQueries({ queryKey: ["users", storeId] });
     },
     onError: (error: unknown) => {
-      const errorMsg = normalizeApiError(
-        error,
-        "Failed to delete users"
-      );
+      const errorMsg = normalizeApiError(error, "Failed to delete users");
       toast.error(errorMsg);
     },
   });
@@ -200,10 +191,7 @@ export const useDeleteASingleUser = () => {
       toast.success("User deleted successfully");
     },
     onError: (error: unknown) => {
-      const errorMsg = normalizeApiError(
-        error,
-        "Failed to delete user"
-      );
+      const errorMsg = normalizeApiError(error, "Failed to delete user");
       toast.error(errorMsg);
     },
   });
@@ -235,10 +223,7 @@ export function useUpdateUser() {
       });
     },
     onError: (error: unknown) => {
-      const errorMsg = normalizeApiError(
-        error,
-        "Failed to update user"
-      );
+      const errorMsg = normalizeApiError(error, "Failed to update user");
       toast.error(errorMsg);
     },
   });
@@ -266,10 +251,7 @@ export function useUpdateUserByAdmin() {
       queryClient.invalidateQueries({ queryKey: ["users", storeId] });
     },
     onError: (error: unknown) => {
-      const errorMsg = normalizeApiError(
-        error,
-        "Failed to update user"
-      );
+      const errorMsg = normalizeApiError(error, "Failed to update user");
       toast.error(errorMsg);
     },
   });
@@ -280,10 +262,13 @@ interface ForgetPasswordProps {
 }
 
 export function useForgotPassword() {
-  const { api } = useAppContext();
+  const { api, storeId } = useAppContext();
   return useMutation({
     mutationFn: async (data: ForgetPasswordProps) => {
-      const res = await api.post(`/users/forgot-password`, data);
+      const res = await api.post(
+        `/users/forgot-password?storeId=${storeId}`,
+        data
+      );
       if (!res.data) throw new Error("Failed to send email");
       return res.data;
     },
@@ -301,10 +286,13 @@ interface ResetPasswordProps {
 }
 
 export function useResetPassword() {
-  const { api } = useAppContext();
+  const { api, storeId } = useAppContext();
   return useMutation({
     mutationFn: async (data: ResetPasswordProps) => {
-      const res = await api.post(`/users/reset-password`, data);
+      const res = await api.post(
+        `/users/reset-password?storeId=${storeId}`,
+        data
+      );
       if (!res.data) throw new Error("Failed to reset password");
       return res.data;
     },

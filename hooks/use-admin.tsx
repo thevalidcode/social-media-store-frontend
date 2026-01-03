@@ -105,10 +105,13 @@ interface ForgetPasswordProps {
 }
 
 export function useForgotPassword() {
-  const { api } = useAppContext();
+  const { api, storeId } = useAppContext();
   return useMutation({
     mutationFn: async (data: ForgetPasswordProps) => {
-      const res = await api.post(`/admins/forgot-password`, data);
+      const res = await api.post(
+        `/admins/forgot-password?storeId=${storeId}`,
+        data
+      );
       if (!res.data) throw new Error("Failed to send email");
       return res.data;
     },
@@ -129,10 +132,13 @@ interface ResetPasswordProps {
 }
 
 export function useResetPassword() {
-  const { api } = useAppContext();
+  const { api, storeId } = useAppContext();
   return useMutation({
     mutationFn: async (data: ResetPasswordProps) => {
-      const res = await api.post(`/admins/reset-password`, data);
+      const res = await api.post(
+        `/admins/reset-password?storeId${storeId}`,
+        data
+      );
       if (!res.data) throw new Error("Failed to reset password");
       return res.data;
     },
