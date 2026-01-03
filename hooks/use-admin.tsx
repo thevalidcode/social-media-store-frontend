@@ -112,6 +112,9 @@ export function useForgotPassword() {
       if (!res.data) throw new Error("Failed to send email");
       return res.data;
     },
+    onSuccess: () => {
+      toast.success("Password reset link sent to your email");
+    },
     onError: (error: unknown) => {
       const errorMsg = normalizeApiError(error, "Failed to send email");
       toast.error(errorMsg);
@@ -132,6 +135,9 @@ export function useResetPassword() {
       const res = await api.post(`/admins/reset-password`, data);
       if (!res.data) throw new Error("Failed to reset password");
       return res.data;
+    },
+    onSuccess: () => {
+      toast.success("Password reset successfully");
     },
     onError: (error: unknown) => {
       const errorMsg = normalizeApiError(error, "Failed to reset password");
