@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { FeatureGate } from "@/components/FeatureGate";
 
 interface ServiceFiltersProps {
   categories: string[];
@@ -19,12 +20,18 @@ interface ServiceFiltersProps {
     status: string;
   }) => void;
   addService: () => void;
+  canAddMore?: boolean;
+  maxProducts?: number;
+  hasUnlimited?: boolean;
 }
 
 export default function ServiceFilters({
   categories,
   onFilterChange,
   addService,
+  canAddMore = true,
+  maxProducts = 0,
+  hasUnlimited = false,
 }: ServiceFiltersProps) {
   const [filters, setFilters] = useState({
     category: "All",
@@ -87,13 +94,20 @@ export default function ServiceFilters({
           />
         </div>
       </div>
-      <Button
-        type="button"
-        className="bg-primary text-white hover:bg-primary/90 rounded-sm py-2 px-4 cursor-pointer"
-        onClick={() => addService()}
+      <FeatureGate
+        isAllowed={canAddMore}
+        featureLabel="Service limit"
+        variant="tooltip"
+        description={hasUnlimited ? "" : `You've reached the maximum of ${maxProducts} services/products. Upgrade to add more.`}
       >
-        Add Service
-      </Button>
+        <Button
+          type="button"
+          className="bg-primary text-white hover:bg-primary/90 rounded-sm py-2 px-4 cursor-pointer"
+          onClick={addService}
+        >
+          Add Service
+        </Button>
+      </FeatureGate>
     </div>
   );
 }

@@ -28,6 +28,8 @@ import {
   Search,
   X,
 } from "lucide-react";
+import { useAppContext } from "@/context/appContext";
+import { FeatureGate } from "@/components/FeatureGate";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AnimatePresence, motion } from "framer-motion";
@@ -74,6 +76,7 @@ export default function ProviderDialog({
   const { mutate: UpdateProvider } = useUpdateProvider();
   const { data: availableProviders, isLoading: providersLoading } =
     useGetAllServiceProviders(currentPage, pageSize, searchQuery);
+  const { storeInfo } = useAppContext();
 
   // Note: Filtering is now handled by the API, no client-side filtering needed
 
@@ -423,21 +426,29 @@ export default function ProviderDialog({
                       required
                     />
                   </div>
-
-                  <div className="flex items-center justify-between py-2">
-                    <div className="flex items-center gap-2">
-                      <Eye className="h-5 w-5 text-muted-foreground" />
-                      <Label htmlFor="sync" className="font-medium text-base">
-                        Sync services from provider
-                      </Label>
+                  <FeatureGate
+                    isAllowed={
+                      storeInfo?.features
+                        ?.service_syncing_for_social_media_store ?? false
+                    }
+                    featureLabel="Service syncing"
+                    variant="overlay"
+                    description="This plan does not include automatic service syncing from providers. Upgrade to sync services automatically."
+                  >
+                    <div className="flex items-center justify-between py-2">
+                      <div className="flex items-center gap-2">
+                        <Eye className="h-5 w-5 text-muted-foreground" />
+                        <Label htmlFor="sync" className="font-medium text-base">
+                          Sync services from provider
+                        </Label>
+                      </div>
+                      <Switch
+                        id="sync"
+                        checked={checked}
+                        onCheckedChange={setChecked}
+                      />
                     </div>
-                    <Switch
-                      id="sync"
-                      checked={checked}
-                      onCheckedChange={setChecked}
-                    />
-                  </div>
-
+                  </FeatureGate>
                   {checked && (
                     <motion.div
                       className="space-y-2"
@@ -519,19 +530,29 @@ export default function ProviderDialog({
                 />
               </div>
 
-              <div className="flex items-center justify-between py-2">
-                <div className="flex items-center gap-2">
-                  <Eye className="h-5 w-5 text-muted-foreground" />
-                  <Label htmlFor="sync" className="font-medium text-base">
-                    Sync services from provider
-                  </Label>
+              <FeatureGate
+                isAllowed={
+                  storeInfo?.features?.service_syncing_for_social_media_store ??
+                  false
+                }
+                featureLabel="Service syncing"
+                variant="overlay"
+                description="This plan does not include automatic service syncing from providers. Upgrade to sync services automatically."
+              >
+                <div className="flex items-center justify-between py-2">
+                  <div className="flex items-center gap-2">
+                    <Eye className="h-5 w-5 text-muted-foreground" />
+                    <Label htmlFor="sync" className="font-medium text-base">
+                      Sync services from provider
+                    </Label>
+                  </div>
+                  <Switch
+                    id="sync"
+                    checked={checked}
+                    onCheckedChange={setChecked}
+                  />
                 </div>
-                <Switch
-                  id="sync"
-                  checked={checked}
-                  onCheckedChange={setChecked}
-                />
-              </div>
+              </FeatureGate>
 
               {checked && (
                 <motion.div

@@ -8,6 +8,7 @@ import Cookies from "js-cookie";
 import { get, set } from "idb-keyval";
 import { CurrencyCode } from "@/lib/currencyConverter";
 import { Admin, User } from "@/types";
+import { Store } from "@/types";
 
 export interface GeneralSettingProps {
   storeName: string;
@@ -34,6 +35,7 @@ interface AppContextType {
   setUserInfo: (user: User | null) => void; // Allow setting to null for logout
   setAdminInfo: (user: Admin | null) => void; // Allow setting to null for logout
   storeId: number | null;
+  storeInfo: Store | null;
   setStoreId: (storeId: number) => void;
   isLoading: boolean;
   isRatesLoading: boolean;
@@ -87,6 +89,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [userInfo, setUserInfo] = useState<User | null>(null);
   const [rates, setRates] = useState<CurrencyRates | {}>();
   const [adminInfo, setAdminInfo] = useState<Admin | null>(null);
+  const [storeInfo, setStoreInfo] = useState<Store | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
   const [userCurrency, setUserCurrencyState] = useState<CurrencyCode>("USD");
   const [generalSetting, setGeneralSetting] =
@@ -184,12 +187,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const { error, isLoading } = useQuery({
     queryKey: ["storeId", domain],
     queryFn: async () => {
-      const res = await api.get(`/stores/data?domain=${domain}`);
+      const res = await api.get<Store>(`/stores/data?domain=${domain}`);
       if (!res.data || !res.data.storeId) {
         throw new Error("No storeId found for this domain");
       }
       const { storeId } = res.data;
       handleSetStoreId(storeId);
+      setStoreInfo(res.data);
       return storeId;
     },
     enabled: typeof window !== "undefined",
@@ -266,6 +270,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         isLoading,
         generalSetting,
         isStoreGeneralSettingsLoading,
+        storeInfo,
         userCurrency,
         setUserCurrency,
         isAuthLoading,

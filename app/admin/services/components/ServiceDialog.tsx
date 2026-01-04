@@ -25,6 +25,7 @@ import { useGetProviders } from "@/hooks/use-providers";
 import { CurrencyCode, useCurrencyConverter } from "@/lib/currencyConverter";
 import { toast } from "sonner";
 import { useAppContext } from "@/context/appContext";
+import { FeatureGate } from "@/components/FeatureGate";
 
 type SelectOption = {
   value: string | number;

@@ -16,6 +16,9 @@ import Pagination from "@/components/pagination";
 import DeleteDialog from "../../components/DeleteDialog";
 import AddService from "./ServiceDialog";
 import ServiceDialog from "./ServiceDialog";
+import { useAppContext } from "@/context/appContext";
+import { FeatureGate } from "@/components/FeatureGate";
+import { toast } from "sonner";
 
 export default function ServiceList() {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
@@ -33,6 +36,22 @@ export default function ServiceList() {
   const [pageSize, setPageSize] = useState(10);
   const { data: servicesData, isLoading } = useGetServicesByAdmin();
   const { mutate: deleteMultipleServices } = useDeleteMultipleServices();
+  const { storeInfo } = useAppContext();
+
+  const hasUnlimitedProducts = storeInfo?.features?.unlimited_products ?? false;
+  const maxProducts = storeInfo?.features?.products ?? 0;
+  const canAddMoreServices =
+    hasUnlimitedProducts || services.length < maxProducts;
+
+  const handleAddServiceClick = () => {
+    if (!canAddMoreServices) {
+      toast.error(
+        `You can only add up to ${maxProducts} services/products. Upgrade your plan for more.`
+      );
+      return;
+    }
+    setOpen(true);
+  };
 
   useEffect(() => {
     if (servicesData) {
@@ -66,9 +85,13 @@ export default function ServiceList() {
         <EmptyState
           icon={Shield}
           title="No Service Found"
-          description="No services have been placed yet."
+          description="No services have been created yet."
           actionLabel="Create Service"
-          onAction={() => setOpen(true)}
+          onAction={handleAddServiceClick}
+          maxAmount={maxProducts}
+          canAddMore={canAddMoreServices}
+          featureLabel="Service limit"
+          tooltipDescription={`You've reached the maximum of ${maxProducts} services. Upgrade to add more.`}
         />
         <AddService open={open} setOpen={setOpen} />
       </>
@@ -120,7 +143,10 @@ export default function ServiceList() {
       <ServiceFilters
         categories={categories}
         onFilterChange={handleFilterChange}
-        addService={() => setOpen(true)}
+        addService={handleAddServiceClick}
+        canAddMore={canAddMoreServices}
+        maxProducts={maxProducts}
+        hasUnlimited={hasUnlimitedProducts}
       />
       {/* Desktop Table */}
       <div className="hidden md:block">

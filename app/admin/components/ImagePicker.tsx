@@ -14,6 +14,7 @@ interface ImagePickerProps {
   label?: string;
   collection: CollectionName;
   value?: string;
+  className?: string;
   onChange: (data: {
     url: string;
     filename: string | null;
@@ -25,6 +26,7 @@ export default function ImagePicker({
   label = "Image",
   collection,
   value,
+  className = "lg:flex-nowrap",
   onChange,
 }: ImagePickerProps) {
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
@@ -57,9 +59,9 @@ export default function ImagePicker({
 
   return (
     <div className="flex flex-col lg:gap-2 gap-1">
-      <Label>{label}</Label>
+      {label && <Label>{label}</Label>}
 
-      <div className="flex flex-wrap lg:flex-nowrap items-center gap-3">
+      <div className={`flex flex-wrap items-center gap-3 ${className}`}>
         {/* File Upload */}
         <div className="flex w-full items-center gap-2 px-3 py-2 border rounded-md cursor-pointer hover:bg-accent transition text-sm">
           <Input

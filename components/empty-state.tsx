@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { LucideIcon, Inbox } from "lucide-react";
+import { FeatureGate } from "./FeatureGate";
 
 interface EmptyStateProps {
   icon?: LucideIcon;
@@ -13,6 +14,10 @@ interface EmptyStateProps {
   actionLabel?: string;
   onAction?: () => void;
   className?: string;
+  canAddMore?: boolean;
+  maxAmount?: number;
+  featureLabel?: string;
+  tooltipDescription?: string;
 }
 
 export const EmptyState = ({
@@ -21,7 +26,11 @@ export const EmptyState = ({
   description = "You haven’t created anything yet.",
   actionLabel,
   onAction,
+  canAddMore,
   className,
+  maxAmount,
+  featureLabel = "Limit reached",
+  tooltipDescription,
 }: EmptyStateProps) => {
   return (
     <motion.div
@@ -43,9 +52,27 @@ export const EmptyState = ({
           </p>
 
           {actionLabel && onAction && (
-            <Button onClick={onAction} className="mt-4">
-              {actionLabel}
-            </Button>
+            canAddMore === false ? (
+              <FeatureGate
+                isAllowed={false}
+                featureLabel={featureLabel}
+                variant="tooltip"
+                description={
+                  tooltipDescription ||
+                  (maxAmount
+                    ? `You've reached the maximum of ${maxAmount} items. Upgrade to add more.`
+                    : "Upgrade your plan to unlock this action.")
+                }
+              >
+                <Button disabled className="mt-4 cursor-not-allowed opacity-70">
+                  {actionLabel}
+                </Button>
+              </FeatureGate>
+            ) : (
+              <Button onClick={onAction} className="mt-4">
+                {actionLabel}
+              </Button>
+            )
           )}
         </CardContent>
       </Card>

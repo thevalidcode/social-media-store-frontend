@@ -4,66 +4,102 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { cn } from "@/lib/utils";
-import {
-  Settings2,
-  Palette,
-  Shield,
-  Menu,
-  FileText,
-} from "lucide-react";
-import { useState } from "react";
-import GeneralSettingsForm from "../components/general-setting";
-import DesignSettingsForm from "../components/theme";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Settings2, Palette, Shield, Menu, FileText } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import GeneralSettingsForm from "../components/pages/general-setting";
+import BrandingThemeSettings from "../components/pages/branding-theme";
 import PageManager from "../components/pages/PageManager";
-import { useRouter } from "next/navigation";
 import { TypographyH2 } from "@/components/typography";
+import { cn } from "@/lib/utils";
 
 export default function SettingsPage() {
-  const [activePage, setActivePage] = useState("general");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const searchParams = useSearchParams();
   const router = useRouter();
+  const pathname = usePathname();
 
-  const navigationItems = [
-    {
-      id: "general",
-      label: "General",
-      description: "Store settings and basic configuration",
-      icon: Settings2,
-      component: GeneralSettingsForm,
-    },
-    {
-      id: "design",
-      label: "Design",
-      description: "Theme and appearance customization",
-      icon: Palette,
-      component: DesignSettingsForm,
-    },
-    {
-      id: "pages",
-      label: "Pages",
-      description: "Manage page content and policies",
-      icon: FileText,
-      component: PageManager,
-    },
-    {
-      id: "security",
-      label: "Security",
-      description: "Security and access management",
-      icon: Shield,
-      component: () => (
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <Shield className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <TypographyH2 className="text-xl mb-2">
-              Security Settings
-            </TypographyH2>
-            <p className="text-muted-foreground">Coming soon...</p>
+  const navigationItems = useMemo(
+    () => [
+      {
+        id: "general",
+        label: "General",
+        description: "Store settings and basic configuration",
+        icon: Settings2,
+        component: GeneralSettingsForm,
+      },
+      {
+        id: "design",
+        label: "Branding & Theme",
+        description: "Logos, favicon, and visual system",
+        icon: Palette,
+        component: BrandingThemeSettings,
+      },
+      {
+        id: "pages",
+        label: "Pages",
+        description: "Manage page content and policies",
+        icon: FileText,
+        component: PageManager,
+      },
+      {
+        id: "security",
+        label: "Security",
+        description: "Security and access management",
+        icon: Shield,
+        component: () => (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <Shield className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <TypographyH2 className="text-xl mb-2">
+                Security Settings
+              </TypographyH2>
+              <p className="text-muted-foreground">Coming soon...</p>
+            </div>
           </div>
-        </div>
-      ),
+        ),
+      },
+    ],
+    []
+  );
+
+  const resolvePage = useCallback(
+    (pageId: string | null) =>
+      navigationItems.some((item) => item.id === pageId) && pageId
+        ? pageId
+        : "general",
+    [navigationItems]
+  );
+
+  const [activePage, setActivePage] = useState(() =>
+    resolvePage(searchParams.get("tab"))
+  );
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Sync URL on mount if tab param is missing or invalid
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    const isValidTab = navigationItems.some((item) => item.id === tabParam) && Boolean(tabParam);
+
+    // Only update URL if tab is missing or invalid
+    if (!isValidTab) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tab", activePage);
+      router.replace(`${pathname}?${params.toString()}`, { shallow: true } as any);
+    }
+  }, []); // Only run once on mount
+
+  const handlePageChange = useCallback(
+    (pageId: string) => {
+      const nextPage = resolvePage(pageId);
+      setActivePage(nextPage);
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tab", nextPage);
+
+      router.replace(`${pathname}?${params.toString()}`);
     },
-  ];
+    [pathname, resolvePage, router, searchParams]
+  );
 
   const activeItem = navigationItems.find((item) => item.id === activePage);
   const ActiveComponent = activeItem?.component;
@@ -103,7 +139,7 @@ export default function SettingsPage() {
                                 "bg-secondary shadow-sm border border-border/50"
                             )}
                             onClick={() => {
-                              setActivePage(item.id);
+                              handlePageChange(item.id);
                               setMobileMenuOpen(false);
                             }}
                           >
@@ -177,7 +213,7 @@ export default function SettingsPage() {
                           isActive &&
                             "bg-secondary shadow-sm border border-border/50"
                         )}
-                        onClick={() => setActivePage(item.id)}
+                        onClick={() => handlePageChange(item.id)}
                       >
                         <div className="flex items-center gap-3 flex-1">
                           <div

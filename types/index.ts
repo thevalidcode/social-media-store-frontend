@@ -10,5 +10,6 @@ export * from "./models/faq";
 export * from "./models/admin";
 export * from "./models/upload-log";
 export * from "./models/page";
+export * from "./models/store";
 export * from "./auth";
 export * from "./wysiwyg";
