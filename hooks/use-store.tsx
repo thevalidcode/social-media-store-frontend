@@ -3,7 +3,6 @@
 import { GeneralSettingProps, useAppContext } from "@/context/appContext";
 import { normalizeApiError } from "@/utils/normalizeApiErrors";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import { toast } from "sonner";
 
 export interface UpdateStoreSettingsProps {
