@@ -15,6 +15,7 @@ import { FeatureGate } from "@/components/FeatureGate";
 import { useAppContext } from "@/context/appContext";
 import { useUpdateStoreSettings } from "@/hooks/use-store";
 import AssetPreview from "@/components/AssetPreview";
+import { toast } from "sonner";
 
 // Types
 type ThemeSchema = {
@@ -119,10 +120,13 @@ export default function BrandingThemeSettings() {
   const handleSaveTheme = () => {
     applyTheme(selectedBrand);
     localStorage.setItem("selectedTheme", JSON.stringify(selectedBrand));
-  };
 
-  const handleSaveBranding = () => {
-    updateStoreSettings({ logoUrl, faviconUrl });
+    updateStoreSettings({
+      logoUrl,
+      faviconUrl,
+    });
+
+    toast.success("Branding settings saved successfully!");
   };
 
   const brandingControls = (
@@ -156,21 +160,10 @@ export default function BrandingThemeSettings() {
               onChange={(data) => setFaviconUrl(data.url)}
             />
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <p className="text-xs text-muted-foreground">
-              Changes go live after saving. Ideal sizes: logo (512x256), favicon
-              (64x64).
-            </p>
-            <Button
-              onClick={handleSaveBranding}
-              size="lg"
-              className="gap-2 ml-auto"
-              disabled={isSavingBranding}
-            >
-              <Sparkles className="h-4 w-4" />
-              Save Branding
-            </Button>
-          </div>
+          <p className="text-xs text-muted-foreground">
+            Changes go live after saving. Ideal sizes: logo (512x256), favicon
+            (64x64).
+          </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -204,9 +197,14 @@ export default function BrandingThemeSettings() {
             previews.
           </p>
         </div>
-        <Button className="gap-2" onClick={handleSaveTheme} size="lg">
+        <Button
+          className="gap-2"
+          onClick={handleSaveTheme}
+          size="lg"
+          disabled={isSavingBranding}
+        >
           <Sparkles className="h-4 w-4" />
-          Apply Theme
+          {isSavingBranding ? "Saving..." : "Apply Branding"}
         </Button>
       </div>
 
