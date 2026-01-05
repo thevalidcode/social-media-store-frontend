@@ -429,7 +429,7 @@ export default function ProviderDialog({
                   <FeatureGate
                     isAllowed={
                       storeInfo?.features
-                        ?.service_syncing_for_social_media_store ?? false
+                        ?.social_store_service_sync ?? false
                     }
                     featureLabel="Service syncing"
                     variant="overlay"
@@ -532,7 +532,7 @@ export default function ProviderDialog({
 
               <FeatureGate
                 isAllowed={
-                  storeInfo?.features?.service_syncing_for_social_media_store ??
+                  storeInfo?.features?.social_store_service_sync ??
                   false
                 }
                 featureLabel="Service syncing"

@@ -37,7 +37,7 @@ export default function GeneralSettingsForm() {
   );
   const { mutate: updateStoreSettings } = useUpdateStoreSettings();
 
-  const canToggleBanner = storeInfo?.features?.hide_banner ?? false;
+  const canToggleBanner = storeInfo?.features?.hide_platform_banner ?? false;
 
   const handleSave = () => {
     updateStoreSettings({

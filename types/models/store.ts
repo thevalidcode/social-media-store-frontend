@@ -8,7 +8,7 @@ export type StoreFeatures = {
   priority_support: boolean;
   store_analytics: boolean;
   unlimited_products: boolean;
-  hide_banner: boolean;
+  hide_platform_banner: boolean;
   api_access: boolean;
   custom_domain: boolean;
   ai_features: boolean;
@@ -19,8 +19,8 @@ export type StoreFeatures = {
   payment_gateways: number;
   default_template: boolean;
   staff_accounts: number;
-  order_syncing_for_social_media_store: boolean;
-  service_syncing_for_social_media_store: boolean;
+  social_store_order_sync: boolean;
+  social_store_service_sync: boolean;
   [k: string]: any;
 };
 
