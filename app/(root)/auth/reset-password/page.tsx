@@ -25,7 +25,7 @@ function ResetPasswordContent() {
     await mutateAsync({ password, token, email });
     // Redirect handled by form after success
     setTimeout(() => {
-      router.push("/client/auth");
+      router.push("/auth/signin");
     }, 2000);
   };
 
