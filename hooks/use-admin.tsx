@@ -136,7 +136,7 @@ export function useResetPassword() {
   return useMutation({
     mutationFn: async (data: ResetPasswordProps) => {
       const res = await api.post(
-        `/admins/reset-password?storeId${storeId}`,
+        `/admins/reset-password?storeId=${storeId}`,
         data
       );
       if (!res.data) throw new Error("Failed to reset password");
