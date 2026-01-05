@@ -8,7 +8,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (generalSetting) {
-      document.title = `Signin | ${generalSetting.storeName}`;
+      document.title = `Forgot Password | ${generalSetting.storeName}`;
     } else {
       document.title = "Loading…";
     }

@@ -198,19 +198,6 @@ export default function Signin() {
             </Link>
           </div>
 
-          {/* Sign Up Link */}
-          <div className="text-center pt-4">
-            <p className="text-sm">
-              Don&apos;t have an account?{" "}
-              <Link
-                href="/auth/signup"
-                className="font-medium hover:underline text-primary"
-              >
-                Sign up
-              </Link>
-            </p>
-          </div>
-
           {/* Trust Indicator */}
           <div className="text-center mt-6">
             <p className="text-xs flex items-center justify-center gap-1.5">
