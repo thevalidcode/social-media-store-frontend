@@ -69,7 +69,7 @@ export default function BrandingThemeSettings() {
   const { generalSetting, storeInfo } = useAppContext();
   const { applyTheme } = useThemeContext();
   const { theme: colorScheme } = useTheme();
-  const { mutate: updateStoreSettings, isPending: isSavingBranding } =
+  const { mutateAsync: updateStoreSettings, isPending: isSavingBranding } =
     useUpdateStoreSettings();
 
   const [selectedBrand, setSelectedBrand] = useState<ThemeOption>(
@@ -117,11 +117,11 @@ export default function BrandingThemeSettings() {
     setSelectedBrand(theme);
   };
 
-  const handleSaveTheme = () => {
+  const handleSaveTheme =async  () => {
     applyTheme(selectedBrand);
     localStorage.setItem("selectedTheme", JSON.stringify(selectedBrand));
 
-    updateStoreSettings({
+    await updateStoreSettings({
       logoUrl,
       faviconUrl,
     });

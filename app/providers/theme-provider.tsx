@@ -66,12 +66,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const updateThemeMutation = useUpdateStoreDesign();
 
   // MAIN apply function
-  const applyTheme = (theme: ThemeOption) => {
+  const applyTheme = async (theme: ThemeOption) => {
     applyThemeStyles(theme.schema, isDark);
 
     localStorage.setItem("selectedTheme", JSON.stringify({ ...theme }));
 
-    updateThemeMutation.mutate({ ...theme });
+    await updateThemeMutation.mutateAsync({ ...theme });
   };
 
   // Watch dark/light changes

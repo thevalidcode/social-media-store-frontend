@@ -21,6 +21,7 @@ import { useAppContext } from "@/context/appContext";
 import { TypographyH2, TypographyH3 } from "@/components/typography";
 import { FeatureGate } from "@/components/FeatureGate";
 import { Settings2, DollarSign, Settings, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 
 export default function GeneralSettingsForm() {
   const { generalSetting, userCurrency, setUserCurrency, storeInfo } =
@@ -35,17 +36,18 @@ export default function GeneralSettingsForm() {
   const [showBanner, setShowBanner] = useState<boolean>(
     generalSetting?.showBanner ?? true
   );
-  const { mutate: updateStoreSettings } = useUpdateStoreSettings();
+  const { mutateAsync: updateStoreSettings } = useUpdateStoreSettings();
 
   const canToggleBanner = storeInfo?.features?.hide_platform_banner ?? false;
 
-  const handleSave = () => {
-    updateStoreSettings({
+  const handleSave = async () => {
+    await updateStoreSettings({
       storeName: storeName,
       storeDescription,
       defaultClientCurrency: clientCurrency,
       showBanner,
     });
+    toast.success("Settings updated successfully!");
   };
 
   return (

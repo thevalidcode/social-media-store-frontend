@@ -40,7 +40,6 @@ export function useUpdateStoreSettings() {
       return res.data;
     },
     onSuccess: () => {
-      toast.success("Store settings updated successfully");
       queryClient.invalidateQueries({ queryKey: ["storeSettings", storeId] });
     },
     onError: (error: unknown) => {
@@ -86,7 +85,6 @@ export function useUpdateStoreDesign() {
       return res.data;
     },
     onSuccess: () => {
-      toast.success("Store styles updated successfully");
       queryClient.invalidateQueries({ queryKey: ["storeDesign", storeId] });
     },
     onError: (error: unknown) => {
