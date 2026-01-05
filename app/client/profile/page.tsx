@@ -27,9 +27,7 @@ export default function UserProfilePage() {
   const { userCurrency, userInfo, setUserInfo } = useAppContext();
   const [showApiKey, setShowApiKey] = useState(false);
   const [btnApiKeyVisible, setBtnApiKeyVisible] = useState(false);
-  const { mutate } = useUpdateUser();
-
-  const { mutateAsync: updateUser } = useUpdateUser();
+  const { mutateAsync: updateUser, isPending } = useUpdateUser();
   const { mutateAsync: uploadImage, isPending: uploadingImage } =
     useUploadImage();
 
@@ -51,12 +49,11 @@ export default function UserProfilePage() {
     setBtnApiKeyVisible(true);
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    mutate({
+    await updateUser({
       ...userInfo!,
       fullName: userInfo?.fullName ?? "",
-      image: userInfo?.image ?? undefined,
     });
     setEditing(false);
   }
@@ -227,7 +224,9 @@ export default function UserProfilePage() {
                 >
                   Cancel
                 </Button>
-                <Button type="submit">Save Changes</Button>
+                <Button type="submit">
+                  {isPending ? "Saving..." : "Save Changes"}
+                </Button>
               </div>
             </form>
           )}

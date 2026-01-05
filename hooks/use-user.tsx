@@ -203,7 +203,7 @@ interface UpdateUserProps {
   email?: string;
   apiKey?: string;
   fullName?: string;
-  image?: string;
+  image?: string | null;
   status?: UserStatus;
 }
 
