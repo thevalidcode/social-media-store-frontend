@@ -1,6 +1,6 @@
 "use client";
 import { useAppContext } from "@/context/appContext";
-import { User } from "@/types";
+import { User, Admin } from "@/types";
 import { normalizeApiError } from "@/utils/normalizeApiErrors";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
@@ -11,25 +11,30 @@ interface VerifySessionCodeProps {
   sessionCode: string;
 }
 
-export function useVerifySessionCode() {
-  const { storeId, setUserInfo } = useAppContext();
+type Role = "USER" | "ADMIN";
+type AuthResponse = User | Admin;
+
+export function useVerifySessionCode(role: Role = "USER") {
+  const { storeId, setUserInfo, setAdminInfo } = useAppContext();
   const router = useRouter();
   return useMutation({
     mutationFn: async (data: VerifySessionCodeProps) => {
-      const res = await axios.post<{ user: User }>(
+      const res = await axios.post<{ user: AuthResponse }>(
         `https://auth.validpanel.com/api/auth/social-media-store/session/verify`,
-        { ...data, storeId }
+        { ...data, storeId, role }
       );
       if (!res.data.user) throw new Error("Failed to verify session code");
       return res.data.user;
     },
-    onSuccess: (data) => {
+    onSuccess: (data: AuthResponse) => {
       toast.success("User authenticated successfully");
-      setUserInfo({
-        ...data,
-      });
-      // Redirect to the appropriate dashboard. The user session is now active.
-      router.push("/client/dashboard");
+      if (role === "USER") {
+        setUserInfo(data as User);
+        router.push("/client/dashboard");
+      } else {
+        setAdminInfo(data as Admin);
+        router.push("/admin/users");
+      }
     },
     onError: (error: unknown) => {
       const errorMsg = normalizeApiError(

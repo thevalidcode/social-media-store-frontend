@@ -12,7 +12,6 @@ import Link from "next/link";
 import { useUserLogin } from "@/hooks/use-user";
 import { useVerifySessionCode } from "@/hooks/use-auth";
 import { useAppContext } from "@/context/appContext";
-import { AxiosError } from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import { normalizeApiError } from "@/utils/normalizeApiErrors";
 
@@ -25,11 +24,13 @@ export default function Signin() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { storeId, domain } = useAppContext();
   const { mutate, isPending } = useUserLogin();
+  
   const { mutate: verifySessionCode, isPending: isVerifyingSession } =
     useVerifySessionCode();
   const searchParams = useSearchParams();
   const lastSessionCodeRef = useRef<string | null>(null);
   const sessionCodeFromQuery = searchParams.get("session_code");
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
