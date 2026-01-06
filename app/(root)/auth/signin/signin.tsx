@@ -7,12 +7,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, User, Mail } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useUserLogin } from "@/hooks/use-user";
+import { useVerifySessionCode } from "@/hooks/use-auth";
 import { useAppContext } from "@/context/appContext";
 import { AxiosError } from "axios";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { normalizeApiError } from "@/utils/normalizeApiErrors";
 
 export default function Signin() {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,6 +25,11 @@ export default function Signin() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { storeId, domain } = useAppContext();
   const { mutate, isPending } = useUserLogin();
+  const { mutate: verifySessionCode, isPending: isVerifyingSession } =
+    useVerifySessionCode();
+  const searchParams = useSearchParams();
+  const lastSessionCodeRef = useRef<string | null>(null);
+  const sessionCodeFromQuery = searchParams.get("session_code");
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -60,18 +67,11 @@ export default function Signin() {
         },
         {
           onError: (error) => {
-            if (error instanceof AxiosError) {
-              let errorMsg = "An unexpected error occurred";
-              const data = error.response?.data;
-              if (typeof data === "string") {
-                errorMsg = data;
-              } else if (data?.error) {
-                errorMsg = data.error;
-              } else if (data?.message) {
-                errorMsg = data.message;
-              }
-              setErrors({ email: errorMsg, password: "" });
-            }
+            const errorMsg = normalizeApiError(
+              error,
+              "Failed to sign in. Please check your credentials."
+            );
+            setErrors({ email: errorMsg, password: "" });
           },
         }
       );
@@ -84,6 +84,20 @@ export default function Signin() {
       `https://auth.validpanel.com/api/auth/social-media-store/google?storeId=${storeId}&redirect=https://${domain}/auth/signin`
     );
   };
+
+  useEffect(() => {
+    if (!sessionCodeFromQuery) return;
+
+    const normalizedCode = sessionCodeFromQuery.trim();
+    if (lastSessionCodeRef.current === normalizedCode) return;
+
+    const uuidV4Regex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidV4Regex.test(normalizedCode)) return;
+
+    lastSessionCodeRef.current = normalizedCode;
+    verifySessionCode({ sessionCode: normalizedCode });
+  }, [sessionCodeFromQuery, verifySessionCode]);
 
   return (
     <div className="flex items-center justify-center p-2 mt-20">
@@ -142,8 +156,12 @@ export default function Signin() {
               )}
             </div>
 
-            <Button type="submit" className="w-full mt-6">
-              {isPending ? "Signing in..." : "Sign In"}
+            <Button
+              type="submit"
+              className="w-full mt-6"
+              disabled={isPending || isVerifyingSession}
+            >
+              {isPending || isVerifyingSession ? "Signing in..." : "Sign In"}
             </Button>
 
             {/* Divider */}

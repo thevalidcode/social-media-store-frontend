@@ -11,8 +11,10 @@ import { useCreateUser } from "@/hooks/use-user";
 import { useQueryClient } from "@tanstack/react-query";
 import { Eye, EyeOff, Mail, User } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useVerifySessionCode } from "@/hooks/use-auth";
+import { normalizeApiError } from "@/utils/normalizeApiErrors";
 
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
@@ -29,6 +31,11 @@ export default function Signup() {
   const { storeId } = useAppContext();
   const queryClient = useQueryClient();
   const router = useRouter();
+  const { mutate: verifySessionCode, isPending: isVerifyingSession } =
+    useVerifySessionCode();
+  const searchParams = useSearchParams();
+  const lastSessionCodeRef = useRef<string | null>(null);
+  const sessionCodeFromQuery = searchParams.get("session_code");
   if (!storeId) {
     return (
       <div className="h-[calc(100vh-4rem)] flex items-center justify-center p-4 md:p-8 mt-16">
@@ -44,6 +51,20 @@ export default function Signup() {
       </div>
     );
   }
+
+  useEffect(() => {
+    if (!sessionCodeFromQuery) return;
+
+    const normalizedCode = sessionCodeFromQuery.trim();
+    if (lastSessionCodeRef.current === normalizedCode) return;
+
+    const uuidV4Regex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidV4Regex.test(normalizedCode)) return;
+
+    lastSessionCodeRef.current = normalizedCode;
+    verifySessionCode({ sessionCode: normalizedCode });
+  }, [sessionCodeFromQuery, verifySessionCode]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -107,7 +128,7 @@ export default function Signup() {
   const handleGoogleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     router.push(
-      `https://auth.validpanel.com/api/auth/social-media-store/google?storeId=${storeId}&redirect=${domain}/auth/siginin`
+      `https://auth.validpanel.com/api/auth/social-media-store/google?storeId=${storeId}&redirect=${domain}/auth/signup`
     );
   };
 
@@ -125,22 +146,11 @@ export default function Signup() {
 
         {
           onError: (error: unknown) => {
-            if (
-              typeof error === "object" &&
-              error !== null &&
-              "response" in error
-            ) {
-              const err = error as { response?: { data?: { error?: string } } };
-              if (err.response?.data?.error) {
-                setErrors({ general: err.response.data.error });
-                return;
-              }
-            }
-            if (error instanceof Error && error.message) {
-              setErrors({ general: error.message });
-            } else {
-              setErrors({ general: "An unexpected error occurred" });
-            }
+            const errorMsg = normalizeApiError(
+              error,
+              "Failed to create account"
+            );
+            setErrors({ general: errorMsg });
           },
           onSuccess: () => {
             router.push("/auth/signin");
@@ -238,8 +248,12 @@ export default function Signup() {
               )}
             </div>
 
-            <Button type="submit" className="w-full mt-6" disabled={isPending}>
-              {isPending ? "Creating Account..." : "Create Account"}
+            <Button
+              type="submit"
+              className="w-full mt-6"
+              disabled={isPending || isVerifyingSession}
+            >
+              {isPending || isVerifyingSession ? "Signing in..." : "Sign In"}
             </Button>
 
             {/* Divider */}
