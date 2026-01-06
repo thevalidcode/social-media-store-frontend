@@ -21,7 +21,10 @@ export function useVerifySessionCode(role: Role = "USER") {
     mutationFn: async (data: VerifySessionCodeProps) => {
       const res = await axios.post<{ user: AuthResponse }>(
         `https://auth.validpanel.com/api/auth/social-media-store/session/verify`,
-        { ...data, storeId, role }
+        { ...data, storeId, role },
+        {
+          withCredentials: true,
+        }
       );
       if (!res.data.user) throw new Error("Failed to verify session code");
       return res.data.user;
