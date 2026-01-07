@@ -70,7 +70,6 @@ export function ForgotPasswordForm({
     try {
       await onSubmit(email);
       setEmailSent(true);
-      toast.success("Password reset link sent to your email");
     } catch (error) {
       // Error handled by the hook
     }

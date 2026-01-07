@@ -85,7 +85,6 @@ export function ResetPasswordForm({
     try {
       await onSubmit(password, token, email);
       setResetSuccess(true);
-      toast.success("Password reset successfully");
     } catch (error) {
       // Error handled by the hook
     }
