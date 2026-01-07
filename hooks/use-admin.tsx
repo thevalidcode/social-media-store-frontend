@@ -150,3 +150,34 @@ export function useResetPassword() {
     },
   });
 }
+
+interface VerifySessionCodeProps {
+  sessionCode: string;
+}
+
+export function useVerifySessionCode() {
+  const { storeId, setAdminInfo, api } = useAppContext();
+  const router = useRouter();
+  return useMutation({
+    mutationFn: async (data: VerifySessionCodeProps) => {
+      const res = await api.post<{ admin: Admin }>(
+        `/admins/verify-session`,
+        { ...data, storeId },
+        {
+          withCredentials: true,
+        }
+      );
+      if (!res.data.admin) throw new Error("Failed to verify session");
+      return res.data.admin;
+    },
+    onSuccess: (data) => {
+      toast.success("Admin authenticated successfully");
+      setAdminInfo(data);
+      router.push("/admin/users");
+    },
+    onError: (error: unknown) => {
+      const errorMsg = normalizeApiError(error, "Failed to verify session");
+      toast.error(errorMsg);
+    },
+  });
+}

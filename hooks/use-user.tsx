@@ -307,3 +307,34 @@ export function useResetPassword() {
     },
   });
 }
+
+interface VerifySessionCodeProps {
+  sessionCode: string;
+}
+
+export function useVerifySessionCode() {
+  const { storeId, setUserInfo, api } = useAppContext();
+  const router = useRouter();
+  return useMutation({
+    mutationFn: async (data: VerifySessionCodeProps) => {
+      const res = await api.post<{ user: User }>(
+        `/users/verify-session`,
+        { ...data, storeId },
+        {
+          withCredentials: true,
+        }
+      );
+      if (!res.data.user) throw new Error("Failed to verify session");
+      return res.data.user;
+    },
+    onSuccess: (data) => {
+      toast.success("User authenticated successfully");
+      setUserInfo(data);
+      router.push("/client/dashboard");
+    },
+    onError: (error: unknown) => {
+      const errorMsg = normalizeApiError(error, "Failed to verify session");
+      toast.error(errorMsg);
+    },
+  });
+}

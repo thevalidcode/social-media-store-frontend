@@ -13,7 +13,7 @@ import { Eye, EyeOff, Mail, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useVerifySessionCode } from "@/hooks/use-auth";
+import { useVerifySessionCode } from "@/hooks/use-user";
 import { normalizeApiError } from "@/utils/normalizeApiErrors";
 
 export default function Signup() {

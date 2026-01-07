@@ -12,7 +12,7 @@ import Link from "next/link";
 import { useAdminLogin } from "@/hooks/use-admin";
 import { useAppContext } from "@/context/appContext";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useVerifySessionCode } from "@/hooks/use-auth";
+import { useVerifySessionCode } from "@/hooks/use-admin";
 import { normalizeApiError } from "@/utils/normalizeApiErrors";
 
 export default function Signin() {
@@ -26,7 +26,7 @@ export default function Signin() {
   const { mutate, isPending } = useAdminLogin();
 
   const { mutate: verifySessionCode, isPending: isVerifyingSession } =
-    useVerifySessionCode("ADMIN");
+    useVerifySessionCode();
   const searchParams = useSearchParams();
   const lastSessionCodeRef = useRef<string | null>(null);
   const sessionCodeFromQuery = searchParams.get("session_code");

@@ -9,8 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, User, Mail } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useUserLogin } from "@/hooks/use-user";
-import { useVerifySessionCode } from "@/hooks/use-auth";
+import { useUserLogin, useVerifySessionCode } from "@/hooks/use-user";
 import { useAppContext } from "@/context/appContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { normalizeApiError } from "@/utils/normalizeApiErrors";
@@ -24,7 +23,7 @@ export default function Signin() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { storeId, domain } = useAppContext();
   const { mutate, isPending } = useUserLogin();
-  
+
   const { mutate: verifySessionCode, isPending: isVerifyingSession } =
     useVerifySessionCode();
   const searchParams = useSearchParams();
