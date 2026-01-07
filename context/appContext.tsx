@@ -214,7 +214,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   const { isLoading: isStoreGeneralSettingsLoading, error: settingsError } =
     useQuery({
-      queryKey: ["storeSettings", storeId],
+      queryKey: ["storeSettings", storeId, domain],
       queryFn: async () => {
         const res = await api.get(`/stores/${storeId}/general-data`);
         if (!res.data) {
@@ -223,7 +223,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         setGeneralSetting(res.data);
         return res.data;
       },
-      enabled: !!storeId,
+      enabled: !!storeId && !!domain,
     });
 
   // Redirect to store not found when settings are missing
@@ -252,6 +252,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       setRates(res.data.rates as CurrencyRates);
       return res.data;
     },
+    enabled: !!domain,
   });
 
   return (
