@@ -200,7 +200,6 @@ export const useDeleteASingleUser = () => {
 // update user info
 interface UpdateUserProps {
   username?: string;
-  email?: string;
   apiKey?: string;
   fullName?: string;
   image?: string | null;

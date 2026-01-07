@@ -48,7 +48,6 @@ export function useAdminLogin() {
 // update admin info
 interface UpdateAdminProps {
   username?: string;
-  email?: string;
   apiKey?: string;
   fullName?: string;
   image?: string;

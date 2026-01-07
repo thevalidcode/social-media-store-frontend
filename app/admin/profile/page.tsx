@@ -49,7 +49,6 @@ export default function AdminProfilePage() {
       fullName: profile.fullName ?? undefined,
       username: profile.username,
       image: profile.image || "",
-      email: profile.email,
     });
 
     toast.success("Profile updated");
@@ -179,7 +178,7 @@ export default function AdminProfilePage() {
                   type="email"
                   value={profile.email}
                   onChange={handleChange}
-                  required
+                  disabled
                 />
               </Field>
 

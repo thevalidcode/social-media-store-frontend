@@ -148,7 +148,7 @@ export default function UserProfilePage() {
                   type="email"
                   value={userInfo.email}
                   onChange={handleChange}
-                  required
+                  disabled
                 />
               </Field>
 
