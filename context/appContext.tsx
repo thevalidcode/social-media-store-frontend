@@ -47,24 +47,25 @@ interface AppContextType {
   error: Error | null;
 }
 
-const getDomain = () => {
-  const currentUrl = window.location.href.replace(/^https?:\/\//, "");
-  let domain = currentUrl.split("/")[0];
-  if (domain.startsWith("www.")) {
-    domain = domain.slice(4);
-  }
-  return domain;
-};
-
-const domain = getDomain();
-const API_URL =
-  process.env.NODE_ENV === "development"
-    ? "/api" // ← local proxy path
-    : `https://${domain}/social-media-store/backend/api/v1`;
-
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
+  const [domain, setDomain] = useState<string>("");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const currentUrl = window.location.href.replace(/^https?:\/\//, "");
+    let d = currentUrl.split("/")[0];
+    if (d.startsWith("www.")) d = d.slice(4);
+    setDomain(d);
+  }, []);
+
+  const API_URL =
+    process.env.NODE_ENV === "development"
+      ? "/api" // ← local proxy path
+      : `https://${domain}/social-media-store/backend/api/v1`;
+
   const router = useRouter();
   const [storeId, setStoreId] = useState<number | null>(() => {
     if (typeof window === "undefined") return null;
@@ -196,7 +197,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       setStoreInfo(res.data);
       return storeId;
     },
-    enabled: typeof window !== "undefined",
+    enabled: !!domain,
     retry: false,
   });
 
