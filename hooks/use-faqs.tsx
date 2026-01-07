@@ -19,6 +19,7 @@ export function useGetFaqs() {
       }
       return [];
     },
+    enabled: !!api && !!storeId,
   });
 }
 

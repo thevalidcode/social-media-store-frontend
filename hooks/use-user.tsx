@@ -117,6 +117,7 @@ export function useGetUsers() {
       if (!res.data) throw new Error("Failed to fetch user");
       return res.data;
     },
+    enabled: !!api && !!storeId,
   });
 }
 
@@ -131,6 +132,7 @@ export function useGetUserById(id: string) {
       `
         return res.data;`;
     },
+    enabled: !!api && !!id,
   });
 }
 
@@ -144,6 +146,7 @@ export function useGetUserAffiliateData() {
       if (!res.data) throw new Error("Failed to fetch affiliate data");
       return res.data;
     },
+    enabled: !!api && !!userInfo?.uid,
   });
 }
 
@@ -317,6 +320,9 @@ export function useVerifySessionCode() {
   const router = useRouter();
   return useMutation({
     mutationFn: async (data: VerifySessionCodeProps) => {
+      if (!api) {
+        throw new Error("API client not initialized. Please wait...");
+      }
       const res = await api.post<{ user: User }>(
         `/users/verify-session`,
         { ...data, storeId },

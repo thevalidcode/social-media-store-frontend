@@ -39,6 +39,7 @@ export const useGetBlogs = () => {
       }
       return res.data || [];
     },
+    enabled: !!api && !!storeId,
   });
 };
 
@@ -59,7 +60,7 @@ export const useGetBlogById = (blogId: number) => {
 
       return blog;
     },
-    enabled: !!blogId && !!storeId,
+    enabled: !!api && !!blogId && !!storeId,
   });
 };
 

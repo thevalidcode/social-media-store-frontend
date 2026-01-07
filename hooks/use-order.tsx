@@ -70,7 +70,7 @@ export const useUserGetOrderByStatus = (status: OrderStatus) => {
       if (!res.data) throw new Error("Failed to fetch orders");
       return res.data;
     },
-    enabled: !!userInfo?.uid,
+    enabled: !!api && !!userInfo?.uid,
   });
 };
 
@@ -84,7 +84,7 @@ export const useGetOrderByStatus = (status: OrderStatus) => {
       if (!res.data) throw new Error("Failed to fetch orders");
       return res.data;
     },
-    enabled: !!adminInfo?.uid,
+    enabled: !!api && !!adminInfo?.uid,
   });
 };
 
@@ -98,7 +98,7 @@ export const useUserGetAllOrders = () => {
       if (!res.data) throw new Error("Failed to fetch orders");
       return res.data;
     },
-    enabled: !!userInfo?.uid,
+    enabled: !!api && !!userInfo?.uid,
   });
 };
 
@@ -112,7 +112,7 @@ export const useGetAllOrders = () => {
       if (!res.data) throw new Error("Failed to fetch orders");
       return res.data;
     },
-    enabled: !!storeId,
+    enabled: !!api && !!storeId,
   });
 };
 

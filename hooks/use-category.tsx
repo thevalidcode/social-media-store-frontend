@@ -29,7 +29,7 @@ export const useGetCategories = () => {
       const res = await api.get<Category[]>(`/categories?storeId=${storeId}`);
       return res.data;
     },
-    enabled: !!storeId,
+    enabled: !!api && !!storeId,
   });
 };
 

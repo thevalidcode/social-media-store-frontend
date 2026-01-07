@@ -48,6 +48,7 @@ export const useGetProviders = () => {
       }
       return res.data.providers;
     },
+    enabled: !!api && !!storeId,
   });
 };
 
@@ -69,6 +70,7 @@ export const useGetAllServiceProviders = (
       }
       return res.data.providers;
     },
+    enabled: !!api && !!storeId,
   });
 };
 
@@ -129,7 +131,7 @@ export const useGetProviderServices = (provider?: string) => {
       );
       return res.data;
     },
-    enabled: !!provider,
+    enabled: !!api && !!provider,
   });
 };
 

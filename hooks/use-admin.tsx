@@ -160,6 +160,9 @@ export function useVerifySessionCode() {
   const router = useRouter();
   return useMutation({
     mutationFn: async (data: VerifySessionCodeProps) => {
+      if (!api) {
+        throw new Error("API client not initialized. Please wait...");
+      }
       const res = await api.post<{ admin: Admin }>(
         `/admins/verify-session`,
         { ...data, storeId },

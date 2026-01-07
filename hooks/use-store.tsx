@@ -66,6 +66,7 @@ export function useGetStoreDesign() {
       if (!res.data) throw new Error("Failed to get store styles");
       return res.data;
     },
+    enabled: !!api && !!storeId,
   });
 }
 

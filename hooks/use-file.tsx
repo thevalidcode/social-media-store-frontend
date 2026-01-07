@@ -67,5 +67,6 @@ export const usePreviousImages = (collection: CollectionName) => {
       if (!res.data) throw new Error("Failed to fetch previous images");
       return res.data.images;
     },
+    enabled: !!api && !!storeId,
   });
 };

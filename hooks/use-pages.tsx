@@ -28,7 +28,7 @@ export const useGetPagesByAdmin = () => {
       const res = await api.get<Page[]>(`/pages/admin`);
       return res.data;
     },
-    enabled: !!storeId,
+    enabled: !!api && !!storeId,
   });
 };
 
@@ -43,7 +43,7 @@ export const useGetPageByType = (pageType: PageType) => {
       );
       return res.data;
     },
-    enabled: !!storeId && !!pageType,
+    enabled: !!api && !!storeId && !!pageType,
   });
 };
 

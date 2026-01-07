@@ -50,6 +50,7 @@ export const useGetUserSupportTicket = () => {
       if (!res.data) throw new Error("Failed to get tickets");
       return res.data;
     },
+    enabled: !!api && !!userInfo?.uid,
   });
 };
 
@@ -66,6 +67,7 @@ export const useGetSupportTicket = () => {
       if (!res.data) throw new Error("Failed to get tickets");
       return res.data;
     },
+    enabled: !!api && !!storeId,
   });
 };
 
@@ -84,6 +86,7 @@ export const useGetUserSupportTicketByUid = (uid: string) => {
       if (!res.data) throw new Error("Failed to get ticket");
       return res.data;
     },
+    enabled: !!api && !!uid,
   });
 };
 
@@ -102,6 +105,7 @@ export const useGetSupportTicketByUid = (uid: string) => {
       if (!res.data) throw new Error("Failed to get ticket");
       return res.data;
     },
+    enabled: !!api && !!uid,
   });
 };
 

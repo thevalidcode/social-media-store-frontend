@@ -78,6 +78,7 @@ export default function Signin() {
 
   useEffect(() => {
     if (!sessionCodeFromQuery) return;
+    if (!storeId || !domain) return; // Wait for store context to be ready
 
     const normalizedCode = sessionCodeFromQuery.trim();
     if (lastSessionCodeRef.current === normalizedCode) return;
@@ -88,7 +89,7 @@ export default function Signin() {
 
     lastSessionCodeRef.current = normalizedCode;
     verifySessionCode({ sessionCode: normalizedCode });
-  }, [sessionCodeFromQuery, verifySessionCode]);
+  }, [sessionCodeFromQuery, verifySessionCode, storeId, domain]);
 
   const handleGoogleLogin = (e: React.FormEvent) => {
     e.preventDefault();

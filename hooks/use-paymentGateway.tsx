@@ -59,6 +59,7 @@ export const useGetPaymentGatewaysByStatus = (status: PaymentGatewayStatus) => {
       if (!res.data) throw new Error("Failed to fetch gateways");
       return res.data;
     },
+    enabled: !!api && !!storeId,
   });
 };
 
@@ -75,6 +76,7 @@ export const useGetAllPaymentGateways = () => {
       if (!res.data) throw new Error("Failed to fetch gateways");
       return res.data;
     },
+    enabled: !!api && !!storeId,
   });
 };
 
@@ -91,6 +93,7 @@ export const useGetAllPaymentGatewaysForAdmins = () => {
       if (!res.data) throw new Error("Failed to fetch gateways");
       return res.data;
     },
+    enabled: !!api && !!storeId,
   });
 };
 
@@ -107,7 +110,7 @@ export const useGetSinglePaymentGateway = (uid: string) => {
       if (!res.data) throw new Error("Failed to fetch gateway details");
       return res.data;
     },
-    enabled: !!uid,
+    enabled: !!api && !!uid,
   });
 };
 
@@ -126,7 +129,7 @@ export const useGetSinglePaymentGatewayForAdmins = (uid: string) => {
       if (!res.data) throw new Error("Failed to fetch gateway details");
       return res.data;
     },
-    enabled: !!uid,
+    enabled: !!api && !!uid,
   });
 };
 

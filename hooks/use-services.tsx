@@ -55,7 +55,7 @@ export const useGetServicesByPublic = () => {
       );
       return res.data;
     },
-    enabled: !!storeId,
+    enabled: !!api && !!storeId,
   });
 };
 
@@ -68,7 +68,7 @@ export const useGetServicesByAdmin = () => {
       const res = await api.get<Service[]>(`/services/admin`);
       return res.data;
     },
-    enabled: !!storeId,
+    enabled: !!api && !!storeId,
   });
 };
 
@@ -81,7 +81,7 @@ export const useGetServicesByProviderId = (provider_id: string) => {
       const res = await api.get(`/services/${provider_id}`);
       return res.data;
     },
-    enabled: !!provider_id,
+    enabled: !!api && !!provider_id,
   });
 };
 

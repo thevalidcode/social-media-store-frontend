@@ -47,6 +47,6 @@ export function useGetUserDashboardStatistics() {
       if (!res.data) throw new Error("Failed to fetch dashboard statistics");
       return res.data;
     },
-    enabled: !!userInfo?.uid, // Query will only run if userInfo.uid exists
+    enabled: !!api && !!userInfo?.uid, // Query will only run if userInfo.uid exists
   });
 }
