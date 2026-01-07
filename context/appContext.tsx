@@ -61,11 +61,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     setDomain(d);
   }, []);
 
-  const API_URL =
-    process.env.NODE_ENV === "development"
-      ? "/api" // ← local proxy path
-      : `https://${domain}/social-media-store/backend/api/v1`;
-
   const router = useRouter();
   const [storeId, setStoreId] = useState<number | null>(() => {
     if (typeof window === "undefined") return null;
@@ -156,15 +151,21 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Memoize the api instance to avoid re-creating it on every render.
   const api = useMemo(() => {
+    if (!domain) return null as unknown as AxiosInstance;
+
+    const baseURL =
+      process.env.NODE_ENV === "development"
+        ? "/api"
+        : `https://${domain}/social-media-store/backend/api/v1`;
+
     const newAxios = axios.create({
-      baseURL: API_URL,
+      baseURL,
       headers: {
         "Content-Type": "application/json",
       },
       withCredentials: true,
     });
 
-    // Request interceptor → attach CSRF token
     newAxios.interceptors.request.use((config) => {
       const csrfToken = Cookies.get("csrf_token");
       if (csrfToken) {
@@ -173,7 +174,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       return config;
     });
 
-    // Response interceptor → refresh CSRF token if server sends a new one
     newAxios.interceptors.response.use((response) => {
       const newToken = response.headers["x-csrf-token"];
       if (newToken) {
@@ -182,8 +182,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       return response;
     });
 
-    return newAxios; // ✅ return it so api is usable
-  }, [API_URL]);
+    return newAxios;
+  }, [domain]);
 
   const { error, isLoading } = useQuery({
     queryKey: ["storeId", domain],
