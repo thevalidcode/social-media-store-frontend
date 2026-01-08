@@ -27,7 +27,7 @@ export function groupServicesByCategory(
 
     return {
       title: meta?.name || categoryName,
-      icon: meta?.icon || "https://picsum.photos/seed/default/64",
+      icon: meta?.icon || "/default-category-icon.png",
       services,
     };
   });
