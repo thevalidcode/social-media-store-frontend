@@ -39,14 +39,15 @@ jobs:
         run: npm run build
 
       - name: Deploy to VPS
-        uses: appleboy/scp-action@master
+        uses: appleboy/scp-action@v0.1.5
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 2022
-          source: "out/"
-          target: "~/social-media-store/frontend/"
+          source: "out/*"
+          target: "~/social-media-store/frontend"
+          strip_components: 2
           overwrite: true
 
       - name: Serve static files via PM2
