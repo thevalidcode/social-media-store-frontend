@@ -45,9 +45,12 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 2022
-          source: "out/"
-          target: "~/social-media-store/frontend"
+          source: |
+            out/* 
+            out/.* 
+          target: "~/social-media-store/frontend/"
           overwrite: true
+
 
       - name: Serve static files via PM2
         uses: appleboy/ssh-action@v1.0.3
