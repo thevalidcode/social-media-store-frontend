@@ -500,6 +500,7 @@ export default function ProviderDialog({
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   required
+                  disabled
                 />
               </div>
 
