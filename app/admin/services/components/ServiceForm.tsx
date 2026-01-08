@@ -73,7 +73,7 @@ export default function ServiceForm({
       {!isEditing && (
         <div className="flex justify-between items-center">
           <Label>Add Service Details</Label>
-          <Button size="sm" variant="outline" onClick={onImport}>
+          <Button size="sm" variant="outline" type="button" onClick={onImport}>
             Import from Provider
           </Button>
         </div>

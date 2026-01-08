@@ -124,15 +124,6 @@ export default function ProviderDialog({
       setName(selectedProvider.name);
       setUrl(selectedProvider.url);
       setImage(selectedProvider.image || "");
-    } else if (newMode === "select") {
-      // Clear form when switching back to select
-      setName("");
-      setUrl("");
-      setImage("");
-      setApiKey("");
-      setSelectedProvider(null);
-      setCurrentPage(1);
-      setSearchQuery("");
     }
   };
 
