@@ -2,7 +2,9 @@
 
 import { useAppContext } from "@/context/appContext";
 import { Order, OrderPublic, OrderStatus } from "@/types/models/order";
+import { normalizeApiError } from "@/utils/normalizeApiErrors";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 // ---------- TYPES ----------
 
@@ -42,6 +44,10 @@ export const useCreateOrder = () => {
       if (!res.data) throw new Error("Failed to create an order");
       return res.data;
     },
+    onError: (error: any) => {
+      const errorMsg = normalizeApiError(error);
+      toast.error(errorMsg);
+    },
   });
 };
 
@@ -54,6 +60,10 @@ export const useCreateBulkOrder = () => {
       const res = await api.post("/orders/bulk", data);
       if (!res.data) throw new Error("Failed to create bulk orders");
       return res.data;
+    },
+    onError: (error: any) => {
+      const errorMsg = normalizeApiError(error);
+      toast.error(errorMsg);
     },
   });
 };
@@ -151,6 +161,10 @@ export const useUpdateOrder = () => {
           queryKey: ["allOrders", variables.update.status],
         });
       }
+    },
+    onError: (error: any) => {
+      const errorMsg = normalizeApiError(error);
+      toast.error(errorMsg);
     },
   });
 };

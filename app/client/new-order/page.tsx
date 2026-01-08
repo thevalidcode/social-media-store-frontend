@@ -288,9 +288,7 @@ export default function NewOrderPage() {
           setErrors(null);
         },
         onError: (err: any) => {
-          console.error(err);
           setErrors("Failed to submit order.");
-          toast.error("Failed to submit order.");
         },
         onSettled: () => setSubmitting(false),
       });
