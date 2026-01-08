@@ -27,7 +27,7 @@ export function groupServicesByCategory(
 
     return {
       title: meta?.name || categoryName,
-      icon: meta?.icon || "/default-category-icon.png",
+      icon: meta?.icon || "/images/default-category-icon.png",
       services,
     };
   });
