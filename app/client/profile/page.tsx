@@ -52,8 +52,9 @@ export default function UserProfilePage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     await updateUser({
-      ...userInfo!,
+      username: userInfo?.username ?? "",
       fullName: userInfo?.fullName ?? "",
+      apiKey: userInfo?.apiKey ?? "",
     });
     setEditing(false);
   }
