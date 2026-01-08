@@ -39,15 +39,14 @@ jobs:
         run: npm run build
 
       - name: Deploy to VPS
-        uses: appleboy/scp-action@v1
+        uses: appleboy/scp-action@v0.1.5
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 2022
-          source: "out/*"
+          source: "out"
           target: "~/social-media-store/frontend"
-          strip_components: 2
           overwrite: true
 
       - name: Serve static files via PM2
@@ -63,7 +62,7 @@ jobs:
 
             # Start serving static files
             command -v serve >/dev/null 2>&1 || npm install -g serve
-            PORT=4340 NODE_ENV=production pm2 start serve --name social-media-store-frontend -- ~/social-media-store/frontend -p 4340
+            PORT=4340 NODE_ENV=production pm2 start serve --name social-media-store-frontend -- ~/social-media-store/frontend/out -p 4340
             pm2 save
 
             echo "✅ Deployment completed! App running on port 4340"
