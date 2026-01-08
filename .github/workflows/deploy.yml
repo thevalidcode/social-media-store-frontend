@@ -63,7 +63,7 @@ jobs:
 
             # Start serving static files
             command -v serve >/dev/null 2>&1 || npm install -g serve
-            PORT=4340 NODE_ENV=production pm2 start serve --name social-media-store-frontend -- ~/social-media-store/frontend/out -p 4340
+            PORT=4340 NODE_ENV=production pm2 start serve --name social-media-store-frontend -- ~/social-media-store/frontend -p 4340
             pm2 save
 
             echo "✅ Deployment completed! App running on port 4340"
