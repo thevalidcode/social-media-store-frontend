@@ -1,4 +1,4 @@
-name: 🚀 Deploy Next.js to VPS
+name: 🚀 Deploy Next.js to VPS (Pre-Built)
 
 on:
   push:
@@ -6,14 +6,38 @@ on:
       - main
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     concurrency:
       group: nextjs-deploy
       cancel-in-progress: true
 
     steps:
-      - name: 🚀 Deploy via SSH
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js app (export static)
+        run: npm run build && npm run export
+
+      - name: Deploy to VPS
+        uses: appleboy/scp-action@v0.1.5
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: 2022
+          source: "out/**"
+          target: "~/social-media-store/frontend/out"
+
+      - name: Serve static files via PM2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_IP }}
@@ -21,45 +45,10 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 2022
           script: |
-            set -e
-
-            echo "Deploying Next.js app..."
-
-            # Prevent race conditions on rapid pushes
-            exec 9>/tmp/social-media-store-frontend.lock
-            flock -n 9 || exit 0
-
-            cd ~ || exit 1
-
-            # Ensure base directory exists
-            mkdir -p social-media-store
-
-            # Clone repo if it does not exist
-            if [ ! -d "social-media-store/frontend/.git" ]; then
-              echo "Repository not found. Cloning..."
-              git clone https://github.com/thevalidcode/social-media-store-frontend.git social-media-store/frontend
-            else
-              echo "Repository found. Updating..."
-            fi
-
-            cd social-media-store/frontend || exit 1
-
-            git fetch origin main
-            git reset --hard origin/main
-            git clean -fd
-
-            npm ci
-            npm run build
-
-            # Install serve globally if not present
-            command -v serve >/dev/null 2>&1 || npm install -g serve
-
             # Stop old PM2 process if exists
             pm2 describe social-media-store-frontend > /dev/null 2>&1 && pm2 delete social-media-store-frontend || true
 
-            # Start serving static files from out directory
-            pm2 start serve --name social-media-store-frontend -- out -p 4340 -s
-
+            # Start serving static files
+            command -v serve >/dev/null 2>&1 || npm install -g serve
+            PORT=4340 NODE_ENV=production pm2 start serve --name social-media-store-frontend -- ~/social-media-store/frontend/out -p 4340
             pm2 save
-
-            echo "Deployment completed!"
