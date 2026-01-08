@@ -39,7 +39,7 @@ export const ServiceDialog = ({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] p-0 overflow-y-auto">
         <DialogHeader className="px-6 py-4 border-b">
-          <DialogTitle>{activeService?.name}</DialogTitle>
+          <DialogTitle className="text-left">{activeService?.name}</DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
             {activeService?.description}
           </DialogDescription>

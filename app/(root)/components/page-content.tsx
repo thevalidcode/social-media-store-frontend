@@ -78,10 +78,8 @@ export function PageContent({
             <h1 className="text-2xl font-semibold text-foreground">
               {heading || page?.title}
             </h1>
-            {(description || page?.title) && (
-              <p className="text-sm text-muted-foreground">
-                {description || "Custom page content"}
-              </p>
+            {description && (
+              <p className="text-sm text-muted-foreground">{description}</p>
             )}
           </div>
         </div>
@@ -99,8 +97,8 @@ export function PageContent({
   }
 
   return (
-    <section className="bg-background py-10 sm:py-14">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="bg-background">
+      <div className="container mx-auto">
         <div
           className={useFullWidth ? "max-w-6xl mx-auto" : "max-w-5xl mx-auto"}
         >

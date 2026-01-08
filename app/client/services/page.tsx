@@ -7,7 +7,6 @@ import Loading from "@/app/loading";
 import { Server } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { useGetCategories } from "@/hooks/use-category";
-import { TypographyH2 } from "@/components/typography";
 import { Shield } from "lucide-react";
 
 export default function ServicesPage() {
@@ -31,7 +30,7 @@ export default function ServicesPage() {
 
   const categoryWithServices = groupServicesByCategory(services!, categories!);
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-3">
       <ServicesList categoryWithServices={categoryWithServices} />
     </div>
   );

@@ -110,7 +110,7 @@ export const CartSidebar: React.FC<Props> = ({
                           }
                         </div>
                         <div className="text-xs">
-                          Per unit: $
+                          Per unit:
                           {
                             convert(
                               svc.currency,
