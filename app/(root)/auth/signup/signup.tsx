@@ -129,7 +129,7 @@ export default function Signup() {
   const handleGoogleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     router.push(
-      `https://auth.validpanel.com/api/auth/social-media-store/google?storeId=${storeId}&redirect=${domain}/auth/signup`
+      `https://auth.validpanel.com/api/auth/social-media-store/google?storeId=${storeId}&redirect=https://${domain}/auth/signup`
     );
   };
 
