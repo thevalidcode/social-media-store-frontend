@@ -53,6 +53,7 @@ export default function UserProfilePage() {
     e.preventDefault();
     await updateUser({
       username: userInfo?.username ?? "",
+      image: userInfo?.image ?? "",
       fullName: userInfo?.fullName ?? "",
       apiKey: userInfo?.apiKey ?? "",
     });
