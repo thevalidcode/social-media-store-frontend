@@ -2,7 +2,9 @@
 
 import { useAppContext } from "@/context/appContext";
 import { Provider, ProviderService, ServiceProvider } from "@/types";
+import { normalizeApiError } from "@/utils/normalizeApiErrors";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export interface ProviderProps {
   name?: string;
@@ -32,6 +34,10 @@ export const useCreateProvider = () => {
         throw new Error(res.data.message || "Failed to create provider");
       }
       return res.data;
+    },
+    onError: (error: any) => {
+      const errorMsg = normalizeApiError(error);
+      toast.error(errorMsg);
     },
   });
 };
@@ -86,6 +92,10 @@ export const useUpdateProvider = () => {
       }
       return res.data;
     },
+    onError: (error: any) => {
+      const errorMsg = normalizeApiError(error);
+      toast.error(errorMsg);
+    },
   });
 };
 
@@ -101,6 +111,10 @@ export const useDeleteMultipleProviders = () => {
       }
       return res.data;
     },
+    onError: (error: any) => {
+      const errorMsg = normalizeApiError(error);
+      toast.error(errorMsg);
+    },
   });
 };
 
@@ -115,6 +129,10 @@ export const useDeleteProvider = () => {
         throw new Error(res?.data?.message || "Failed to delete provider");
       }
       return res.data;
+    },
+    onError: (error: any) => {
+      const errorMsg = normalizeApiError(error);
+      toast.error(errorMsg);
     },
   });
 };
@@ -148,6 +166,10 @@ export const useImportProviderServices = () => {
         );
       }
       return res.data;
+    },
+    onError: (error: any) => {
+      const errorMsg = normalizeApiError(error);
+      toast.error(errorMsg);
     },
   });
 };

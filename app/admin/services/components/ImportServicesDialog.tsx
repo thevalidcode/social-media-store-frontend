@@ -188,8 +188,7 @@ export default function ImportServicesDialog({
             setImporting(false);
           }, 400);
         },
-        onError: (error) => {
-          console.error(error);
+        onError: () => {
           setImporting(false);
           setProgress(0);
         },

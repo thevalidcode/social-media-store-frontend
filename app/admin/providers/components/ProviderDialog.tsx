@@ -113,6 +113,7 @@ export default function ProviderDialog({
     setName(provider.name);
     setUrl(provider.url);
     setImage(provider.image || "");
+    setMode("manual");
   };
 
   // Handle mode change
@@ -183,13 +184,6 @@ export default function ProviderDialog({
         );
         queryClient.invalidateQueries({ queryKey: ["providers"] });
         onClose();
-      },
-      onError: (error) => {
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : `Failed to ${isEdit ? "update" : "create"} provider`
-        );
       },
     });
   };
@@ -267,7 +261,7 @@ export default function ProviderDialog({
                       </Card>
                     ))}
                   </div>
-                ) : availableProviders && availableProviders.length === 0 ? (
+                ) : !availableProviders || availableProviders.length === 0 ? (
                   <div className="text-center py-8">
                     <div className="text-muted-foreground mb-2">
                       No providers found
@@ -428,8 +422,7 @@ export default function ProviderDialog({
                   </div>
                   <FeatureGate
                     isAllowed={
-                      storeInfo?.features
-                        ?.social_store_service_sync ?? false
+                      storeInfo?.features?.social_store_service_sync ?? false
                     }
                     featureLabel="Service syncing"
                     variant="overlay"
@@ -532,8 +525,7 @@ export default function ProviderDialog({
 
               <FeatureGate
                 isAllowed={
-                  storeInfo?.features?.social_store_service_sync ??
-                  false
+                  storeInfo?.features?.social_store_service_sync ?? false
                 }
                 featureLabel="Service syncing"
                 variant="overlay"

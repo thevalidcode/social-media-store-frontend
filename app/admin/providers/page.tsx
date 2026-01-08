@@ -83,12 +83,7 @@ export default function ProvidersPage() {
           setDeleteDialogOpen(false);
           setProvidersToDelete(null); // also clear this
         },
-        onError: (error: Error) => {
-          toast.error(
-            error instanceof Error
-              ? error.message
-              : "Failed to delete providers"
-          );
+        onError: () => {
           setDeleteDialogOpen(false);
         },
       });
@@ -99,11 +94,6 @@ export default function ProvidersPage() {
           queryClient.invalidateQueries({ queryKey: ["providers"] });
           setDeleteDialogOpen(false);
           setProvidersToDelete(null);
-        },
-        onError: (error: Error) => {
-          toast.error(
-            error instanceof Error ? error.message : "Failed to delete provider"
-          );
         },
       });
     }
@@ -221,7 +211,7 @@ export default function ProvidersPage() {
                   <TableCell>
                     <div className="flex items-center gap-3 min-w-0">
                       <img
-                        src={p.image ? p.image: `/provider.png`}
+                        src={p.image ? p.image : `/provider.png`}
                         alt={p.name}
                         className="w-8 h-8 rounded-full object-cover"
                       />
