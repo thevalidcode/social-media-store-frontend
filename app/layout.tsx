@@ -1,3 +1,5 @@
+"use client";
+
 import { AppProvider } from "@/context/appContext";
 import { UseMounted } from "@/lib/mounted";
 import { QueryProvider } from "@/provider/queryProvider";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useGetBlogById } from "@/hooks/use-blog";
@@ -9,7 +9,8 @@ import { DateTime } from "@/lib/DateTime";
 import parse from "html-react-parser";
 
 export default function BlogDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
   const router = useRouter();
 
   const { data: post, isLoading } = useGetBlogById(Number(id));
@@ -48,21 +49,23 @@ export default function BlogDetailPage() {
             src={post.coverImage}
             alt={post.title}
             className="w-full h-72 object-cover rounded-xl shadow-md"
-            loading="lazy"
           />
         </header>
 
         {/* Content Section */}
-        <div className="text-sm text-muted-foreground">
-          {parse(post.content || "")}
-        </div>
+        <section className="prose prose-lg max-w-none">
+          {parse(post.content)}
+        </section>
 
-        {/* Footer */}
-        <div className="mt-10">
-          <Button variant="outline" onClick={() => router.push("/client/blog")}>
+        {/* Footer Section */}
+        <footer className="mt-12 pt-6 border-t border-gray-200">
+          <Button
+            variant="outline"
+            onClick={() => router.push("/client/blog")}
+          >
             ← Back to Blog
           </Button>
-        </div>
+        </footer>
       </motion.article>
     </main>
   );

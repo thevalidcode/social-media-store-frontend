@@ -38,7 +38,7 @@ export default function SupportCardView({
               />
               <div>
                 <Link
-                  href={`/admin/support/${ticket.id}`}
+                  href={`/admin/support/ticket?id=${ticket.id}`}
                   className="font-semibold hover:underline"
                 >
                   {ticket.subject}

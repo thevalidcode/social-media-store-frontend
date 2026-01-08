@@ -73,7 +73,7 @@ export default function SupportTableView({
               <TableCell className="font-medium">{ticket.id}</TableCell>
               <TableCell>
                 <Link
-                  href={`/admin/support/${ticket.id}`}
+                  href={`/admin/support/ticket?id=${ticket.id}`}
                   className="font-medium hover:underline"
                 >
                   {ticket.subject}

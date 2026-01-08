@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import SupportDetails from "../components/SupportDetails";
 import { SupportTicket } from "@/types";
 import { useEffect, useState } from "react";
@@ -9,15 +9,16 @@ import Loading from "@/app/loading";
 import { MessageCircle } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 
-export default function TicketDetailsPage() {
-  const { id } = useParams();
+export default function TicketDetailPage() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const { data: ticketsData, isLoading } = useGetSupportTicket();
   const router = useRouter();
 
   useEffect(() => {
     if (ticketsData) {
-      setTickets(tickets);
+      setTickets(ticketsData);
     }
   }, [ticketsData]);
 

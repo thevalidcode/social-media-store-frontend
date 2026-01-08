@@ -122,7 +122,7 @@ export default function BlogPage() {
                       {format(new Date(post.createdAt), "MMM d, yyyy")}
                     </time>
                     <Link
-                      href={`/client/blog/${post.storeScopedId}`}
+                      href={`/client/blog/post?id=${post.storeScopedId}`}
                       className="text-sm font-medium text-primary-600 transition-colors hover:underline"
                       aria-label={`Read more about ${post.title}`}
                     >

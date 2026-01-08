@@ -48,12 +48,17 @@ jobs:
             git reset --hard origin/main
             git clean -fd
 
-            npm ci --omit=dev
+            npm ci
             npm run build
 
-            PORT=4340 pm2 describe social-media-store-frontend > /dev/null \
-              && PORT=4340 pm2 restart social-media-store-frontend --update-env \
-              || PORT=4340 pm2 start npm --name social-media-store-frontend -- start
+            # Install serve globally if not present
+            command -v serve >/dev/null 2>&1 || npm install -g serve
+
+            # Stop old PM2 process if exists
+            pm2 describe social-media-store-frontend > /dev/null 2>&1 && pm2 delete social-media-store-frontend || true
+
+            # Start serving static files from out directory
+            pm2 start serve --name social-media-store-frontend -- out -p 4340 -s
 
             pm2 save
 
