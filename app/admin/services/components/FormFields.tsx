@@ -21,6 +21,7 @@ interface InputFieldProps {
   onChange?: (value: string) => void;
   type?: "text" | "number" | "password" | "email";
   disabled?: boolean;
+  placeholder?: string;
   required?: boolean;
 }
 
@@ -29,6 +30,7 @@ export const InputField = ({
   value,
   onChange,
   required,
+  placeholder = "",
   type = "text",
   disabled = false,
 }: InputFieldProps) => (
@@ -37,6 +39,7 @@ export const InputField = ({
     <Input
       type={type}
       value={value}
+      placeholder={placeholder}
       required={required}
       onChange={(e: ChangeEvent<HTMLInputElement>) =>
         onChange?.(e.target.value)

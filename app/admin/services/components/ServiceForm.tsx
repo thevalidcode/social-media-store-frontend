@@ -9,13 +9,13 @@ import { Input } from "@/components/ui/input";
 import { useAppContext } from "@/context/appContext";
 import { useCurrencyConverter } from "@/lib/currencyConverter";
 import { useEffect, useState } from "react";
+import ImportServicesDialog from "./ImportServicesDialog";
 
 interface ServiceFormProps {
   service: any;
   setService: (val: any) => void;
   categoryOptions: any[];
   providerOptions: any[];
-  onImport?: () => void;
   isEditing?: boolean;
 }
 
@@ -25,11 +25,11 @@ export default function ServiceForm({
   categoryOptions,
   providerOptions,
   isEditing,
-  onImport,
 }: ServiceFormProps) {
   const { userCurrency } = useAppContext();
   const convert = useCurrencyConverter();
   const [localPrice, setLocalPrice] = useState("");
+  const [showImportServices, setShowImportServices] = useState(false);
   const [localProviderPrice, setLocalProviderPrice] = useState("");
 
   // Convert once on mount to user's currency
@@ -73,7 +73,12 @@ export default function ServiceForm({
       {!isEditing && (
         <div className="flex justify-between items-center">
           <Label>Add Service Details</Label>
-          <Button size="sm" variant="outline" type="button" onClick={onImport}>
+          <Button
+            size="sm"
+            variant="outline"
+            type="button"
+            onClick={() => setShowImportServices(true)}
+          >
             Import from Provider
           </Button>
         </div>
@@ -83,6 +88,7 @@ export default function ServiceForm({
         label="Name"
         value={service.name}
         required
+        placeholder="e.g. Instagram Followers"
         onChange={(v) => handleChange("name", v)}
       />
 
@@ -237,6 +243,10 @@ export default function ServiceForm({
           </div>
         </>
       )}
+      <ImportServicesDialog
+        open={showImportServices}
+        onOpenChange={(open) => setShowImportServices(open)}
+      />
     </div>
   );
 }
