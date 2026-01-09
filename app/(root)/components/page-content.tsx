@@ -78,8 +78,10 @@ export function PageContent({
             <h1 className="text-2xl font-semibold text-foreground">
               {heading || page?.title}
             </h1>
-            {description && (
-              <p className="text-sm text-muted-foreground">{description}</p>
+            {(description || page?.description) && (
+              <p className="text-sm text-muted-foreground">
+                {description || page?.description}
+              </p>
             )}
           </div>
         </div>

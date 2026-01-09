@@ -231,7 +231,7 @@ export function useUpdateUser() {
   });
 }
 
-interface UpdateUserByAdminProps {
+export interface UpdateUserByAdminProps {
   apiKey?: string;
   username?: string;
   email?: string;

@@ -18,12 +18,13 @@ import { useCurrencyConverter } from "@/lib/currencyConverter";
 import { useAppContext } from "@/context/appContext";
 import { User } from "@/types";
 import Decimal from "decimal.js";
+import { UpdateUserByAdminProps } from "@/hooks/use-user";
 
 interface EditUserModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   user: User;
-  onSave: (updatedUser: User) => void;
+  onSave: (updatedUser: UpdateUserByAdminProps) => void;
 }
 
 export default function EditUserModal({
@@ -72,7 +73,6 @@ export default function EditUserModal({
       newBalance = newBalance.minus(convertedUSDBalance);
 
     const updatedUser = {
-      ...user,
       username: form.username,
       email: form.email,
       balance: newBalance.toString(),

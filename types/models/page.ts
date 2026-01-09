@@ -14,6 +14,7 @@ export interface Page {
   pageType: PageType;
   title: string;
   content: string;
+  description?: string;
   status: PageStatus;
   createdAt: string;
   updatedAt: string;

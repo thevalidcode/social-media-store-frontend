@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -18,7 +20,7 @@ import {
   useCreatePage,
   useUpdatePage,
 } from "@/hooks/use-pages";
-import { Page, PageType } from "@/types";
+import { Page, PageType, PageStatus } from "@/types";
 import { FileText, Save, Eye } from "lucide-react";
 import { TypographyH3 } from "@/components/typography";
 import parse from "html-react-parser";
@@ -56,6 +58,8 @@ export default function PageManager() {
   const [selectedType, setSelectedType] = useState<PageType>("SERVICES");
   const [content, setContent] = useState("");
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [status, setStatus] = useState<PageStatus>("ACTIVE");
   const [currentPage, setCurrentPage] = useState<Page | null>(null);
 
   const { data: pages, isLoading } = useGetPagesByAdmin();
@@ -69,9 +73,13 @@ export default function PageManager() {
         setCurrentPage(page);
         setContent(page.content || "");
         setTitle(page.title || "");
+        setDescription(page.description || "");
+        setStatus(page.status || "ACTIVE");
       } else {
         setCurrentPage(null);
         setContent("");
+        setDescription("");
+        setStatus("ACTIVE");
         const defaultTitle =
           PAGE_TYPES.find((t) => t.value === selectedType)?.label || "";
         setTitle(defaultTitle);
@@ -85,13 +93,16 @@ export default function PageManager() {
       await updatePage.mutateAsync({
         uid: currentPage.uid,
         title,
+        description,
         content,
+        status,
       });
     } else {
       // Create new page
       await createPage.mutateAsync({
         pageType: selectedType as any,
         title,
+        description,
         content,
       });
     }
@@ -164,7 +175,56 @@ export default function PageManager() {
 
         <TabsContent value="editor" className="space-y-4">
           <Card>
-            <CardContent className="pt-6 space-y-4">
+            <CardHeader>
+              <CardTitle>Page Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="title">Title</Label>
+                  <Input
+                    id="title"
+                    placeholder="Enter page title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="status">Status</Label>
+                  <Select
+                    value={status}
+                    onValueChange={(value) => setStatus(value as PageStatus)}
+                  >
+                    <SelectTrigger id="status" className="w-full">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ACTIVE">Active</SelectItem>
+                      <SelectItem value="INACTIVE">Inactive</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Description (Optional)</Label>
+                <Textarea
+                  id="description"
+                  placeholder="Enter a brief description for this page"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={3}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Content</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <WysiwygEditor
                 collection="pages"
                 initialContent={content}

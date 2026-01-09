@@ -9,6 +9,7 @@ import { toast } from "sonner";
 interface CreatePageProps {
   pageType: PageType;
   title: string;
+  description?: string;
   content: string;
 }
 
@@ -17,6 +18,8 @@ interface UpdatePageProps {
   title?: string;
   content?: string;
   status?: PageStatus;
+  description?: string;
+  
 }
 
 // Get all pages by admin

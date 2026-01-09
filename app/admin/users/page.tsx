@@ -18,6 +18,7 @@ import { User, UserStatus } from "@/types";
 import Pagination from "@/components/pagination";
 import EditUserModal from "./components/EditUserModal";
 import {
+  UpdateUserByAdminProps,
   useDeleteMultipleUsers,
   useGetUsers,
   useUpdateUserByAdmin,
@@ -127,10 +128,10 @@ export default function UsersPage() {
     setIsEditOpen(true);
   };
 
-  const handleSaveUser = (updatedUser: User) => {
+  const handleSaveUser = (updatedUser: UpdateUserByAdminProps) => {
     setUsers((prev: any[]) =>
       prev.map((u) =>
-        u.storeScopedId === updatedUser.storeScopedId ? updatedUser : u
+        u.email === updatedUser.email ? updatedUser : u
       )
     );
     updateUser(updatedUser);
