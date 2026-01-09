@@ -8,10 +8,12 @@ import ImagePicker from "../../components/ImagePicker";
 interface CategoryFormProps {
   category: { name: string; description: string; icon: string };
   setCategory: (val: any) => void;
+  isEditing?: boolean;
 }
 
 export default function CategoryForm({
   category,
+  isEditing,
   setCategory,
 }: CategoryFormProps) {
   const handleChange = (key: string, value: any) =>
