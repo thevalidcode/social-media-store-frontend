@@ -210,13 +210,13 @@ export default function ServiceDialog({
                 <CategoryForm
                   category={newCategory}
                   setCategory={setNewCategory}
-                  isEditing={editingItem ? true : false}
                 />
               ) : (
                 <ServiceForm
                   service={newService}
                   setService={setNewService}
                   isEditing={editingItem ? true : false}
+                  setOpen={setOpen}
                   categoryOptions={categoryOptions}
                   providerOptions={providerOptions}
                 />

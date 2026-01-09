@@ -14,6 +14,7 @@ import ImportServicesDialog from "./ImportServicesDialog";
 interface ServiceFormProps {
   service: any;
   setService: (val: any) => void;
+  setOpen?: (val: boolean) => void;
   categoryOptions: any[];
   providerOptions: any[];
   isEditing?: boolean;
@@ -24,6 +25,7 @@ export default function ServiceForm({
   setService,
   categoryOptions,
   providerOptions,
+  setOpen,
   isEditing,
 }: ServiceFormProps) {
   const { userCurrency } = useAppContext();
@@ -78,7 +80,10 @@ export default function ServiceForm({
             size="sm"
             variant="outline"
             type="button"
-            onClick={() => setShowImportServices(true)}
+            onClick={() => {
+              setShowImportServices(true);
+              setOpen && setOpen(false);
+            }}
           >
             Import from Provider
           </Button>
