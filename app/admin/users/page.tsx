@@ -63,8 +63,8 @@ export default function UsersPage() {
       if (!search) return true;
       const q = search.toLowerCase();
       return (
-        u.username.toLowerCase().includes(q) ||
-        u.email.toLowerCase().includes(q)
+        u.username?.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q)
       );
     });
   }, [users, search, statusFilter]);

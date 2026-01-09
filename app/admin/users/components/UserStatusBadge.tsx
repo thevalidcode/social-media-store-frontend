@@ -26,9 +26,9 @@ export default function UserStatusBadge({ status }: { status: UserStatus }) {
   };
 
   // normalize
-  const key = status.toLowerCase();
+  const key = status?.toLowerCase() || "active";
   const { label, classes, dot } = config[key] ?? {
-    label: status,
+    label: status || "ACTIVE",
     classes: "text-muted-foreground bg-muted",
     dot: "#fff",
   };
