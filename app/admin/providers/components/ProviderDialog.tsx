@@ -151,7 +151,7 @@ export default function ProviderDialog({
       return;
     }
 
-    if (mode === "manual" && (!apiKey || !url || !name)) {
+    if (mode === "manual" && (!apiKey || !url || !name || !image)) {
       toast.warning("All fields are required");
       return;
     }

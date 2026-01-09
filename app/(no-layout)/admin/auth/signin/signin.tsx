@@ -94,7 +94,7 @@ export default function Signin() {
   const handleGoogleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     router.push(
-      `https://auth.validpanel.com/api/auth/social-media-store/google?storeId=${storeId}&redirect=https://${domain}/admin/auth/signin`
+      `https://auth.validpanel.com/api/auth/social-media-store/google?role=ADMIN&storeId=${storeId}&redirect=https://${domain}/admin/auth/signin`
     );
   };
 
