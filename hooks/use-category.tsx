@@ -119,7 +119,7 @@ export const useDeleteMultipleCategorys = () => {
     mutationKey: ["deleteMultipleCategorys"],
     mutationFn: async (uids: DeleteMultipleCategorysProps) => {
       const res = await api.delete(`/categories/multiple`, {
-        params: { uiods: uids.uids },
+        data: uids,
         withCredentials: true,
       });
       if (!res.data) {
