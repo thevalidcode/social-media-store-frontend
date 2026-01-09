@@ -130,9 +130,7 @@ export default function UsersPage() {
 
   const handleSaveUser = (updatedUser: UpdateUserByAdminProps) => {
     setUsers((prev: any[]) =>
-      prev.map((u) =>
-        u.email === updatedUser.email ? updatedUser : u
-      )
+      prev.map((u) => (u.email === updatedUser.email ? updatedUser : u))
     );
     updateUser(updatedUser);
   };
@@ -165,19 +163,18 @@ export default function UsersPage() {
     .map((u) => u.username);
 
   const handleToggleBan = (storeScopedId: number) => {
-    let updatedUser: User | null = null;
+    let updatedUser: UpdateUserByAdminProps | null = null;
 
     setUsers((prev) =>
       prev.map((u) => {
         if (u.storeScopedId !== storeScopedId) return u;
 
-        const newUser = {
-          ...u,
-          status: u.status === "BANNED" ? "ACTIVE" : ("BANNED" as UserStatus),
-        };
+        const newStatus =
+          u.status === "BANNED" ? "ACTIVE" : ("BANNED" as UserStatus);
+        const updated = { ...u, status: newStatus };
 
-        updatedUser = newUser;
-        return newUser;
+        updatedUser = { uid: u.uid, status: newStatus };
+        return updated;
       })
     );
 
@@ -188,9 +185,8 @@ export default function UsersPage() {
 
   const handleBanSelectedUsers = (
     selectedIds: number[],
-    users: User[],
     setUsers: React.Dispatch<React.SetStateAction<User[]>>,
-    updateUser: (user: User) => void
+    updateUser: (user: UpdateUserByAdminProps) => void
   ) => {
     const updatedUsers: User[] = [];
 
@@ -205,7 +201,7 @@ export default function UsersPage() {
     );
 
     // Call updateUser for each updated user
-    updatedUsers.forEach((u) => updateUser(u));
+    updatedUsers.forEach((u) => updateUser({ status: "BANNED", uid: u.uid }));
   };
 
   return (
@@ -275,7 +271,7 @@ export default function UsersPage() {
               size="sm"
               variant="outline"
               onClick={() =>
-                handleBanSelectedUsers(selected, users, setUsers, updateUser)
+                handleBanSelectedUsers(selected, setUsers, updateUser)
               }
             >
               Ban

@@ -238,6 +238,7 @@ export interface UpdateUserByAdminProps {
   fullName?: string;
   balance?: string;
   uid: string;
+  status?: UserStatus;
 }
 
 export function useUpdateUserByAdmin() {
