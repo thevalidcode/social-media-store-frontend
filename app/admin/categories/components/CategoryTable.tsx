@@ -13,31 +13,26 @@ import {
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { ArrowUpDown, Edit, Trash2 } from "lucide-react";
-import { Service, ServiceStatus } from "@/types";
+import { Category, CategoryStatus } from "@/types";
 import Image from "next/image";
-import { useCurrencyConverter } from "@/lib/currencyConverter";
-import { useAppContext } from "@/context/appContext";
 
-interface ServiceTableProps {
-  services: Service[];
-  onEdit: (service: Service) => void;
+interface CategoryTableProps {
+  categories: Category[];
+  onEdit: (category: Category) => void;
   onDeleteSingle: (id: number) => void;
-  onToggleStatus: (serviceId: number, newStatus: ServiceStatus) => void;
+  onToggleStatus: (categoryId: number, newStatus: CategoryStatus) => void;
 }
 
-export default function ServiceTable({
-  services,
+export default function CategoryTable({
+  categories,
   onEdit,
   onDeleteSingle,
   onToggleStatus,
-}: ServiceTableProps) {
-  const [sortKey, setSortKey] = useState<keyof Service>("name");
+}: CategoryTableProps) {
+  const [sortKey, setSortKey] = useState<keyof Category>("name");
   const [sortAsc, setSortAsc] = useState(true);
 
-  const convert = useCurrencyConverter();
-  const { userCurrency } = useAppContext();
-
-  const handleSort = (key: keyof Service) => {
+  const handleSort = (key: keyof Category) => {
     if (sortKey === key) setSortAsc(!sortAsc);
     else {
       setSortKey(key);
@@ -45,7 +40,7 @@ export default function ServiceTable({
     }
   };
 
-  const sortedServices = [...services].sort((a, b) => {
+  const sortedCategories = [...categories].sort((a, b) => {
     const valA = a[sortKey];
     const valB = b[sortKey];
     if (typeof valA === "string" && typeof valB === "string")
@@ -57,7 +52,7 @@ export default function ServiceTable({
 
   return (
     <div className="overflow-x-auto rounded-xl border border-border">
-      <Table className="w-full min-w-[800px]">
+      <Table className="w-full min-w-[600px]">
         <TableHeader>
           <TableRow>
             <TableHead
@@ -68,18 +63,7 @@ export default function ServiceTable({
                 Name <ArrowUpDown className="w-3 h-3" />
               </div>
             </TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead
-              className="cursor-pointer"
-              onClick={() => handleSort("price")}
-            >
-              <div className="flex items-center gap-1">
-                Price <ArrowUpDown className="w-3 h-3" />
-              </div>
-            </TableHead>
-            <TableHead>Min</TableHead>
-            <TableHead>Max</TableHead>
+            <TableHead>Description</TableHead>
             <TableHead
               className="cursor-pointer"
               onClick={() => handleSort("status")}
@@ -94,9 +78,9 @@ export default function ServiceTable({
 
         <TableBody>
           <AnimatePresence>
-            {sortedServices.map((service) => (
+            {sortedCategories.map((category) => (
               <motion.tr
-                key={service.storeScopedId}
+                key={category.storeScopedId}
                 initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
@@ -106,47 +90,34 @@ export default function ServiceTable({
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-3">
                     <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
-                      {service.icon ? (
+                      {category.icon ? (
                         <Image
-                          src={service.icon}
-                          alt={service.name}
+                          src={category.icon}
+                          alt={category.name}
                           width={32}
                           height={32}
                           className="object-cover"
                         />
                       ) : (
-                        <div className="text-muted-foreground text-xs">🧩</div>
+                        <div className="text-muted-foreground text-xs">📁</div>
                       )}
                     </div>
-                    <span>{service.name}</span>
+                    <span>{category.name}</span>
                   </div>
                 </TableCell>
 
                 <TableCell>
                   <span className="text-sm text-muted-foreground">
-                    {service.category}
+                    {category.description || "No description"}
                   </span>
                 </TableCell>
-                <TableCell>{service.type}</TableCell>
-                <TableCell>
-                  {
-                    convert(
-                      service.currency||"USD",
-                      userCurrency,
-                      service.price,
-                      true,
-                      false
-                    ).formatted
-                  }
-                </TableCell>
-                <TableCell>{service.min}</TableCell>
-                <TableCell>{service.max}</TableCell>
+
                 <TableCell>
                   <Switch
-                    checked={service.status === "ACTIVE"}
+                    checked={category.status === "ACTIVE"}
                     onCheckedChange={(checked) =>
                       onToggleStatus(
-                        service.storeScopedId,
+                        category.storeScopedId,
                         checked ? "ACTIVE" : "DISABLED"
                       )
                     }
@@ -156,7 +127,7 @@ export default function ServiceTable({
                   <Button
                     size="icon"
                     variant="outline"
-                    onClick={() => onEdit(service)}
+                    onClick={() => onEdit(category)}
                   >
                     <Edit className="w-4 h-4" />
                   </Button>
@@ -164,7 +135,7 @@ export default function ServiceTable({
                     size="icon"
                     type="button"
                     variant="destructive"
-                    onClick={() => onDeleteSingle(service.storeScopedId)}
+                    onClick={() => onDeleteSingle(category.storeScopedId)}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>

@@ -75,6 +75,7 @@ export default function EditUserModal({
     const updatedUser = {
       username: form.username,
       email: form.email,
+      uid: user.uid,
       balance: newBalance.toString(),
     };
 

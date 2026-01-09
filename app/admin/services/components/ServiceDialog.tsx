@@ -9,9 +9,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import CategoryForm from "./CategoryForm";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import CategoryForm from "../../categories/components/CategoryForm";
 import ServiceForm from "./ServiceForm";
 import { useState, useEffect, FormEvent } from "react";
 import Loading from "@/app/loading";
@@ -193,16 +192,18 @@ export default function ServiceDialog({
 
             <div className="px-6 py-4 space-y-5">
               {!editingItem && (
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="switch-mode" className="text-xs">
-                    Category
-                  </Label>
-                  <Switch
-                    id="switch-mode"
-                    checked={isCategoryMode}
-                    onCheckedChange={setIsCategoryMode}
-                  />
-                </div>
+                <Tabs
+                  value={isCategoryMode ? "category" : "service"}
+                  onValueChange={(value) =>
+                    setIsCategoryMode(value === "category")
+                  }
+                  className="w-full"
+                >
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="service">Service</TabsTrigger>
+                    <TabsTrigger value="category">Category</TabsTrigger>
+                  </TabsList>
+                </Tabs>
               )}
 
               {isCategoryMode ? (

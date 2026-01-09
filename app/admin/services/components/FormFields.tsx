@@ -53,7 +53,7 @@ interface TextareaFieldProps {
   label: string;
   value: string;
   required?: boolean;
-
+  placeholder?: string;
   onChange: (value: string) => void;
 }
 
@@ -62,12 +62,14 @@ export const TextareaField = ({
   value,
   onChange,
   required,
+  placeholder = "",
 }: TextareaFieldProps) => (
   <div className="flex flex-col lg:gap-2 gap-1">
     <Label>{label}</Label>
     <Textarea
       value={value}
       required={required}
+      placeholder={placeholder}
       onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
         onChange(e.target.value)
       }

@@ -66,6 +66,7 @@ export default function ServiceForm({
     { key: "dripFeed", label: "Drip Feed" },
     { key: "refill", label: "Refill" },
     { key: "cancel", label: "Cancel" },
+    { key: "syncWithProvider", label: "Sync With Provider" },
   ];
 
   return (
@@ -111,6 +112,7 @@ export default function ServiceForm({
       <TextareaField
         label="Description"
         value={service.description}
+        placeholder="Enter a brief description for this service"
         onChange={(v) => handleChange("description", v)}
       />
 

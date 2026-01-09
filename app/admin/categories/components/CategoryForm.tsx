@@ -13,7 +13,6 @@ interface CategoryFormProps {
 
 export default function CategoryForm({
   category,
-  isEditing,
   setCategory,
 }: CategoryFormProps) {
   const handleChange = (key: string, value: any) =>

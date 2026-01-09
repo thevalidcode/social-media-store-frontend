@@ -9,52 +9,36 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
-import { Service, ServiceStatus } from "@/types";
+import { Category, CategoryStatus } from "@/types";
 import Image from "next/image";
-import { useCurrencyConverter } from "@/lib/currencyConverter";
-import { useAppContext } from "@/context/appContext";
 
-interface ServiceCardProps {
-  services: Service[];
-  onEdit: (service: Service) => void;
+interface CategoryCardProps {
+  categories: Category[];
+  onEdit: (category: Category) => void;
   onDeleteSingle: (id: number) => void;
-  onToggleStatus: (serviceId: number, newStatus: ServiceStatus) => void;
+  onToggleStatus: (categoryId: number, newStatus: CategoryStatus) => void;
 }
 
-export default function ServiceCard({
-  services,
+export default function CategoryCard({
+  categories,
   onEdit,
   onDeleteSingle,
   onToggleStatus,
-}: ServiceCardProps) {
-  const convert = useCurrencyConverter();
-  const { userCurrency, storeId } = useAppContext();
+}: CategoryCardProps) {
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.25 }}
-    >
-      {services.map((service) => {
-        const {
-          storeScopedId,
-          name,
-          category,
-          type,
-          price,
-          min,
-          max,
-          status,
-          icon,
-          currency,
-        } = service;
+    <>
+      {categories.map((category) => {
+        const { storeScopedId, name, description, status, icon } = category;
 
         return (
           <motion.div
+            key={storeScopedId}
+            layout
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
             whileHover={{ scale: 1.01 }}
-            transition={{ duration: 0.15 }}
             className="w-full"
           >
             <Card className="rounded-2xl border border-border/60 shadow-sm bg-card hover:shadow-md transition-all duration-200">
@@ -71,13 +55,13 @@ export default function ServiceCard({
                           className="object-cover"
                         />
                       ) : (
-                        <div className="text-muted-foreground text-sm">🧩</div>
+                        <div className="text-muted-foreground text-sm">📁</div>
                       )}
                     </div>
                     <div>
                       <h2 className="font-semibold text-base">{name}</h2>
-                      <p className="text-xs text-muted-foreground">
-                        {category}
+                      <p className="text-xs text-muted-foreground line-clamp-1">
+                        {description || "No description"}
                       </p>
                     </div>
                   </div>
@@ -94,36 +78,14 @@ export default function ServiceCard({
                 </div>
               </CardHeader>
 
-              <CardContent className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+              <CardContent className="text-sm">
                 <div>
                   <span className="block text-muted-foreground text-xs">
-                    Type
+                    Description
                   </span>
-                  <span className="font-medium">{type}</span>
-                </div>
-                <div>
-                  <span className="block text-muted-foreground text-xs">
-                    Price
-                  </span>
-                  <span className="font-medium">
-                    {" "}
-                    {
-                      convert(currency, userCurrency, price, true, false)
-                        .formatted
-                    }
-                  </span>
-                </div>
-                <div>
-                  <span className="block text-muted-foreground text-xs">
-                    Min
-                  </span>
-                  <span className="font-medium">{min}</span>
-                </div>
-                <div>
-                  <span className="block text-muted-foreground text-xs">
-                    Max
-                  </span>
-                  <span className="font-medium">{max}</span>
+                  <p className="text-sm line-clamp-2">
+                    {description || "No description provided"}
+                  </p>
                 </div>
               </CardContent>
 
@@ -132,7 +94,7 @@ export default function ServiceCard({
                   size="icon"
                   variant="outline"
                   className="rounded-xl hover:bg-muted/60"
-                  onClick={() => onEdit(service)}
+                  onClick={() => onEdit(category)}
                 >
                   <Edit className="w-4 h-4" />
                 </Button>
@@ -140,7 +102,7 @@ export default function ServiceCard({
                   size="icon"
                   variant="destructive"
                   className="rounded-xl"
-                  onClick={() => onDeleteSingle(service.storeScopedId)}
+                  onClick={() => onDeleteSingle(storeScopedId)}
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -149,6 +111,6 @@ export default function ServiceCard({
           </motion.div>
         );
       })}
-    </motion.div>
+    </>
   );
 }

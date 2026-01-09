@@ -3,11 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import ServiceCard from "./ServiceCard";
 import ServiceTable from "./ServiceTable";
-import { Service } from "@/types";
+import { Service, ServiceStatus } from "@/types";
 import ServiceFilters from "./ServiceFilters";
 import {
   useDeleteMultipleServices,
   useGetServicesByAdmin,
+  useUpdateService,
 } from "@/hooks/use-services";
 import Loading from "@/app/loading";
 import { EmptyState } from "@/components/empty-state";
@@ -17,7 +18,6 @@ import DeleteDialog from "../../components/DeleteDialog";
 import AddService from "./ServiceDialog";
 import ServiceDialog from "./ServiceDialog";
 import { useAppContext } from "@/context/appContext";
-import { FeatureGate } from "@/components/FeatureGate";
 import { toast } from "sonner";
 
 export default function ServiceList() {
@@ -27,7 +27,6 @@ export default function ServiceList() {
     search: "",
     status: "All",
   });
-  const [selected, setSelected] = useState<number[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [open, setOpen] = useState<boolean>(false);
@@ -36,6 +35,7 @@ export default function ServiceList() {
   const [pageSize, setPageSize] = useState(10);
   const { data: servicesData, isLoading } = useGetServicesByAdmin();
   const { mutate: deleteMultipleServices } = useDeleteMultipleServices();
+  const { mutate: updateService } = useUpdateService();
   const { storeInfo } = useAppContext();
 
   const hasUnlimitedProducts = storeInfo?.features?.unlimited_products ?? false;
@@ -51,6 +51,7 @@ export default function ServiceList() {
       return;
     }
     setOpen(true);
+    setSelectedService(null);
   };
 
   useEffect(() => {
@@ -116,21 +117,25 @@ export default function ServiceList() {
     setServices((prev) =>
       prev.filter((u) => !deleteIds.includes(u.storeScopedId))
     );
-    setSelected((prev) => prev.filter((id) => !deleteIds.includes(id)));
     setDeleteIds([]);
-  };
-
-  const handleDeleteSelected = () => {
-    if (selected.length === 0) return;
-    setDeleteIds(selected);
-    setDeleteOpen(true);
   };
 
   const namesForDelete = current
     .filter((u) => deleteIds.includes(u.storeScopedId))
     .map((u) => u.name);
 
-  const onToggleStatus = () => {};
+  const onToggleStatus = (serviceId: number, newStatus: ServiceStatus) => {
+    if (!selectedService) return;
+
+    setServices((prevServices) =>
+      prevServices.map((service) =>
+        service.storeScopedId === serviceId
+          ? { ...service, status: newStatus }
+          : service
+      )
+    );
+    updateService({ ...selectedService, status: newStatus });
+  };
 
   const handleFilterChange = (newFilters: typeof filters) => {
     setFilters(newFilters);

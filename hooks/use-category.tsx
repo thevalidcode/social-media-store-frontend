@@ -11,6 +11,7 @@ interface UpdateCategoryProps {
   name?: string;
   icon?: string;
   description?: string;
+  position?: string;
   status?: CategoryStatus;
 }
 
@@ -48,10 +49,7 @@ export const useCreateCategory = () => {
       queryClient.invalidateQueries({ queryKey: ["categories", storeId] });
     },
     onError: (error: any) => {
-      const errorMsg = normalizeApiError(
-        error,
-        "Failed to create category"
-      );
+      const errorMsg = normalizeApiError(error, "Failed to create category");
       toast.error(errorMsg);
     },
   });
@@ -66,7 +64,7 @@ export const useUpdateCategory = () => {
     mutationFn: async (category: UpdateCategoryProps) => {
       const res = await api.patch(`/categories`, category);
       if (!res.data) {
-        throw new Error(res.data.message || "Failed to update category");
+        throw new Error("Failed to update category");
       }
       return res.data;
     },
@@ -75,10 +73,7 @@ export const useUpdateCategory = () => {
       queryClient.invalidateQueries({ queryKey: ["categories", storeId] });
     },
     onError: (error: any) => {
-      const errorMsg = normalizeApiError(
-        error,
-        "Failed to update category"
-      );
+      const errorMsg = normalizeApiError(error, "Failed to update category");
       toast.error(errorMsg);
     },
   });
@@ -95,16 +90,20 @@ export const useDeleteCategory = () => {
     mutationKey: ["deleteCategory"],
     mutationFn: async (uid: CategoryDeleteProps) => {
       const res = await api.delete(`/categories`, {
-        params: { uid: uid.uid },
+        params: uid,
       });
       if (!res.data) {
-        throw new Error(res.data.message || "Failed to delete category");
+        throw new Error("Failed to delete category");
       }
       return res.data;
     },
     onSuccess: () => {
       toast.success("Category deleted successfully");
       queryClient.invalidateQueries({ queryKey: ["categories"] });
+    },
+    onError: (error: any) => {
+      const errorMsg = normalizeApiError(error, "Failed to delete category");
+      toast.error(errorMsg);
     },
   });
 };
@@ -124,7 +123,7 @@ export const useDeleteMultipleCategorys = () => {
         withCredentials: true,
       });
       if (!res.data) {
-        throw new Error(res.data.message || "Failed to delete categories");
+        throw new Error("Failed to delete categories");
       }
 
       return res.data;
@@ -132,6 +131,10 @@ export const useDeleteMultipleCategorys = () => {
     onSuccess: () => {
       toast.success("Categorys deleted successfully");
       queryClient.invalidateQueries({ queryKey: ["categories"] });
+    },
+    onError: (error: any) => {
+      const errorMsg = normalizeApiError(error, "Failed to delete categories");
+      toast.error(errorMsg);
     },
   });
 };

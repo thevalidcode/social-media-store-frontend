@@ -237,6 +237,7 @@ export interface UpdateUserByAdminProps {
   email?: string;
   fullName?: string;
   balance?: string;
+  uid: string;
 }
 
 export function useUpdateUserByAdmin() {
