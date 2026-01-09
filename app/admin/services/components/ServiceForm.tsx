@@ -71,6 +71,11 @@ export default function ServiceForm({
     { key: "syncWithProvider", label: "Sync With Provider" },
   ];
 
+  const handleImportClick = (isOpen: boolean) => {
+    setShowImportServices(isOpen);
+    if (!isOpen && setOpen) setOpen(false);
+  };
+
   return (
     <div className="space-y-3 text-sm mt-2">
       {!isEditing && (
@@ -82,7 +87,6 @@ export default function ServiceForm({
             type="button"
             onClick={() => {
               setShowImportServices(true);
-              setOpen && setOpen(false);
             }}
           >
             Import from Provider
@@ -252,7 +256,7 @@ export default function ServiceForm({
       )}
       <ImportServicesDialog
         open={showImportServices}
-        onOpenChange={(open) => setShowImportServices(open)}
+        onOpenChange={(open) => handleImportClick(open)}
       />
     </div>
   );
