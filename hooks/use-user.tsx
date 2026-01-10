@@ -98,6 +98,7 @@ export function useUserLogin() {
       });
       // Redirect to the appropriate dashboard. The user session is now active.
       router.push("/client/dashboard");
+      toast.success("User logged in successfully");
     },
     onError: (error: unknown) => {
       const errorMsg = normalizeApiError(error, "Failed to login user");
@@ -122,17 +123,16 @@ export function useGetUsers() {
 }
 
 // ! get user by id`
-export function useGetUserById(id: string) {
+export function useGetUserByUid(uid: string) {
   const { api } = useAppContext();
   return useQuery({
-    queryKey: ["user", id],
+    queryKey: ["user", uid],
     queryFn: async () => {
-      const res = await api.get(`/users/${id}`);
+      const res = await api.get<{ user: User }>(`/users/${uid}`);
       if (!res.data) throw new Error("Failed to fetch user");
-      `
-        return res.data;`;
+      return res.data.user;
     },
-    enabled: !!api && !!id,
+    enabled: !!api && !!uid,
   });
 }
 

@@ -254,7 +254,7 @@ export default function Signup() {
               className="w-full mt-6"
               disabled={isPending || isVerifyingSession}
             >
-              {isPending || isVerifyingSession ? "Signing in..." : "Sign In"}
+              {isPending || isVerifyingSession ? "Signing up..." : "Sign Up"}
             </Button>
 
             {/* Divider */}

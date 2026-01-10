@@ -137,12 +137,12 @@ export const ServiceList: React.FC<Props> = ({
                   className="text-sm h-8"
                 />
 
-                <div className="flex items-center gap-2 justify-between">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 justify-between flex-wrap">
+                  <div className="flex items-center gap-2 flex-3">
                     <Button
                       size="sm"
                       variant="outline"
-                      className="h-8 w-8 p-0"
+                      className="h-8 w-8 p-0 flex-1"
                       onClick={() =>
                         updateQuantity(s.uid, Math.max(0, inCart.quantity - 1))
                       }
@@ -150,7 +150,7 @@ export const ServiceList: React.FC<Props> = ({
                       -
                     </Button>
                     <Input
-                      className="w-16 text-center h-8 text-sm"
+                      className="w-16 text-center h-8 text-sm flex-2"
                       type="number"
                       min={0}
                       value={inCart.quantity}
@@ -164,7 +164,7 @@ export const ServiceList: React.FC<Props> = ({
                     <Button
                       size="sm"
                       variant="outline"
-                      className="h-8 w-8 p-0"
+                      className="h-8 w-8 p-0 flex-1"
                       onClick={() => addToCart(s, 1, inCart.link)}
                     >
                       +
@@ -173,7 +173,7 @@ export const ServiceList: React.FC<Props> = ({
 
                   <Button
                     size="sm"
-                    className="h-8 px-3 text-xs"
+                    className="h-8 px-3 text-xs flex-1"
                     disabled={!inCart.link}
                     onClick={() => addToCart(s, 1, inCart.link)}
                   >

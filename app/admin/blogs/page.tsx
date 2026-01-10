@@ -25,6 +25,7 @@ import {
 } from "@/hooks/use-blog";
 import DeleteDialog from "../components/DeleteDialog";
 import { EmptyState } from "@/components/empty-state";
+import Pagination from "@/components/pagination";
 
 export default function AdminBlogsPage() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
@@ -35,6 +36,8 @@ export default function AdminBlogsPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteIds, setDeleteIds] = useState<number[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(9);
 
   const { mutate: createBlog } = useCreateblog();
   const { mutate: updateBlog } = useUpdateBlog();
@@ -56,6 +59,11 @@ export default function AdminBlogsPage() {
       )
       .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
   }, [blogs, search]);
+
+  const paginatedBlogs = useMemo(() => {
+    const startIndex = (page - 1) * pageSize;
+    return filteredBlogs.slice(startIndex, startIndex + pageSize);
+  }, [filteredBlogs, page, pageSize]);
 
   // Create new blog
   const handleCreate = () => {
@@ -190,7 +198,7 @@ export default function AdminBlogsPage() {
 
           {/* Blog List */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredBlogs.map((blog) => (
+            {paginatedBlogs.map((blog) => (
               <Card
                 key={blog.id}
                 className="rounded-2xl hover:shadow-2xl transition-shadow duration-300 overflow-hidden"
@@ -243,6 +251,20 @@ export default function AdminBlogsPage() {
               </Card>
             ))}
           </div>
+
+          {/* Pagination */}
+          {filteredBlogs.length > 0 && (
+            <div className="mt-8">
+              <Pagination
+                page={page}
+                pageSize={pageSize}
+                totalItems={filteredBlogs.length}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
+                pageSizeOptions={[9, 18, 27]}
+              />
+            </div>
+          )}
         </>
       )}
       {/* Dialog */}

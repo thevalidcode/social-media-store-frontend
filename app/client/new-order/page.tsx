@@ -15,7 +15,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { CreateBulkOrderProps, useCreateBulkOrder } from "@/hooks/use-order";
+import {
+  CreateBulkOrderProps,
+  useCreateBulkOrder,
+  useCreateOrder,
+} from "@/hooks/use-order";
 import { useAppContext } from "@/context/appContext";
 import { useGetServicesByPublic } from "@/hooks/use-services";
 import { groupServicesByCategory } from "@/lib/groupServices";
@@ -56,7 +60,10 @@ export default function NewOrderPage() {
   const [errors, setErrors] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const { userInfo } = useAppContext();
-  const { mutate } = useCreateBulkOrder();
+  const { mutateAsync: mutateBulkOrder, isPending: isBulkOrderPending } =
+    useCreateBulkOrder();
+  const { mutateAsync: mutateOrder, isPending: isOrderPending } =
+    useCreateOrder();
   const { data: services, isLoading } = useGetServicesByPublic();
   const { data: categories, isLoading: isCategoriesLoading } =
     useGetCategories();
@@ -243,57 +250,66 @@ export default function NewOrderPage() {
 
   const handleSubmit = async (): Promise<void> => {
     setErrors(null);
-    const v = validate();
-    if (v) {
-      setErrors(v);
+    const validationError = validate();
+    if (validationError) {
+      setErrors(validationError);
       return;
     }
 
     setSubmitting(true);
     try {
-      const payload: OrderPayload = {
-        category,
-        items: cart.map((c) => ({
-          serviceId: c.serviceId,
-          quantity: effectiveQuantity(c.quantity),
-          unitPrice: perUnitPrice(c.price),
-        })),
-        dripFeed: {
-          enabled: dripEnabled,
-          intervalMinutes: dripEnabled ? intervalMinutes : 0,
-          runs: dripEnabled ? runs : 0,
-        },
-        totalPrice: grandTotal,
+      const handleOrderSuccess = () => {
+        toast.success("Order submitted.");
+        setCart([]);
+        setDripEnabled(false);
+        setIntervalMinutes(60);
+        setRuns(1);
+        setErrors(null);
       };
 
-      const orders: CreateBulkOrderProps = {
-        orders: cart.map((c) => ({
-          serviceUid: c.serviceUid,
-          quantity: effectiveQuantity(c.quantity),
-          url: c.link,
+      const handleOrderError = (error: any) => {
+        setErrors("Failed to submit order.");
+      };
+
+      const handleOrderSettled = () => setSubmitting(false);
+
+      if (cart.length === 1) {
+        const singleOrder = {
+          serviceUid: cart[0].serviceUid,
+          quantity: effectiveQuantity(cart[0].quantity),
+          url: cart[0].link,
           dripFeed: dripEnabled,
           interval: dripEnabled ? intervalMinutes : undefined,
           runs: dripEnabled ? runs : undefined,
           userUid: userInfo?.uid!,
-        })),
-      };
+        };
 
-      mutate(orders, {
-        onSuccess: () => {
-          toast.success("Order submitted.");
-          setCart([]);
-          setDripEnabled(false);
-          setIntervalMinutes(60);
-          setRuns(1);
-          setErrors(null);
-        },
-        onError: (err: any) => {
-          setErrors("Failed to submit order.");
-        },
-        onSettled: () => setSubmitting(false),
-      });
-    } catch (err) {
-      console.error(err);
+        await mutateOrder(singleOrder, {
+          onSuccess: handleOrderSuccess,
+          onError: handleOrderError,
+          onSettled: handleOrderSettled,
+        });
+      } else {
+        const bulkOrderPayload: CreateBulkOrderProps = {
+          orders: cart.map((c) => ({
+            serviceUid: c.serviceUid,
+            quantity: effectiveQuantity(c.quantity),
+            url: c.link,
+            dripFeed: dripEnabled,
+            interval: dripEnabled ? intervalMinutes : undefined,
+            runs: dripEnabled ? runs : undefined,
+            userUid: userInfo?.uid!,
+          })),
+        };
+
+        await mutateBulkOrder(bulkOrderPayload, {
+          onSuccess: handleOrderSuccess,
+          onError: handleOrderError,
+          onSettled: handleOrderSettled,
+        });
+      }
+    } catch (error) {
+      console.error(error);
       setErrors("Unexpected error.");
       setSubmitting(false);
     }

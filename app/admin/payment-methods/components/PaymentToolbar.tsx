@@ -8,6 +8,8 @@ import React, { useState } from "react";
 import { PaymentGateway } from "@/types";
 import { useCreatePaymentGateway } from "@/hooks/use-paymentGateway";
 import { FeatureGate } from "@/components/FeatureGate";
+import { useCurrencyConverter } from "@/lib/currencyConverter";
+import { useAppContext } from "@/context/appContext";
 
 export default function PaymentToolbar({
   gateways,
@@ -27,14 +29,17 @@ export default function PaymentToolbar({
 }) {
   const [search, setSearch] = useState("");
   const { mutateAsync: addGateway } = useCreatePaymentGateway();
+  const convert = useCurrencyConverter();
+  const { userCurrency } = useAppContext();
   const handleAddClick = () => {
     if (!canAddMoreGateways) return;
     onAddClick();
   };
 
   const createGateway = async (gateway: PaymentGateway) => {
-    const response = await addGateway(gateway);
-    setOpenForm(false);
+    const usdMin = convert(userCurrency, "USD", gateway.min).amount;
+    const usdMax = convert(userCurrency, "USD", gateway.max).amount;
+    const response = await addGateway({ ...gateway, min: usdMin, max: usdMax });
     return response;
   };
 

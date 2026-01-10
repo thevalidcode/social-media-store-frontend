@@ -63,8 +63,8 @@ export default function UserTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((u) => (
-            <TableRow key={u.storeScopedId}>
+          {users.map((u, index) => (
+            <TableRow key={index}>
               <TableCell>
                 <Checkbox
                   checked={selected.includes(u.storeScopedId)}

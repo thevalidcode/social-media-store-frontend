@@ -19,19 +19,16 @@ export const SortSelector = ({
   value: string;
   onChange: (v: string) => void;
 }) => (
-  <div className="flex items-center gap-4 w-full md:w-auto">
-    <Label className="min-w-[60px]">Sort</Label>
-    <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-[220px]">
-        <SelectValue placeholder="Sort..." />
-      </SelectTrigger>
-      <SelectContent>
-        {options.map((s) => (
-          <SelectItem key={s.value} value={s.value}>
-            {s.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  </div>
+  <Select value={value} onValueChange={onChange}>
+    <SelectTrigger className="w-full">
+      <SelectValue placeholder="Sort..." />
+    </SelectTrigger>
+    <SelectContent>
+      {options.map((s) => (
+        <SelectItem key={s.value} value={s.value}>
+          {s.label}
+        </SelectItem>
+      ))}
+    </SelectContent>
+  </Select>
 );

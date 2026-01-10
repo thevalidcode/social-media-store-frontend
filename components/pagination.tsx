@@ -28,6 +28,10 @@ export default function Pagination({
   const startItem = (page - 1) * pageSize + 1;
   const endItem = Math.min(page * pageSize, totalItems);
 
+  if (totalItems <= pageSize) {
+    return null;
+  }
+
   return (
     <div className="flex items-center justify-between mt-4">
       <div className="text-sm text-muted-foreground">

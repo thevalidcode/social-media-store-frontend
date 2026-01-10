@@ -171,6 +171,7 @@ export default function UserProfilePage() {
               <Field label="Balance">
                 <Input
                   disabled
+                  type="text"
                   value={
                     convert(
                       userInfo.currency,
@@ -178,7 +179,7 @@ export default function UserProfilePage() {
                       userInfo.balance,
                       true,
                       false
-                    ).amount
+                    ).formatted
                   }
                 />
               </Field>

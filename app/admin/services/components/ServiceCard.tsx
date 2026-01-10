@@ -54,6 +54,7 @@ export default function ServiceCard({
         return (
           <motion.div
             whileHover={{ scale: 1.01 }}
+            key={storeScopedId}
             transition={{ duration: 0.15 }}
             className="w-full"
           >

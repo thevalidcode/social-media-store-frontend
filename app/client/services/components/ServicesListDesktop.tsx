@@ -28,8 +28,8 @@ export const ServicesTableDesktop = ({
   const convert = useCurrencyConverter();
   const { userCurrency } = useAppContext();
   return (
-    <div className="hidden md:block">
-      <Table className="rounded-lg border border-border bg-card overflow-hidden">
+    <div className="hidden md:block overflow-x-auto rounded-xl border border-border">
+      <Table className="w-full lg:min-w-[800px]">
         <TableHeader>
           <TableRow>
             <TableHead className="w-16">ID</TableHead>
@@ -51,20 +51,24 @@ export const ServicesTableDesktop = ({
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-3 min-w-0">
-                  {s.icon ? (
-                    <Image
-                      src={s.icon}
-                      alt={s.name}
-                      width={40}
-                      height={40}
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="text-muted-foreground text-xs">🧩</div>
-                  )}
-                  <div className="min-w-0">
-                    <div className="font-medium truncate">{s.name}</div>
-                    <div className="text-xs text-muted-foreground truncate">
+                  <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
+                    {s.icon ? (
+                      <Image
+                        src={s.icon}
+                        alt={s.name}
+                        width={40}
+                        height={40}
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="text-muted-foreground text-xs">🧩</div>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium truncate max-w-[200px] lg:max-w-[300px] xl:max-w-[400px] 2xl:max-w-[700px]">
+                      {s.name}
+                    </div>
+                    <div className="text-xs text-muted-foreground truncate max-w-[200px] lg:max-w-[300px] xl:max-w-[400px] 2xl:max-w-[700px]">
                       {s.category}
                     </div>
                   </div>
@@ -73,13 +77,8 @@ export const ServicesTableDesktop = ({
               <TableCell>
                 <div className="font-medium">
                   {
-                    convert(
-                      s.currency,
-                      userCurrency,
-                      s.price,
-                      true,
-                      false
-                    ).formatted
+                    convert(s.currency, userCurrency, s.price, true, false)
+                      .formatted
                   }
                 </div>
                 <div className="text-xs text-muted-foreground">

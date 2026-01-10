@@ -15,9 +15,12 @@ import Loading from "@/app/loading";
 import { EmptyState } from "@/components/empty-state";
 import { BookOpen } from "lucide-react";
 import { TypographyH2 } from "@/components/typography";
+import Pagination from "@/components/pagination";
 
 export default function BlogPage() {
   const [query, setQuery] = useState<string>("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(9);
   const { data, isLoading } = useGetBlogs();
 
   // Optimized search + filter + sort
@@ -34,6 +37,11 @@ export default function BlogPage() {
       })
       .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
   }, [query, data]);
+
+  const paginatedPosts = useMemo(() => {
+    const startIndex = (page - 1) * pageSize;
+    return posts.slice(startIndex, startIndex + pageSize);
+  }, [posts, page, pageSize]);
 
   if (isLoading) return <Loading />;
 
@@ -85,7 +93,7 @@ export default function BlogPage() {
       </div>
 
       <section aria-labelledby="posts-heading">
-        <h2 id="posts-heading" className="sr-only">
+        <h2 aginatedPid="posts-heading" className="sr-only">
           Blog posts
         </h2>
 
@@ -134,6 +142,20 @@ export default function BlogPage() {
             </motion.article>
           ))}
         </div>
+
+        {/* Pagination */}
+        {posts.length > 0 && (
+          <div className="mt-8">
+            <Pagination
+              page={page}
+              pageSize={pageSize}
+              totalItems={posts.length}
+              onPageChange={setPage}
+              onPageSizeChange={setPageSize}
+              pageSizeOptions={[9, 18, 27]}
+            />
+          </div>
+        )}
       </section>
     </main>
   );

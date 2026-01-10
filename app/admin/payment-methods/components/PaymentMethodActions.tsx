@@ -12,12 +12,13 @@ import { useState } from "react";
 import { PaymentGateway } from "@/types";
 import { Button } from "@/components/ui/button";
 import {
-  PaymentGatewayFormResponse,
   useCreatePaymentGateway,
   useDeletePaymentGateway,
   useUpdatePaymentGateway,
 } from "@/hooks/use-paymentGateway";
 import DeleteDialog from "../../components/DeleteDialog";
+import { useCurrencyConverter } from "@/lib/currencyConverter";
+import { useAppContext } from "@/context/appContext";
 
 export default function PaymentMethodActions({
   gateway,
@@ -31,6 +32,8 @@ export default function PaymentMethodActions({
   const { mutate: deleteGateway } = useDeletePaymentGateway();
   const { mutateAsync: updateGateway } = useUpdatePaymentGateway();
   const { mutateAsync: createGateway } = useCreatePaymentGateway();
+  const convert = useCurrencyConverter();
+  const { userCurrency } = useAppContext();
 
   const handleDeleteConfirm = () => {
     deleteGateway(gateway.uid);
@@ -39,9 +42,10 @@ export default function PaymentMethodActions({
 
   const handleSave = async (updated: PaymentGateway) => {
     const mutation = editOpen ? updateGateway : createGateway;
-    const response = await mutation(updated);
+    const usdMin = convert(userCurrency, "USD", updated.min).amount;
+    const usdMax = convert(userCurrency, "USD", updated.max).amount;
+    const response = await mutation({ ...updated, min: usdMin, max: usdMax });
     setGateways((prev) => prev.map((g) => (g.id === gateway.id ? updated : g)));
-    setEditOpen(false);
 
     return response;
   };

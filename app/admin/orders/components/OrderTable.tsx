@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -24,11 +23,13 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { OrderEditDialog } from "./OrderEditDialog";
 import { Button } from "@/components/ui/button";
 import { useUpdateOrder } from "@/hooks/use-order";
 import Image from "next/image";
+import OrderStatusBadge from "@/components/OrderStatusBadge";
+import Pagination from "@/components/pagination";
 
 interface OrderTableProps {
   orders?: Order[];
@@ -41,22 +42,29 @@ export const OrderTable = ({
   isLoading,
   rowClassName = "",
 }: OrderTableProps) => {
-  const { userCurrency, userInfo } = useAppContext();
+  const { userCurrency } = useAppContext();
   const convert = useCurrencyConverter();
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
-const updateOrder = useUpdateOrder();
+  const updateOrder = useUpdateOrder();
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
-const handleSaveOrder = (updated: Partial<Order>) => {
-  if (!editingOrder?.uid) return;
+  const paginatedOrders = useMemo(() => {
+    if (!orders) return [];
+    const startIndex = (page - 1) * pageSize;
+    return orders.slice(startIndex, startIndex + pageSize);
+  }, [orders, page, pageSize]);
 
-  updateOrder.mutate({
-    uid: editingOrder.uid,
-    update: updated,
-  });
+  const handleSaveOrder = (updated: Partial<Order>) => {
+    if (!editingOrder?.uid) return;
 
-  setEditingOrder(null);
-};
+    updateOrder.mutate({
+      uid: editingOrder.uid,
+      update: updated,
+    });
 
+    setEditingOrder(null);
+  };
 
   if (isLoading) return <Loading />;
   if (!orders || orders.length === 0) {
@@ -71,22 +79,22 @@ const handleSaveOrder = (updated: Partial<Order>) => {
   return (
     <div className="space-y-6">
       {/* --- Desktop Table --- */}
-      <div className="hidden md:block">
-        <Table className="border border-border bg-card rounded-lg overflow-hidden shadow-sm">
+      <div className="hidden md:block overflow-x-auto rounded-xl border border-border">
+        <Table className="w-full lg:min-w-[800px]">
           <TableHeader>
             <TableRow>
               <TableHead className="w-28">ID</TableHead>
               <TableHead>Service</TableHead>
-              <TableHead>Category</TableHead>
               <TableHead>User</TableHead>
               <TableHead className="text-center">Quantity</TableHead>
               <TableHead className="text-center">Price</TableHead>
               <TableHead className="text-center">Status</TableHead>
+              <TableHead className="text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
-            {orders.map((order, idx) => (
+            {paginatedOrders.map((order, idx) => (
               <TableRow
                 key={order.storeScopedId}
                 className={cn(
@@ -97,31 +105,33 @@ const handleSaveOrder = (updated: Partial<Order>) => {
                 <TableCell className="font-mono text-sm">
                   {order.storeScopedId}
                 </TableCell>
-
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    {order.service.icon ? (
-                      <Image
-                        src={order.service.icon}
-                        alt={order.service.name}
-                        width={32}
-                        height={32}
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="text-muted-foreground text-3xl">🧩</div>
-                    )}
-                    <span className="font-medium truncate">
-                      {order.service.name}
-                    </span>
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
+                      {order.service.icon ? (
+                        <Image
+                          src={order.service.icon}
+                          alt={order.service.name}
+                          width={40}
+                          height={40}
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="text-muted-foreground text-xs">🧩</div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium truncate max-w-[200px] lg:max-w-[300px] xl:max-w-[400px] 2xl:max-w-[700px]">
+                        {order.service.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate max-w-[200px] lg:max-w-[300px] xl:max-w-[400px] 2xl:max-w-[700px]">
+                        {order.service.category}
+                      </div>
+                    </div>
                   </div>
                 </TableCell>
 
-                <TableCell className="text-sm">
-                  {order.service.category}
-                </TableCell>
-
-                <TableCell className="text-sm">{userInfo?.username}</TableCell>
+                <TableCell className="text-sm">{order.user.username}</TableCell>
                 <TableCell className="text-center text-sm font-medium">
                   {order.quantity.toLocaleString()}
                 </TableCell>
@@ -138,18 +148,7 @@ const handleSaveOrder = (updated: Partial<Order>) => {
                   }
                 </TableCell>
                 <TableCell className="text-center">
-                  <Badge
-                    variant={
-                      order.status.toLowerCase().includes("completed")
-                        ? "default"
-                        : order.status.toLowerCase().includes("pending")
-                        ? "secondary"
-                        : "outline"
-                    }
-                    className="capitalize"
-                  >
-                    {order.status}
-                  </Badge>
+                  <OrderStatusBadge status={order.status} />
                 </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
@@ -173,7 +172,7 @@ const handleSaveOrder = (updated: Partial<Order>) => {
 
       {/* --- Mobile View --- */}
       <div className="md:hidden space-y-4">
-        {orders.map((order, idx) => (
+        {paginatedOrders.map((order, idx) => (
           <motion.div
             key={order.storeScopedId}
             initial={{ opacity: 0, y: 8 }}
@@ -229,24 +228,26 @@ const handleSaveOrder = (updated: Partial<Order>) => {
                 </div>
 
                 <div className="mt-3">
-                  <Badge
-                    variant={
-                      order.status.toLowerCase().includes("completed")
-                        ? "default"
-                        : order.status.toLowerCase().includes("pending")
-                        ? "secondary"
-                        : "outline"
-                    }
-                    className="capitalize"
-                  >
-                    {order.status}
-                  </Badge>
+                  <OrderStatusBadge status={order.status} />
                 </div>
               </div>
             </div>
           </motion.div>
         ))}
       </div>
+
+      {/* Pagination */}
+      {orders && orders.length > 0 && (
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          totalItems={orders.length}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+          pageSizeOptions={[10, 20, 50]}
+        />
+      )}
+
       {editingOrder && (
         <OrderEditDialog
           order={editingOrder}

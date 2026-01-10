@@ -37,6 +37,7 @@ export function useAdminLogin() {
         ...data,
       });
       router.push("/admin/users");
+      toast.success("Admin logged in successfully");
     },
     onError: (error: unknown) => {
       const errorMsg = normalizeApiError(error, "Failed to login admin");

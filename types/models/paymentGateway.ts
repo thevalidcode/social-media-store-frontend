@@ -16,7 +16,7 @@ export interface PaymentGateway {
   feePercent?: number;
   image: string;
   status: PaymentGatewayStatus;
-  createdAt: string; // ISO date string
+  createdAt: Date; // ISO date string
   position: number;
   webhookUrl: string;
   min: string;

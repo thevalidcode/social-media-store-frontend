@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -19,6 +18,9 @@ import { EmptyState } from "@/components/empty-state";
 import { useRouter } from "next/navigation";
 import { OrderPublic } from "@/types";
 import Image from "next/image";
+import OrderStatusBadge from "@/components/OrderStatusBadge";
+import Pagination from "@/components/pagination";
+import { useState, useMemo } from "react";
 
 interface OrderTableProps {
   orders?: OrderPublic[];
@@ -34,6 +36,14 @@ export const OrderTable = ({
   const { userCurrency } = useAppContext();
   const convert = useCurrencyConverter();
   const router = useRouter();
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  const paginatedOrders = useMemo(() => {
+    if (!orders) return [];
+    const startIndex = (page - 1) * pageSize;
+    return orders.slice(startIndex, startIndex + pageSize);
+  }, [orders, page, pageSize]);
 
   if (isLoading) return <Loading />;
   if (!orders || orders.length === 0) {
@@ -51,13 +61,12 @@ export const OrderTable = ({
   return (
     <div className="space-y-6">
       {/* --- Desktop Table --- */}
-      <div className="hidden md:block">
-        <Table className="border border-border bg-card rounded-lg overflow-hidden shadow-sm">
+      <div className="hidden md:block overflow-x-auto rounded-xl border border-border">
+        <Table className="w-full lg:min-w-[800px]">
           <TableHeader>
             <TableRow>
               <TableHead className="w-28">ID</TableHead>
               <TableHead>Service</TableHead>
-              <TableHead>Category</TableHead>
               <TableHead className="text-center">Quantity</TableHead>
               <TableHead className="text-center">Price</TableHead>
               <TableHead className="text-center">Status</TableHead>
@@ -65,7 +74,7 @@ export const OrderTable = ({
           </TableHeader>
 
           <TableBody>
-            {orders.map((order, idx) => (
+            {paginatedOrders.map((order, idx) => (
               <TableRow
                 key={order.storeScopedId}
                 className={cn(
@@ -78,28 +87,30 @@ export const OrderTable = ({
                 </TableCell>
 
                 <TableCell>
-                  <div className="flex items-center gap-3">
-                    {order.service.icon ? (
-                      <Image
-                        src={order.service.icon}
-                        alt={order.service.name}
-                        width={32}
-                        height={32}
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="text-muted-foreground text-3xl">🧩</div>
-                    )}
-                    <span className="font-medium truncate">
-                      {order.service.name}
-                    </span>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
+                      {order.service.icon ? (
+                        <Image
+                          src={order.service.icon}
+                          alt={order.service.name}
+                          width={40}
+                          height={40}
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="text-muted-foreground text-xs">🧩</div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium truncate max-w-[200px] lg:max-w-[300px] xl:max-w-[400px] 2xl:max-w-[700px]">
+                        {order.service.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate max-w-[200px] lg:max-w-[300px] xl:max-w-[400px] 2xl:max-w-[700px]">
+                        {order.service.category}
+                      </div>
+                    </div>
                   </div>
                 </TableCell>
-
-                <TableCell className="text-sm">
-                  {order.service.category}
-                </TableCell>
-
                 <TableCell className="text-center text-sm font-medium">
                   {order.quantity.toLocaleString()}
                 </TableCell>
@@ -116,18 +127,7 @@ export const OrderTable = ({
                   }
                 </TableCell>
                 <TableCell className="text-center">
-                  <Badge
-                    variant={
-                      order.status.toLowerCase().includes("completed")
-                        ? "default"
-                        : order.status.toLowerCase().includes("pending")
-                        ? "secondary"
-                        : "outline"
-                    }
-                    className="capitalize"
-                  >
-                    {order.status}
-                  </Badge>
+                  <OrderStatusBadge status={order.status} />
                 </TableCell>
               </TableRow>
             ))}
@@ -137,7 +137,7 @@ export const OrderTable = ({
 
       {/* --- Mobile View --- */}
       <div className="md:hidden space-y-4">
-        {orders.map((order, idx) => (
+        {paginatedOrders.map((order, idx) => (
           <motion.div
             key={order.storeScopedId}
             initial={{ opacity: 0, y: 8 }}
@@ -189,24 +189,25 @@ export const OrderTable = ({
                 </div>
 
                 <div className="mt-3">
-                  <Badge
-                    variant={
-                      order.status.toLowerCase().includes("completed")
-                        ? "default"
-                        : order.status.toLowerCase().includes("pending")
-                        ? "secondary"
-                        : "outline"
-                    }
-                    className="capitalize"
-                  >
-                    {order.status}
-                  </Badge>
+                  <OrderStatusBadge status={order.status} />
                 </div>
               </div>
             </div>
           </motion.div>
         ))}
       </div>
+
+      {/* Pagination */}
+      {orders && orders.length > 0 && (
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          totalItems={orders.length}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+          pageSizeOptions={[10, 20, 50]}
+        />
+      )}
     </div>
   );
 };

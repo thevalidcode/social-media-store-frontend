@@ -143,7 +143,7 @@ export const CartSidebar: React.FC<Props> = ({
                           updateLink(c.serviceUid, e.target.value)
                         }
                       />
-                      <div className="flex items-center gap-2 mt-2">
+                      <div className="flex items-center gap-2 mt-2 flex-wrap">
                         <Button
                           size="sm"
                           variant="outline"
@@ -157,7 +157,7 @@ export const CartSidebar: React.FC<Props> = ({
                           -
                         </Button>
                         <Input
-                          className="w-20 text-center"
+                          className="w-20 text-center flex-2"
                           type="number"
                           value={c.quantity}
                           onChange={(e) =>
@@ -179,6 +179,7 @@ export const CartSidebar: React.FC<Props> = ({
                         <Button
                           size="sm"
                           variant="destructive"
+                          className="flex-2"
                           onClick={() => removeFromCart(c.serviceUid)}
                         >
                           Remove

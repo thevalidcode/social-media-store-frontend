@@ -124,7 +124,7 @@ export default function Signin() {
             {/* Password Field */}
             <div className="space-y-2.5">
               <Label htmlFor="password">Password</Label>
-              <div className="relative">
+              <div className="relative flex items-center">
                 <Input
                   id="password"
                   name="password"
@@ -139,7 +139,7 @@ export default function Signin() {
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-0 top-0 h-12 px-3 py-2 hover:bg-transparent"
+                  className="absolute cursor-pointer right-0"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (

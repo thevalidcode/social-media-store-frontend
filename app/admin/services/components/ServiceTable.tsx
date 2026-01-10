@@ -57,7 +57,7 @@ export default function ServiceTable({
 
   return (
     <div className="overflow-x-auto rounded-xl border border-border">
-      <Table className="w-full min-w-[800px]">
+      <Table className="w-full lg:min-w-[800px]">
         <TableHeader>
           <TableRow>
             <TableHead
@@ -65,10 +65,9 @@ export default function ServiceTable({
               onClick={() => handleSort("name")}
             >
               <div className="flex items-center gap-1">
-                Name <ArrowUpDown className="w-3 h-3" />
+                Name & Category <ArrowUpDown className="w-3 h-3" />
               </div>
             </TableHead>
-            <TableHead>Category</TableHead>
             <TableHead>Type</TableHead>
             <TableHead
               className="cursor-pointer"
@@ -104,34 +103,36 @@ export default function ServiceTable({
                 className="border-b border-border"
               >
                 <TableCell className="font-medium">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
                       {service.icon ? (
                         <Image
                           src={service.icon}
                           alt={service.name}
-                          width={32}
-                          height={32}
+                          width={40}
+                          height={40}
                           className="object-cover"
                         />
                       ) : (
                         <div className="text-muted-foreground text-xs">🧩</div>
                       )}
                     </div>
-                    <span>{service.name}</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium truncate max-w-[200px] lg:max-w-[300px] xl:max-w-[400px] 2xl:max-w-[700px]">
+                        {service.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate max-w-[200px] lg:max-w-[300px] xl:max-w-[400px] 2xl:max-w-[700px]">
+                        {service.category}
+                      </div>
+                    </div>
                   </div>
                 </TableCell>
 
-                <TableCell>
-                  <span className="text-sm text-muted-foreground">
-                    {service.category}
-                  </span>
-                </TableCell>
                 <TableCell>{service.type}</TableCell>
                 <TableCell>
                   {
                     convert(
-                      service.currency||"USD",
+                      service.currency || "USD",
                       userCurrency,
                       service.price,
                       true,

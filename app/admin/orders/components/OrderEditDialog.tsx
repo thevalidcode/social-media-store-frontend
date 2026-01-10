@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { OrderPublic } from "@/types";
+import { Textarea } from "@/components/ui/textarea";
 
 interface OrderEditDialogProps {
   order: OrderPublic;
@@ -38,6 +39,7 @@ export const OrderEditDialog = ({
   const [form, setForm] = useState({
     status: order.status,
     url: order.url,
+    providerError: order.providerError,
     remains: order.remains,
     comments: order.comments || "",
     syncOrder: (order as any).syncOrder ?? false,
@@ -66,14 +68,17 @@ export const OrderEditDialog = ({
         </DialogHeader>
 
         <div className="px-6 py-4 space-y-5">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="syncOrder">Sync Order</Label>
-            <Switch
-              id="syncOrder"
-              checked={form.syncOrder}
-              onCheckedChange={(val) => handleChange("syncOrder", val)}
-            />
-          </div>
+          {order.service.type !== "MANUAL" && (
+            <div className="flex items-center justify-between">
+              <Label htmlFor="syncOrder">Sync Order</Label>
+              <Switch
+                id="syncOrder"
+                checked={form.syncOrder}
+                onCheckedChange={(val) => handleChange("syncOrder", val)}
+                disabled={order.status === "FAILED"}
+              />
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label>Status</Label>
@@ -134,6 +139,13 @@ export const OrderEditDialog = ({
               disabled={disabled}
             />
           </div>
+
+          {order.providerError && order.status === "FAILED" && (
+            <div className="space-y-2">
+              <Label>Provider Error</Label>
+              <Textarea value={form.providerError} disabled />
+            </div>
+          )}
         </div>
 
         <DialogFooter className="px-6 py-4 border-t">

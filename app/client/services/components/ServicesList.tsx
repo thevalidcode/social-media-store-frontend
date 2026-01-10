@@ -12,6 +12,8 @@ import { ServicesTableDesktop } from "./ServicesListDesktop";
 import { ServicesCardsMobile } from "./ServiceCardMobile";
 import { ServiceDialog } from "./ServiceDialog";
 import { PageContent } from "@/app/(root)/components/page-content";
+import Pagination from "@/components/pagination";
+import { Search } from "lucide-react";
 
 type Props = {
   categoryWithServices?: ServiceCategory[];
@@ -36,6 +38,9 @@ export default function ServicesList({
   const [open, setOpen] = useState(false);
   const [activeService, setActiveService] = useState<Service | null>(null);
   const [modalQty, setModalQty] = useState<number>(1);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(50);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleCategoryChange = (title: string) => {
     const cat = CATEGORIES.find((c) => c.title === title);
@@ -44,8 +49,25 @@ export default function ServicesList({
 
   const handleSortChange = (v: string) => setSelectedSort(v);
 
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setPage(1); // Reset to first page when searching
+  };
+
   const sortedServices = useMemo(() => {
-    const list = [...(selectedCategory?.services ?? [])];
+    let list = [...(selectedCategory?.services ?? [])];
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      list = list.filter(
+        (service) =>
+          service.name.toLowerCase().includes(query) ||
+          service.description?.toLowerCase().includes(query)
+      );
+    }
+
+    // Apply sorting
     switch (selectedSort) {
       case "alphabetical":
         return list.sort((a, b) => a.name.localeCompare(b.name));
@@ -54,7 +76,12 @@ export default function ServicesList({
       default:
         return list;
     }
-  }, [selectedCategory, selectedSort]);
+  }, [selectedCategory, selectedSort, searchQuery]);
+
+  const paginatedServices = useMemo(() => {
+    const startIndex = (page - 1) * pageSize;
+    return sortedServices.slice(startIndex, startIndex + pageSize);
+  }, [sortedServices, page, pageSize]);
 
   const openModal = (service: Service) => {
     setActiveService(service);
@@ -88,33 +115,60 @@ export default function ServicesList({
 
       {/* Controls */}
       {showControls && selectedCategory && (
-        <div className="flex flex-col md:flex-row md:items-center gap-4 justify-between">
-          <CategorySelector
-            categories={CATEGORIES}
-            value={selectedCategory.title}
-            onChange={handleCategoryChange}
-          />
-          <SortSelector
-            options={SORT_BY}
-            value={selectedSort}
-            onChange={handleSortChange}
-          />
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 p-4 rounded-xl shadow-sm border">
+          {/* Left Side - Filters */}
+          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+            <CategorySelector
+              categories={CATEGORIES}
+              value={selectedCategory.title}
+              onChange={handleCategoryChange}
+            />
+            <SortSelector
+              options={SORT_BY}
+              value={selectedSort}
+              onChange={handleSortChange}
+            />
+          </div>
+          {/* Right Side - Search */}
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              type="text"
+              name="search"
+              value={searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              placeholder="Search services..."
+              className="pl-9 pr-3 py-2 w-full border rounded-lg text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+            />
+          </div>
         </div>
       )}
 
-      {/* Table */}
+      {/* Desktop */}
       <ServicesTableDesktop
-        services={sortedServices}
+        services={paginatedServices}
         openModal={openModal}
         navigateToNewOrder={navigateToNewOrder}
       />
 
       {/* Mobile */}
       <ServicesCardsMobile
-        services={sortedServices}
+        services={paginatedServices}
         openModal={openModal}
         navigateToNewOrder={navigateToNewOrder}
       />
+
+      {/* Pagination */}
+      {sortedServices.length > 0 && (
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          totalItems={sortedServices.length}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+          pageSizeOptions={[50, 100, 200]}
+        />
+      )}
 
       {/* Dialog */}
       <ServiceDialog

@@ -1,5 +1,6 @@
 import { CurrencyCode } from "@/lib/currencyConverter";
 import { Service } from "./service";
+import { User } from "./user";
 
 // Order status types
 export type OrderStatus =
@@ -28,8 +29,10 @@ type BaseOrder = {
   userUid: string;
   timestamp: string;
   service: Service;
+  providerError?: string;
   comments?: string;
   dripFeed?: boolean;
+  user: User;
   interval?: number;
 };
 

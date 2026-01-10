@@ -42,8 +42,14 @@ export function convertCurrency(
   // Handle missing rates gracefully
   if (!rates[source] || !rates[target]) {
     const formatted = showSymbol
-      ? `${symbol}${parsedAmount.toFixed(2)}`
-      : parsedAmount.toFixed(2);
+      ? `${symbol}${parsedAmount.toNumber().toLocaleString(locale, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}`
+      : parsedAmount.toNumber().toLocaleString(locale, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
     return { amount: parsedAmount.toFixed(2), symbol, formatted };
   }
 
@@ -70,8 +76,14 @@ export function convertCurrency(
         currency: target,
       }).format(Number(rounded.toString()))
     : showSymbol
-    ? `${symbol}${rounded.toString()}`
-    : rounded.toString();
+    ? `${symbol}${Number(rounded.toString()).toLocaleString(locale, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`
+    : Number(rounded.toString()).toLocaleString(locale, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
 
   return { amount: rounded.toString(), symbol, formatted };
 }
@@ -98,9 +110,15 @@ export function useCurrencyConverter() {
 
     if (!rates) {
       const formatted = showSymbol
-        ? `${symbol}${parsedAmount.toFixed(2)}`
-        : parsedAmount.toFixed(2);
-      return { amount: parsedAmount.toFixed(2), symbol, formatted };
+        ? `${symbol}${parsedAmount.toNumber().toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}`
+        : parsedAmount.toNumber().toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          });
+      return { amount: parsedAmount.toFixed(2), symbol, formatted: formatted };
     }
 
     return convertCurrency(
