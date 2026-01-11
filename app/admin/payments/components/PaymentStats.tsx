@@ -35,14 +35,16 @@ export function PaymentStats({ payments }: PaymentStatsProps) {
       };
     }
 
-    const totalAmount = payments.reduce((sum, p) => {
-      const converted = convert(p.currency, "USD", p.chargedAmount);
-      const amt =
-        typeof converted.amount === "string"
-          ? parseFloat(converted.amount)
-          : Number(converted.amount);
-      return sum + (isNaN(amt) ? 0 : amt);
-    }, 0);
+    const totalAmount = payments
+      .filter((p) => p.status === "SUCCESS")
+      .reduce((sum, p) => {
+        const converted = convert(p.currency, "USD", p.chargedAmount);
+        const amt =
+          typeof converted.amount === "string"
+            ? parseFloat(converted.amount)
+            : Number(converted.amount);
+        return sum + (isNaN(amt) ? 0 : amt);
+      }, 0);
 
     const totalPayments = payments.length;
     const pendingCount = payments.filter((p) => p.status === "PENDING").length;
