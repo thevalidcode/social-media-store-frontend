@@ -1,4 +1,5 @@
 import { ChartConfig } from "@/components/ui/chart";
+import { CurrencyCode } from "@/lib/currencyConverter";
 
 export const sortBy = [
   { value: "default", label: "Sort by default" },
@@ -52,7 +53,7 @@ export const ordersConfig = {
     label: "Completed",
     color: "#f97316",
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
 export const paymentsConfig = {
   successful: {
@@ -1430,3 +1431,95 @@ export function getCurrencySymbol(currencyCode: string) {
     return (currencySymbols as Record<string, string>)[shortCurrencyCode] || "";
   }
 }
+
+export const timezoneToCurrency: Record<string, CurrencyCode> = {
+  // Africa
+  "Africa/Lagos": "NGN",
+  "Africa/Nairobi": "KES",
+  "Africa/Accra": "GHS",
+  "Africa/Johannesburg": "ZAR",
+  "Africa/Cairo": "EGP",
+  "Africa/Casablanca": "MAD",
+  "Africa/Algiers": "DZD",
+  "Africa/Tunis": "TND",
+  "Africa/Khartoum": "SDG",
+  "Africa/Dar_es_Salaam": "TZS",
+  "Africa/Kampala": "UGX",
+  "Africa/Kigali": "RWF",
+  "Africa/Lusaka": "ZMW",
+  "Africa/Harare": "ZWL",
+  "Africa/Maputo": "MZN",
+  "Africa/Windhoek": "NAD",
+
+  // Americas
+  "America/New_York": "USD",
+  "America/Chicago": "USD",
+  "America/Denver": "USD",
+  "America/Los_Angeles": "USD",
+  "America/Phoenix": "USD",
+  "America/Toronto": "CAD",
+  "America/Vancouver": "CAD",
+  "America/Mexico_City": "MXN",
+  "America/Sao_Paulo": "BRL",
+  "America/Argentina/Buenos_Aires": "ARS",
+  "America/Bogota": "COP",
+  "America/Lima": "PEN",
+  "America/Santiago": "CLP",
+  "America/Montevideo": "UYU",
+  "America/La_Paz": "BOB",
+
+  // Europe
+  "Europe/London": "GBP",
+  "Europe/Paris": "EUR",
+  "Europe/Berlin": "EUR",
+  "Europe/Rome": "EUR",
+  "Europe/Madrid": "EUR",
+  "Europe/Amsterdam": "EUR",
+  "Europe/Brussels": "EUR",
+  "Europe/Vienna": "EUR",
+  "Europe/Dublin": "EUR",
+  "Europe/Lisbon": "EUR",
+  "Europe/Athens": "EUR",
+  "Europe/Helsinki": "EUR",
+  "Europe/Stockholm": "SEK",
+  "Europe/Oslo": "NOK",
+  "Europe/Copenhagen": "DKK",
+  "Europe/Zurich": "CHF",
+  "Europe/Warsaw": "PLN",
+  "Europe/Prague": "CZK",
+  "Europe/Budapest": "HUF",
+  "Europe/Bucharest": "RON",
+  "Europe/Istanbul": "TRY",
+  "Europe/Moscow": "RUB",
+  "Europe/Kyiv": "UAH",
+
+  // Asia
+  "Asia/Dubai": "AED",
+  "Asia/Riyadh": "SAR",
+  "Asia/Kuwait": "KWD",
+  "Asia/Qatar": "QAR",
+  "Asia/Karachi": "PKR",
+  "Asia/Kolkata": "INR",
+  "Asia/Dhaka": "BDT",
+  "Asia/Bangkok": "THB",
+  "Asia/Singapore": "SGD",
+  "Asia/Kuala_Lumpur": "MYR",
+  "Asia/Jakarta": "IDR",
+  "Asia/Manila": "PHP",
+  "Asia/Ho_Chi_Minh": "VND",
+  "Asia/Shanghai": "CNY",
+  "Asia/Hong_Kong": "HKD",
+  "Asia/Tokyo": "JPY",
+  "Asia/Seoul": "KRW",
+  "Asia/Taipei": "TWD",
+  "Asia/Jerusalem": "ILS",
+  "Asia/Colombo": "LKR",
+  "Asia/Yangon": "MMK",
+
+  // Pacific
+  "Pacific/Auckland": "NZD",
+  "Australia/Sydney": "AUD",
+  "Australia/Melbourne": "AUD",
+  "Australia/Brisbane": "AUD",
+  "Australia/Perth": "AUD",
+};

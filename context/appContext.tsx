@@ -9,6 +9,7 @@ import { get, set } from "idb-keyval";
 import { CurrencyCode } from "@/lib/currencyConverter";
 import { Admin, User } from "@/types";
 import { Store } from "@/types";
+import { timezoneToCurrency } from "@/app/_docs/doc";
 
 export interface GeneralSettingProps {
   storeName: string;
@@ -120,17 +121,43 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     saveAuthInfo();
   }, [userInfo, adminInfo]);
 
-  // Ensure it syncs with localStorage
+  // Sync currency with localStorage and auto-detect from locale
   useEffect(() => {
     const savedCurrency = localStorage.getItem("userCurrency");
-    if (savedCurrency) {
-      const upperCurrency = savedCurrency.toUpperCase() as CurrencyCode;
-      setUserCurrencyState(upperCurrency);
+    if (savedCurrency && savedCurrency.trim() !== "") {
+      setUserCurrencyState(savedCurrency.toUpperCase() as CurrencyCode);
     } else {
-      localStorage.setItem("userCurrency", "USD");
-      setUserCurrencyState("USD");
+      // Auto-detect currency from user's locale
+      const detectedCurrency = detectUserCurrency();
+      setUserCurrencyState(detectedCurrency);
+      localStorage.setItem("userCurrency", detectedCurrency);
     }
   }, []);
+
+  // Function to detect user's currency from locale
+  const detectUserCurrency = (): CurrencyCode => {
+    try {
+      // Use timezone for more accurate currency detection
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+      if (timezoneToCurrency[timeZone]) {
+        return timezoneToCurrency[timeZone];
+      }
+
+      // Fallback: try to extract region from timezone
+      const region = timeZone.split("/")[0];
+      if (region === "America") return "USD";
+      if (region === "Europe") return "EUR";
+      if (region === "Asia") return "USD";
+      if (region === "Africa") return "NGN";
+
+      // Final fallback to USD
+      return "USD";
+    } catch (error) {
+      console.error("Failed to detect currency:", error);
+      return "USD";
+    }
+  };
 
   // Wrap setter to automatically persist and normalize to uppercase
   const setUserCurrency = (currency: string) => {
