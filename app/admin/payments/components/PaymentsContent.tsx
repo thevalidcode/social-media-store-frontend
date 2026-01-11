@@ -13,19 +13,20 @@ import { CreditCard } from "lucide-react";
 
 export function PaymentsContent() {
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [filters, setFilters] = useState<PaymentFilters & { search?: string }>(
     {}
   );
 
   const { data: paymentsData, isLoading } = useGetAllPaymentsForAdmin(
     page,
-    1000, // Fetch all for client-side pagination like orders
+    100, // Fetch max 100 items per request
     filters
   );
 
   const payments = paymentsData?.payments || [];
 
-  if (!payments || payments.length === 0) {
+  if (!isLoading && (!payments || payments.length === 0)) {
     return (
       <EmptyState
         icon={CreditCard}
@@ -64,6 +65,14 @@ export function PaymentsContent() {
               payments={payments}
               isLoading={isLoading}
               rowClassName="transition-colors duration-150 hover:bg-muted/60 hover:shadow-sm cursor-pointer focus-within:bg-primary/10 focus-within:text-primary"
+              page={page}
+              pageSize={pageSize}
+              totalItems={paymentsData?.total || 0}
+              onPageChange={setPage}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setPage(1);
+              }}
             />
           </CardContent>
         </Card>

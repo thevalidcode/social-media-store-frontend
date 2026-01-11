@@ -14,9 +14,7 @@ import { CreditCard } from "lucide-react";
 import Loading from "@/app/loading";
 import { useAppContext } from "@/context/appContext";
 import { useCurrencyConverter } from "@/lib/currencyConverter";
-import { EmptyState } from "@/components/empty-state";
 import { Payment } from "@/types";
-import { useState, useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import PaymentStatusBadge from "@/components/PaymentStatusBadge";
 import Pagination from "@/components/pagination";
@@ -26,23 +24,25 @@ interface PaymentTableProps {
   payments?: Payment[];
   isLoading: boolean;
   rowClassName?: string;
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
 }
 
 export const PaymentTable = ({
   payments,
   isLoading,
   rowClassName = "",
+  page,
+  pageSize,
+  totalItems,
+  onPageChange,
+  onPageSizeChange,
 }: PaymentTableProps) => {
   const { userCurrency } = useAppContext();
   const convert = useCurrencyConverter();
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-
-  const paginatedPayments = useMemo(() => {
-    if (!payments) return [];
-    const startIndex = (page - 1) * pageSize;
-    return payments.slice(startIndex, startIndex + pageSize);
-  }, [payments, page, pageSize]);
 
   if (isLoading) return <Loading />;
 
@@ -65,7 +65,7 @@ export const PaymentTable = ({
           </TableHeader>
 
           <TableBody>
-            {paginatedPayments.map((payment) => (
+            {payments?.map((payment) => (
               <TableRow
                 key={payment.id}
                 className={cn(
@@ -132,7 +132,7 @@ export const PaymentTable = ({
 
       {/* --- Mobile View --- */}
       <div className="md:hidden space-y-4">
-        {paginatedPayments.map((payment, idx) => (
+        {payments?.map((payment, idx) => (
           <motion.div
             key={payment.id}
             initial={{ opacity: 0, y: 8 }}
@@ -204,14 +204,14 @@ export const PaymentTable = ({
       </div>
 
       {/* Pagination */}
-      {payments && payments.length > 0 && (
+      {totalItems > 0 && (
         <Pagination
           page={page}
           pageSize={pageSize}
-          totalItems={payments.length}
-          onPageChange={setPage}
-          onPageSizeChange={setPageSize}
-          pageSizeOptions={[10, 20, 50]}
+          totalItems={totalItems}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          pageSizeOptions={[10, 20, 50, 100]}
         />
       )}
     </div>
