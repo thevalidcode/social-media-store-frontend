@@ -66,19 +66,25 @@ const statusesValue = {
   },
   99: { error: "Incorrect order ID" },
 };
+const refillStatusValue = { status: "Completed" };
+const refillStatusesValue = [
+  { refill: 1, status: "Completed" },
+  { refill: 2, status: "Pending" },
+  { refill: 99, status: { error: "Incorrect refill ID" } },
+];
 const balanceValue = { balance: 6543.8373, currency: "USD" };
+const refillValue = { refill: 123 };
+const refillsValue = [
+  { order: 4, refill: 123 },
+  { order: 5, refill: 124 },
+  { order: 99, refill: { error: "Incorrect order ID" } },
+];
+const cancelValue = { cancel: 45 };
 
 export default function APISection() {
   const { domain } = useAppContext();
   return (
     <div className="relative py-24 bg-background overflow-hidden">
-      <div
-        className="absolute inset-0 z-0 opacity-5"
-        style={{
-          backgroundImage:
-            "url(https://www.transparenttextures.com/patterns/cubes.png)",
-        }}
-      ></div>
       <div className="relative max-w-[80rem] mx-auto p-6">
         {/* API Documentation Header */}
         <header className="mb-12 text-center">
@@ -156,6 +162,32 @@ export default function APISection() {
         />
 
         <ApiEndpoint
+          title="Refill Status"
+          description="Check the status of a single refill request."
+          method="POST"
+          endpoint={`https://api.${domain}/v2`}
+          parameters={[
+            ["key", "Your API key"],
+            ["action", "refill_status"],
+            ["refill", "Refill ID"],
+          ]}
+          exampleResponse={JSON.stringify(refillStatusValue, null, 2)}
+        />
+
+        <ApiEndpoint
+          title="Multiple Refill Status"
+          description="Check the status of multiple refill requests at once."
+          method="POST"
+          endpoint={`https://api.${domain}/v2`}
+          parameters={[
+            ["key", "Your API key"],
+            ["action", "refill_status"],
+            ["refills", "Refill IDs (comma-separated)"],
+          ]}
+          exampleResponse={JSON.stringify(refillStatusesValue, null, 2)}
+        />
+
+        <ApiEndpoint
           title="User Balance"
           description="Check your account balance."
           method="POST"
@@ -165,6 +197,45 @@ export default function APISection() {
             ["action", "balance"],
           ]}
           exampleResponse={JSON.stringify(balanceValue, null, 2)}
+        />
+
+        <ApiEndpoint
+          title="Refill Order"
+          description="Request a refill for an existing order."
+          method="POST"
+          endpoint={`https://api.${domain}/v2`}
+          parameters={[
+            ["key", "Your API key"],
+            ["action", "refill"],
+            ["order", "Order ID"],
+          ]}
+          exampleResponse={JSON.stringify(refillValue, null, 2)}
+        />
+
+        <ApiEndpoint
+          title="Multiple Refill Orders"
+          description="Request refills for multiple orders at once."
+          method="POST"
+          endpoint={`https://api.${domain}/v2`}
+          parameters={[
+            ["key", "Your API key"],
+            ["action", "refill"],
+            ["orders", "Order IDs (comma-separated)"],
+          ]}
+          exampleResponse={JSON.stringify(refillsValue, null, 2)}
+        />
+
+        <ApiEndpoint
+          title="Cancel Order"
+          description="Cancel an existing order."
+          method="POST"
+          endpoint={`https://api.${domain}/v2`}
+          parameters={[
+            ["key", "Your API key"],
+            ["action", "cancel"],
+            ["order", "Order ID"],
+          ]}
+          exampleResponse={JSON.stringify(cancelValue, null, 2)}
         />
       </div>
     </div>
