@@ -150,7 +150,7 @@ export default function PaymentMethodForm({
       name: platform.label,
       image: `https://${domain}${platform.image}`,
       webhookUrl: platform.webhook
-        ? `https://${domain}/webhooks/${platform.webhook}`
+        ? `https://${domain}/social-media-store/backend/webhooks/${platform.webhook}`
         : "",
     }));
     setMode("manual");
