@@ -8,7 +8,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (generalSetting) {
-      document.title = `Api Docs | ${generalSetting.storeName}`;
+      document.title = `API Docs | ${generalSetting.storeName}`;
     } else {
       document.title = "Loading…";
     }

@@ -195,9 +195,10 @@ export default function PaymentMethodForm({
     if (response.success && response.signature) {
       setSignature(response.signature);
       setShowSignaturePopup(true);
+      // Don't close parent dialog yet - signature popup will handle it
+    } else {
+      onClose();
     }
-
-    onClose();
   };
 
   return (
@@ -390,7 +391,16 @@ export default function PaymentMethodForm({
         </DialogContent>
       </Dialog>
 
-      <Dialog open={showSignaturePopup} onOpenChange={setShowSignaturePopup}>
+      <Dialog
+        open={showSignaturePopup}
+        onOpenChange={(open) => {
+          setShowSignaturePopup(open);
+          if (!open) {
+            // Close parent dialog when signature popup is dismissed
+            onClose();
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-[500px] max-h-[90vh] p-0 overflow-y-auto">
           <DialogHeader className="px-6 py-4 border-b">
             <DialogTitle>
