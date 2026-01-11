@@ -5,26 +5,45 @@ import { DollarSign, TrendingUp, Clock, Wallet } from "lucide-react";
 import { motion } from "framer-motion";
 import { Payment } from "@/types";
 import { useMemo } from "react";
+import { useAppContext } from "@/context/appContext";
+import { useCurrencyConverter } from "@/lib/currencyConverter";
 
 interface PaymentStatsProps {
   payments: Payment[];
 }
 
+type AmountCurrency = { amount: number; currency: string };
+
+interface Stats {
+  totalAmount: AmountCurrency;
+  totalPayments: number;
+  pendingCount: number;
+  successRate: number;
+}
+
 export function PaymentStats({ payments }: PaymentStatsProps) {
-  const stats = useMemo(() => {
+  const { userCurrency } = useAppContext();
+  const convert = useCurrencyConverter();
+
+  const stats = useMemo<Stats>(() => {
     if (!payments || payments.length === 0) {
       return {
-        totalAmount: 0,
+        totalAmount: { amount: 0, currency: "USD" },
         totalPayments: 0,
         pendingCount: 0,
         successRate: 0,
       };
     }
 
-    const totalAmount = payments.reduce(
-      (sum, p) => sum + parseFloat(String(p.chargedAmount)),
-      0
-    );
+    const totalAmount = payments.reduce((sum, p) => {
+      const converted = convert(p.currency, "USD", p.chargedAmount);
+      const amt =
+        typeof converted.amount === "string"
+          ? parseFloat(converted.amount)
+          : Number(converted.amount);
+      return sum + (isNaN(amt) ? 0 : amt);
+    }, 0);
+
     const totalPayments = payments.length;
     const pendingCount = payments.filter((p) => p.status === "PENDING").length;
     const successCount = payments.filter((p) => p.status === "SUCCESS").length;
@@ -32,12 +51,12 @@ export function PaymentStats({ payments }: PaymentStatsProps) {
       totalPayments > 0 ? (successCount / totalPayments) * 100 : 0;
 
     return {
-      totalAmount,
+      totalAmount: { amount: totalAmount, currency: "USD" },
       totalPayments,
       pendingCount,
       successRate,
     };
-  }, [payments]);
+  }, [payments, convert]);
 
   const statCards = [
     {
@@ -49,10 +68,13 @@ export function PaymentStats({ payments }: PaymentStatsProps) {
     },
     {
       title: "Total Amount",
-      value: `$${stats.totalAmount.toLocaleString(undefined, {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })}`,
+      value: convert(
+        stats.totalAmount.currency as any,
+        userCurrency,
+        stats.totalAmount.amount,
+        true,
+        false
+      ).formatted,
       description: "Total revenue generated",
       icon: DollarSign,
       delay: 0.2,

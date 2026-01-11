@@ -67,7 +67,10 @@ export function PaymentFiltersBar({ onFiltersChange }: PaymentFiltersBarProps) {
       </div>
 
       {/* Status Filter */}
-      <Select value={filters.status || "all"} onValueChange={handleStatusChange}>
+      <Select
+        value={filters.status || "all"}
+        onValueChange={handleStatusChange}
+      >
         <SelectTrigger className="w-full sm:w-[130px]">
           <SelectValue placeholder="Status" />
         </SelectTrigger>
@@ -80,7 +83,10 @@ export function PaymentFiltersBar({ onFiltersChange }: PaymentFiltersBarProps) {
       </Select>
 
       {/* Method Filter */}
-      <Select value={filters.method || "all"} onValueChange={handleMethodChange}>
+      <Select
+        value={filters.method || "all"}
+        onValueChange={handleMethodChange}
+      >
         <SelectTrigger className="w-full sm:w-[150px]">
           <SelectValue placeholder="Method" />
         </SelectTrigger>

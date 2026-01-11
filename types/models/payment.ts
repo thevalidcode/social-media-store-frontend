@@ -1,3 +1,5 @@
+import { CurrencyCode } from "@/lib/currencyConverter";
+
 export type PaymentStatus = "PENDING" | "SUCCESS" | "FAILED";
 export type PaymentMethod = "FLUTTERWAVE" | "PAYSTACK" | "MANUAL";
 
@@ -6,7 +8,7 @@ export interface Payment {
   uid: string;
   amount: number;
   chargedAmount: number;
-  currency: string;
+  currency: CurrencyCode;
   method: PaymentMethod;
   status: PaymentStatus;
   storeScopedId: number;
