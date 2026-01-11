@@ -100,6 +100,11 @@ const adminNavigationItems = [
         url: "/admin/analytics",
         icon: BarChart,
       },
+      {
+        title: "Payments",
+        url: "/admin/payments",
+        icon: CreditCard,
+      },
     ],
   },
   {

@@ -3,6 +3,7 @@ export * from "./models/blog";
 export * from "./models/support";
 export * from "./models/order";
 export * from "./models/paymentGateway";
+export * from "./models/payment";
 export * from "./models/category";
 export * from "./models/provider";
 export * from "./models/user";
