@@ -155,8 +155,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     const baseURL =
       process.env.NODE_ENV === "development"
-        ? process.env.NEXT_PUBLIC_API_URL || "http://localhost:6060/api/v1"
-        : `https://${domain}/social-media-store/backend/api/v1`;
+        ? process.env.NEXT_PUBLIC_API_URL || "http://localhost:6060/v1"
+        : `https://api.${domain}/v1`;
 
     const newAxios = axios.create({
       baseURL,
