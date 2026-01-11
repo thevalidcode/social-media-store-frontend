@@ -188,7 +188,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const { error, isLoading } = useQuery({
     queryKey: ["storeId", domain],
     queryFn: async () => {
-      const res = await api.get<Store>(`/stores/data?domain=${domain}`);
+      const res = await api.get<Store>(`/stores/data`);
       if (!res.data || !res.data.storeId) {
         throw new Error("No storeId found for this domain");
       }
