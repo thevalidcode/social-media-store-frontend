@@ -36,7 +36,7 @@ export default function ServiceForm({
 
   // Convert once on mount to user's currency
   useEffect(() => {
-    if (service.price) {
+    if (service && service.price != null) {
       const converted = convert(
         service.currency || "USD",
         userCurrency,
@@ -44,17 +44,22 @@ export default function ServiceForm({
         true,
         false
       ).amount;
-      setLocalPrice(converted.toString());
+      setLocalPrice(String(converted));
+    } else {
+      setLocalPrice("");
     }
-    if (service.providerPrice) {
-      const converted = convert(
+
+    if (service && service.providerPrice != null) {
+      const convertedProv = convert(
         service.providerCurrency || "USD",
         userCurrency,
         Number(service.providerPrice),
         true,
         false
       ).amount;
-      setLocalProviderPrice(converted.toString());
+      setLocalProviderPrice(String(convertedProv));
+    } else {
+      setLocalProviderPrice("");
     }
   }, [userCurrency]);
 
@@ -182,6 +187,7 @@ export default function ServiceForm({
               const val = e.target.value;
               setLocalPrice(val);
               handleChange("price", val);
+              handleChange("currency", userCurrency);
             }}
             className="w-full text-sm focus:outline-none"
             placeholder="0.00"
@@ -207,6 +213,7 @@ export default function ServiceForm({
                 type="text"
                 value={localProviderPrice}
                 required
+                disabled
                 onChange={(e) => {
                   const val = e.target.value;
                   setLocalProviderPrice(val);

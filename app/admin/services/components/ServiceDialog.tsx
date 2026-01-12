@@ -120,9 +120,9 @@ export default function ServiceDialog({
     const parsedService = {
       ...newService,
       price: convert(
-        userCurrency,
+        newService.currency || userCurrency,
         "USD",
-        newService.price,
+        Number(newService.price),
         true,
         false
       ).amount.toString(),
