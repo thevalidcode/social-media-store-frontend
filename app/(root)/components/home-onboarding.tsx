@@ -4,7 +4,6 @@ import { useAppContext } from "@/context/appContext";
 import { useUpdateOnboardingCompleted } from "@/hooks/use-store";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   CheckCircle2,
   ArrowRight,
@@ -19,8 +18,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export function HomeOnboarding() {
-  const { generalSetting, isStoreGeneralSettingsLoading } =
-    useAppContext();
+  const { generalSetting, isStoreGeneralSettingsLoading } = useAppContext();
   const updateOnboarding = useUpdateOnboardingCompleted();
   const router = useRouter();
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -36,7 +34,7 @@ export function HomeOnboarding() {
     } else {
       setShowOnboarding(false);
     }
-  },  [generalSetting, isStoreGeneralSettingsLoading]);
+  }, [generalSetting, isStoreGeneralSettingsLoading]);
 
   const handleVisitAdmin = () => {
     router.push("/admin/auth/signin");
@@ -51,7 +49,7 @@ export function HomeOnboarding() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
-      <Card className="w-full max-w-2xl border shadow-lg">
+      <Card className="w-full max-w-2xl border shadow-lg max-h-[90vh] overflow-y-auto">
         <CardHeader className="text-center space-y-2">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
             <CheckCircle2 className="h-6 w-6 text-primary" />
@@ -146,7 +144,7 @@ export function HomeOnboarding() {
             <Button
               onClick={() => router.push("/admin/auth/forgot-password")}
               size="lg"
-              className="flex-1"
+              className="flex-1 py-2"
             >
               <Lock className="mr-2 h-4 w-4" />
               Reset Admin Password
@@ -156,7 +154,7 @@ export function HomeOnboarding() {
               onClick={handleVisitAdmin}
               variant="outline"
               size="lg"
-              className="flex-1"
+              className="flex-1 py-2"
             >
               Go to Admin Panel
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -166,7 +164,7 @@ export function HomeOnboarding() {
               variant="ghost"
               onClick={handleDismiss}
               size="lg"
-              className="flex-1"
+              className="flex-1 py-2"
             >
               Skip for now
             </Button>

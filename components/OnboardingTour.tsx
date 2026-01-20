@@ -177,7 +177,7 @@ export function OnboardingTour({ isOpen, onClose }: OnboardingTourProps) {
 
     localStorage.setItem(
       "onboarding_completed_steps",
-      JSON.stringify(Array.from(completedSteps))
+      JSON.stringify(Array.from(completedSteps)),
     );
   }, [currentStep, completedSteps, hasLoadedFromStorage]);
 
@@ -277,10 +277,10 @@ export function OnboardingTour({ isOpen, onClose }: OnboardingTourProps) {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Icon className="h-7 w-7" />
+                  <Icon className="h-4 w-4 md:h-7 md:w-7" />
                 </motion.div>
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
+                  <h1 className="text-xl md:text-3xl font-bold text-foreground mb-1">
                     {currentStepData.title}
                   </h1>
                   <p className="text-sm font-medium text-muted-foreground">
@@ -300,7 +300,7 @@ export function OnboardingTour({ isOpen, onClose }: OnboardingTourProps) {
 
             {/* Description */}
             <div className="mb-10">
-              <p className="text-foreground text-lg md:text-xl leading-relaxed font-medium">
+              <p className="text-foreground text-sm md:text-lg leading-relaxed font-medium">
                 {currentStepData.description}
               </p>
             </div>
@@ -339,8 +339,8 @@ export function OnboardingTour({ isOpen, onClose }: OnboardingTourProps) {
                     index < currentStep
                       ? "bg-emerald-500 shadow-emerald-200 dark:shadow-emerald-900/50"
                       : index === currentStep
-                      ? "bg-primary shadow-primary/30"
-                      : "bg-muted hover:bg-muted/80"
+                        ? "bg-primary shadow-primary/30"
+                        : "bg-muted hover:bg-muted/80"
                   }`}
                   whileHover={{ scale: 1.2 }}
                   whileTap={{ scale: 0.9 }}
