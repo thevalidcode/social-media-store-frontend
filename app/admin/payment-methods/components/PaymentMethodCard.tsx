@@ -12,6 +12,7 @@ import { PaymentGateway } from "@/types";
 import { motion } from "framer-motion";
 import PaymentMethodActions from "./PaymentMethodActions";
 import parse from "html-react-parser";
+import { platformLogos } from "@/app/_docs/doc";
 
 type Props = {
   gateways: PaymentGateway[];
@@ -31,7 +32,7 @@ export default function PaymentMethodCard({ gateways, setGateways }: Props) {
           <Card className="rounded-2xl border p-5 hover:shadow-xl transition-all duration-300">
             <CardHeader className="flex items-center gap-4 pb-3">
               <img
-                src={gateway.image}
+                src={platformLogos[gateway.platform]}
                 alt={gateway.name}
                 className="w-12 h-12 rounded-full"
               />

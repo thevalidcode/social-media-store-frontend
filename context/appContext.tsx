@@ -20,6 +20,17 @@ export interface GeneralSettingProps {
   faviconUrl: string;
   defaultClientCurrency: string;
   onboardingCompleted: boolean;
+  instagramUrl?: string;
+  xUrl?: string;
+  facebookUrl?: string;
+  youtubeUrl?: string;
+  tiktokUrl?: string;
+  storeStreet?: string;
+  storeCity?: string;
+  storeState?: string;
+  storePostalCode?: string;
+  storeCountry?: string;
+  storePhone?: string;
 }
 
 interface CurrencyRates {

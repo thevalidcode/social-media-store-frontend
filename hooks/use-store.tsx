@@ -12,6 +12,17 @@ export interface UpdateStoreSettingsProps {
   defaultClientCurrency?: string;
   storeDescription?: string;
   showBanner?: boolean;
+  instagramUrl?: string;
+  xUrl?: string;
+  facebookUrl?: string;
+  youtubeUrl?: string;
+  tiktokUrl?: string;
+  storePhone?: string;
+  storeStreet?: string;
+  storeCity?: string;
+  storeState?: string;
+  storePostalCode?: string;
+  storeCountry?: string;
 }
 
 export interface UpdateStoreDesignProps {
@@ -45,7 +56,7 @@ export function useUpdateStoreSettings() {
     onError: (error: unknown) => {
       const errorMsg = normalizeApiError(
         error,
-        "Failed to update store settings"
+        "Failed to update store settings",
       );
       toast.error(errorMsg);
     },
@@ -91,7 +102,7 @@ export function useUpdateStoreDesign() {
     onError: (error: unknown) => {
       const errorMsg = normalizeApiError(
         error,
-        "Failed to update store styles"
+        "Failed to update store styles",
       );
       toast.error(errorMsg);
     },
@@ -115,7 +126,7 @@ export function useUpdateOnboardingCompleted() {
     onError: (error: unknown) => {
       const errorMsg = normalizeApiError(
         error,
-        "Failed to update onboarding status"
+        "Failed to update onboarding status",
       );
       toast.error(errorMsg);
     },

@@ -14,31 +14,91 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useUpdateStoreSettings } from "@/hooks/use-store";
 import { Textarea } from "@/components/ui/textarea";
 import { useAppContext } from "@/context/appContext";
 import { TypographyH2, TypographyH3 } from "@/components/typography";
 import { FeatureGate } from "@/components/FeatureGate";
-import { Settings2, DollarSign, Settings, Sparkles } from "lucide-react";
+import {
+  Settings2,
+  DollarSign,
+  Settings,
+  Sparkles,
+  Share2Icon,
+  MapPin,
+} from "lucide-react";
 import { toast } from "sonner";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
+import { Country, State, City } from "country-state-city";
+import { ICountry, IState, ICity } from "country-state-city";
 
 export default function GeneralSettingsForm() {
   const { generalSetting, userCurrency, setUserCurrency, storeInfo } =
     useAppContext();
   const [storeName, setStoreName] = useState(generalSetting?.storeName || "");
   const [storeDescription, setStoreDescription] = useState(
-    generalSetting?.storeDescription || ""
+    generalSetting?.storeDescription || "",
   );
+  const [socialAccounts, setSocialAccounts] = useState({
+    instagramUrl: generalSetting?.instagramUrl || "",
+    xUrl: generalSetting?.xUrl || "",
+    facebookUrl: generalSetting?.facebookUrl || "",
+    youtubeUrl: generalSetting?.youtubeUrl || "",
+    tiktokUrl: generalSetting?.tiktokUrl || "",
+  });
+
   const [clientCurrency, setClientCurrency] = useState(
-    generalSetting?.defaultClientCurrency || "USD"
+    generalSetting?.defaultClientCurrency || "USD",
   );
   const [showBanner, setShowBanner] = useState<boolean>(
-    generalSetting?.showBanner ?? true
+    generalSetting?.showBanner ?? true,
   );
   const { mutateAsync: updateStoreSettings } = useUpdateStoreSettings();
 
   const canToggleBanner = storeInfo?.features?.hide_platform_banner ?? false;
+
+  // Store Address Fields
+  const [storeAddress, setStoreAddress] = useState({
+    storeStreet: generalSetting?.storeStreet || "",
+    storeCity: generalSetting?.storeCity || "",
+    storeState: generalSetting?.storeState || "",
+    storePostalCode: generalSetting?.storePostalCode || "",
+    storeCountry: generalSetting?.storeCountry || "",
+    storePhone: generalSetting?.storePhone || "",
+  });
+
+  const [countries, setCountries] = useState<ICountry[]>([]);
+  const [states, setStates] = useState<IState[]>([]);
+  const [cities, setCities] = useState<ICity[]>([]);
+
+  useEffect(() => {
+    const allCountries = Country.getAllCountries();
+    setCountries(allCountries);
+  }, []);
+
+  useEffect(() => {
+    if (storeAddress.storeCountry) {
+      const countryStates = State.getStatesOfCountry(storeAddress.storeCountry);
+      setStates(countryStates);
+    } else {
+      setStates([]);
+      setCities([]);
+    }
+  }, [storeAddress.storeCountry]);
+
+  useEffect(() => {
+    if (storeAddress.storeCountry && storeAddress.storeState) {
+      const stateCities = City.getCitiesOfState(
+        storeAddress.storeCountry,
+        storeAddress.storeState,
+      );
+      setCities(stateCities);
+    } else {
+      setCities([]);
+    }
+  }, [storeAddress.storeCountry, storeAddress.storeState]);
 
   const handleSave = async () => {
     await updateStoreSettings({
@@ -46,6 +106,9 @@ export default function GeneralSettingsForm() {
       storeDescription,
       defaultClientCurrency: clientCurrency,
       showBanner,
+      ...socialAccounts,
+
+      ...storeAddress,
     });
     toast.success("Settings updated successfully!");
   };
@@ -109,6 +172,284 @@ export default function GeneralSettingsForm() {
                     value={storeDescription}
                     onChange={(e) => setStoreDescription(e.target.value)}
                     className="min-h-[100px] resize-none"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Social Accounts Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="space-y-6"
+        >
+          <div>
+            <TypographyH3 className="text-lg mb-4 flex items-center gap-2">
+              <Share2Icon className="h-5 w-5 text-primary" />
+              Social Media Accounts
+            </TypographyH3>
+            <div className="bg-muted/30 rounded-lg p-6 space-y-6">
+              <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="instagramUrl" className="text-sm font-medium">
+                    Instagram URL
+                  </Label>
+                  <Input
+                    id="instagramUrl"
+                    type="url"
+                    placeholder="Enter your Instagram URL"
+                    value={socialAccounts.instagramUrl}
+                    onChange={(e) =>
+                      setSocialAccounts((prev) => ({
+                        ...prev,
+                        instagramUrl: e.target.value,
+                      }))
+                    }
+                    className="h-11"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="facebookUrl" className="text-sm font-medium">
+                    Facebook URL
+                  </Label>
+                  <Input
+                    id="facebookUrl"
+                    type="url"
+                    placeholder="Enter your Facebook URL"
+                    value={socialAccounts.facebookUrl}
+                    onChange={(e) =>
+                      setSocialAccounts((prev) => ({
+                        ...prev,
+                        facebookUrl: e.target.value,
+                      }))
+                    }
+                    className="h-11"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="xUrl" className="text-sm font-medium">
+                    X URL
+                  </Label>
+                  <Input
+                    id="xUrl"
+                    type="url"
+                    placeholder="Enter your X URL"
+                    value={socialAccounts.xUrl}
+                    onChange={(e) =>
+                      setSocialAccounts((prev) => ({
+                        ...prev,
+                        xUrl: e.target.value,
+                      }))
+                    }
+                    className="h-11"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="youtubeUrl" className="text-sm font-medium">
+                    Youtube URL
+                  </Label>
+                  <Input
+                    id="youtubeUrl"
+                    type="url"
+                    placeholder="Enter your Youtube URL"
+                    value={socialAccounts.youtubeUrl}
+                    onChange={(e) =>
+                      setSocialAccounts((prev) => ({
+                        ...prev,
+                        youtubeUrl: e.target.value,
+                      }))
+                    }
+                    className="h-11"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="tiktokUrl" className="text-sm font-medium">
+                    TikTok URL
+                  </Label>
+                  <Input
+                    id="tiktokUrl"
+                    type="url"
+                    placeholder="Enter your TikTok URL"
+                    value={socialAccounts.tiktokUrl}
+                    onChange={(e) =>
+                      setSocialAccounts((prev) => ({
+                        ...prev,
+                        tiktokUrl: e.target.value,
+                      }))
+                    }
+                    className="h-11"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Store Address Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+          className="space-y-6"
+        >
+          <div>
+            <TypographyH3 className="text-lg mb-4 flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-primary" />
+              Store Address
+            </TypographyH3>
+            <div className="bg-muted/30 rounded-lg p-6 space-y-6">
+              <div className="grid grid-cols-1 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="storeStreet" className="text-sm font-medium">
+                    Street Address
+                  </Label>
+                  <Input
+                    id="storeStreet"
+                    type="text"
+                    placeholder="123 Main Street"
+                    value={storeAddress.storeStreet}
+                    onChange={(e) =>
+                      setStoreAddress((prev) => ({
+                        ...prev,
+                        storeStreet: e.target.value,
+                      }))
+                    }
+                    className="h-11"
+                  />
+                </div>
+              </div>
+              <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="storeCountry" className="text-sm font-medium">
+                    Country
+                  </Label>
+                  <Select
+                    value={storeAddress.storeCountry}
+                    onValueChange={(val) =>
+                      setStoreAddress((prev) => ({
+                        ...prev,
+                        storeCountry: val,
+                        storeState: "",
+                        storeCity: "",
+                      }))
+                    }
+                  >
+                    <SelectTrigger id="storeCountry" className="h-11 w-full">
+                      <SelectValue placeholder="Select country..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {countries.map((country) => (
+                        <SelectItem
+                          key={country.isoCode}
+                          value={country.isoCode}
+                        >
+                          {country.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="storeState" className="text-sm font-medium">
+                    State/Province
+                  </Label>
+                  <Select
+                    value={storeAddress.storeState}
+                    onValueChange={(val) =>
+                      setStoreAddress((prev) => ({
+                        ...prev,
+                        storeState: val,
+                        storeCity: "",
+                      }))
+                    }
+                    disabled={!storeAddress.storeCountry || states.length === 0}
+                  >
+                    <SelectTrigger id="storeState" className="h-11 w-full">
+                      <SelectValue placeholder="Select state..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {states.map((state) => (
+                        <SelectItem key={state.isoCode} value={state.isoCode}>
+                          {state.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid md:grid-cols-2 grid-cols-1 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="storeCity" className="text-sm font-medium">
+                    City
+                  </Label>
+                  <Select
+                    value={storeAddress.storeCity}
+                    onValueChange={(val) =>
+                      setStoreAddress((prev) => ({
+                        ...prev,
+                        storeCity: val,
+                      }))
+                    }
+                    disabled={
+                      !storeAddress.storeCountry ||
+                      !storeAddress.storeState ||
+                      cities.length === 0
+                    }
+                  >
+                    <SelectTrigger id="storeCity" className="h-11 w-full">
+                      <SelectValue placeholder="Select city..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cities.map((city) => (
+                        <SelectItem key={city.name} value={city.name}>
+                          {city.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="storePostalCode"
+                    className="text-sm font-medium"
+                  >
+                    Postal Code
+                  </Label>
+                  <Input
+                    id="storePostalCode"
+                    type="text"
+                    placeholder="10001"
+                    value={storeAddress.storePostalCode}
+                    onChange={(e) =>
+                      setStoreAddress((prev) => ({
+                        ...prev,
+                        storePostalCode: e.target.value,
+                      }))
+                    }
+                    className="h-11"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="storePhone" className="text-sm font-medium">
+                    Phone Number
+                  </Label>
+                  <PhoneInput
+                    id="storePhone"
+                    international
+                    defaultCountry={storeAddress.storeCountry as any}
+                    value={storeAddress.storePhone}
+                    onChange={(value) =>
+                      setStoreAddress((prev) => ({
+                        ...prev,
+                        storePhone: value || "",
+                      }))
+                    }
+                    className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                 </div>
               </div>

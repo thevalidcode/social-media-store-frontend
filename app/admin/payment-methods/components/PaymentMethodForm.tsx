@@ -71,7 +71,6 @@ export default function PaymentMethodForm({
       createdAt: new Date(),
       name: "",
       platform: "MANUAL",
-      image: "",
       min: "",
       max: "",
       description: "",

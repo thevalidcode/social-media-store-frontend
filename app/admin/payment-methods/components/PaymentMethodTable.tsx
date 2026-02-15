@@ -13,6 +13,7 @@ import { PaymentGateway, PaymentGatewayStatus } from "@/types";
 import PaymentMethodActions from "./PaymentMethodActions";
 import { Badge } from "@/components/ui/badge";
 import { useUpdatePaymentGatewayStatus } from "@/hooks/use-paymentGateway";
+import { platformLogos } from "@/app/_docs/doc";
 
 export default function PaymentMethodsTable({
   gateways,
@@ -33,13 +34,13 @@ export default function PaymentMethodsTable({
                 ? "DISABLED"
                 : ("ACTIVE" as PaymentGatewayStatus),
           }
-        : g
+        : g,
     );
 
     setGateways(updatedGateways);
 
     const updatedGateway = updatedGateways.find(
-      (g) => g.storeScopedId === storeScopedId
+      (g) => g.storeScopedId === storeScopedId,
     )!;
 
     await updateGatewayStatus(updatedGateway);
@@ -61,7 +62,11 @@ export default function PaymentMethodsTable({
           {gateways.map((g) => (
             <TableRow key={g.id}>
               <TableCell className="flex items-center gap-3">
-                <img src={g.image} alt={g.name} className="w-6 h-6 rounded" />
+                <img
+                  src={platformLogos[g.platform]}
+                  alt={g.name}
+                  className="w-6 h-6 rounded"
+                />
                 <span className="font-medium">{g.name}</span>
               </TableCell>
               <TableCell>{g.platform}</TableCell>

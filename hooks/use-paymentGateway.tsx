@@ -15,7 +15,6 @@ export interface CreatePaymentGatewayProps {
   description?: string;
   feePercent?: number;
   secretKey?: string;
-  image: string;
   status?: PaymentGatewayStatus;
   min: string;
   max: string;
@@ -28,7 +27,6 @@ export interface UpdatePaymentGatewayProps {
   description?: string;
   feePercent?: number;
   secretKey?: string;
-  image?: string;
   status?: PaymentGatewayStatus;
   min?: string;
   max?: string;
@@ -54,7 +52,7 @@ export const useGetPaymentGatewaysByStatus = (status: PaymentGatewayStatus) => {
     queryKey: ["paymentGatewaysByStatus", storeId, status],
     queryFn: async () => {
       const res = await api.get<PaymentGateway[]>(
-        `/payment-gateways/status/${status}`
+        `/payment-gateways/status/${status}`,
       );
       if (!res.data) throw new Error("Failed to fetch gateways");
       return res.data;
@@ -124,7 +122,7 @@ export const useGetSinglePaymentGatewayForAdmins = (uid: string) => {
     queryKey: ["paymentGatewayAdmin", storeId, uid],
     queryFn: async () => {
       const res = await api.get<PaymentGateway>(
-        `/payment-gateways/admin/${uid}`
+        `/payment-gateways/admin/${uid}`,
       );
       if (!res.data) throw new Error("Failed to fetch gateway details");
       return res.data;
@@ -145,7 +143,7 @@ export const useCreatePaymentGateway = () => {
     mutationFn: async (data: CreatePaymentGatewayProps) => {
       const res = await api.post<PaymentGatewayFormResponse>(
         "/payment-gateways",
-        data
+        data,
       );
       if (!res.data) throw new Error("Failed to create payment gateway");
       return res.data;
@@ -170,7 +168,7 @@ export const useUpdatePaymentGateway = () => {
     mutationFn: async (data: UpdatePaymentGatewayProps) => {
       const res = await api.patch<PaymentGatewayFormResponse>(
         `/payment-gateways`,
-        data
+        data,
       );
       if (!res.data) throw new Error("Failed to update payment gateway");
       return res.data;

@@ -14,7 +14,6 @@ export interface PaymentGateway {
   description?: string;
   signature?: string;
   feePercent?: number;
-  image: string;
   status: PaymentGatewayStatus;
   createdAt: Date; // ISO date string
   position: number;

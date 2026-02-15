@@ -6,6 +6,7 @@ import { useAppContext } from "@/context/appContext";
 import Loading from "../loading";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { Footer } from "@/components/Footer";
 
 export default function RootLayout({
   children,
@@ -45,7 +46,8 @@ export default function RootLayout({
   return (
     <Wrapper>
       <Nav />
-      {children}
+      <div>{children}</div>
+      <Footer />
     </Wrapper>
   );
 }

@@ -1,5 +1,6 @@
 import { ChartConfig } from "@/components/ui/chart";
 import { CurrencyCode } from "@/lib/currencyConverter";
+import { PaymentGatewayPlatform } from "@/types";
 
 export const sortBy = [
   { value: "default", label: "Sort by default" },
@@ -1522,4 +1523,11 @@ export const timezoneToCurrency: Record<string, CurrencyCode> = {
   "Australia/Melbourne": "AUD",
   "Australia/Brisbane": "AUD",
   "Australia/Perth": "AUD",
+};
+
+export const platformLogos: Record<PaymentGatewayPlatform, string> = {
+  PAYSTACK: "/images/paystack.png",
+  FLUTTERWAVE: "/images/flutterwave.jpeg",
+  REFERRAL: "/images/manual-payment.webp",
+  MANUAL: "/images/manual-payment.webp",
 };

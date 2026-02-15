@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Check, ShieldCheck, Info } from "lucide-react";
 import { PaymentGatewayPublic } from "@/types";
+import { platformLogos } from "@/app/_docs/doc";
 
 interface PaymentMethodSelectorProps {
   paymentMethods: PaymentGatewayPublic[];
@@ -56,7 +57,7 @@ export function PaymentMethodSelector({
                       <div className="relative">
                         <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center overflow-hidden">
                           <img
-                            src={m.image}
+                            src={platformLogos[m.platform]}
                             alt={m.name}
                             className="w-10 h-10 object-contain"
                           />
