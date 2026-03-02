@@ -41,6 +41,8 @@ import FaqDialog from "./components/FaqDialog";
 import { Faq } from "@/types/models/faq";
 import { EmptyState } from "@/components/empty-state";
 import { TypographyH2 } from "@/components/typography";
+import { FeatureGate } from "@/components/FeatureGate";
+import { useAppContext } from "@/context/appContext";
 
 export default function FaqPage() {
   const [isOpen, setIsOpen] = useState(false);
@@ -55,6 +57,8 @@ export default function FaqPage() {
   const { mutate: deleteFaq } = useDeleteSingleFaq();
   const { mutate: deleteMultipleFaqs } = useDeleteMultipleFaqs();
   const queryClient = useQueryClient();
+  const { storeInfo } = useAppContext();
+  const isSubscriptionActive = storeInfo?.subscriptionStatus === "ACTIVE";
 
   useEffect(() => {
     if (faqsData) {
@@ -186,10 +190,17 @@ export default function FaqPage() {
                   )}
                 </AnimatePresence>
               )}
-              <Button onClick={() => handleOpenDialog()} className="gap-2">
-                <Plus className="h-4 w-4" />
-                Add FAQ
-              </Button>
+              <FeatureGate
+                isAllowed={isSubscriptionActive}
+                featureLabel="Add FAQ"
+                description="Your subscription is required to create new FAQs."
+                variant="tooltip"
+              >
+                <Button onClick={() => handleOpenDialog()} className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Add FAQ
+                </Button>
+              </FeatureGate>
             </div>
           </div>
         </CardHeader>

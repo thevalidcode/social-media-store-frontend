@@ -26,6 +26,8 @@ import {
 import DeleteDialog from "../components/DeleteDialog";
 import { EmptyState } from "@/components/empty-state";
 import Pagination from "@/components/pagination";
+import { FeatureGate } from "@/components/FeatureGate";
+import { useAppContext } from "@/context/appContext";
 
 export default function AdminBlogsPage() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
@@ -43,6 +45,8 @@ export default function AdminBlogsPage() {
   const { mutate: updateBlog } = useUpdateBlog();
   const { mutate: deleteMultipleBlogs } = useDeleteMultipleBlogs();
   const { data: storeBlogs } = useGetBlogs();
+  const { storeInfo } = useAppContext();
+  const isSubscriptionActive = storeInfo?.subscriptionStatus === "ACTIVE";
 
   useEffect(() => {
     if (storeBlogs) {
@@ -169,9 +173,16 @@ export default function AdminBlogsPage() {
               </p>
             </div>
 
-            <Button onClick={handleCreate} className="gap-2">
-              <Plus size={18} /> New Blog
-            </Button>
+            <FeatureGate
+              isAllowed={isSubscriptionActive}
+              featureLabel="Create Blog"
+              description="Your subscription is required to create new blogs."
+              variant="tooltip"
+            >
+              <Button onClick={handleCreate} className="gap-2">
+                <Plus size={18} /> New Blog
+              </Button>
+            </FeatureGate>
           </div>
 
           {/* Search */}

@@ -10,6 +10,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { FeatureGate } from "@/components/FeatureGate";
+import { useAppContext } from "@/context/appContext";
 
 interface CategoryFiltersProps {
   onFilterChange: (filters: { search: string; status: string }) => void;
@@ -24,6 +26,8 @@ export default function CategoryFilters({
     search: "",
     status: "All",
   });
+  const { storeInfo } = useAppContext();
+  const isSubscriptionActive = storeInfo?.subscriptionStatus === "ACTIVE";
 
   const handleFilterChange = (name: string, value: string) => {
     const updated = { ...filters, [name]: value };
@@ -63,13 +67,20 @@ export default function CategoryFilters({
         </div>
       </div>
 
-      <Button
-        type="button"
-        className="bg-primary text-white hover:bg-primary/90 rounded-sm py-2 px-4 cursor-pointer"
-        onClick={addCategory}
+      <FeatureGate
+        isAllowed={isSubscriptionActive}
+        featureLabel="Add Category"
+        description="Your subscription is required to create new categories."
+        variant="tooltip"
       >
-        Add Category
-      </Button>
+        <Button
+          type="button"
+          className="bg-primary text-white hover:bg-primary/90 rounded-sm py-2 px-4 cursor-pointer"
+          onClick={addCategory}
+        >
+          Add Category
+        </Button>
+      </FeatureGate>
     </div>
   );
 }

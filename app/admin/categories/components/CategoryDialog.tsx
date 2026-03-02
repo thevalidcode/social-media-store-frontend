@@ -14,6 +14,8 @@ import { useState, useEffect, FormEvent } from "react";
 import Loading from "@/app/loading";
 import { useCreateCategory, useUpdateCategory } from "@/hooks/use-category";
 import CategoryForm from "../components/CategoryForm";
+import { FeatureGate } from "@/components/FeatureGate";
+import { useAppContext } from "@/context/appContext";
 
 export default function CategoryDialog({
   open,
@@ -33,6 +35,8 @@ export default function CategoryDialog({
 
   const { mutate: createCategory, isPending: isCreating } = useCreateCategory();
   const { mutate: updateCategory, isPending: isUpdating } = useUpdateCategory();
+  const { storeInfo } = useAppContext();
+  const isSubscriptionActive = storeInfo?.subscriptionStatus === "ACTIVE";
 
   const isLoading = isCreating || isUpdating;
 
@@ -92,9 +96,16 @@ export default function CategoryDialog({
                 >
                   Cancel
                 </Button>
-                <Button type="submit">
-                  {editingItem ? "Update Category" : "Add Category"}
-                </Button>
+                <FeatureGate
+                  isAllowed={isSubscriptionActive}
+                  featureLabel={editingItem ? "Update Category" : "Add Category"}
+                  description="Your subscription is required to save category changes."
+                  variant="tooltip"
+                >
+                  <Button type="submit">
+                    {editingItem ? "Update Category" : "Add Category"}
+                  </Button>
+                </FeatureGate>
               </DialogFooter>
             </div>
           </form>
