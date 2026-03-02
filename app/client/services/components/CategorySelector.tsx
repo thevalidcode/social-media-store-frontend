@@ -26,6 +26,11 @@ export const CategorySelector = ({
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
+          <SelectItem key="all" value="all">
+            <div className="flex items-center gap-3">
+              <div className="font-medium truncate">All Categories</div>
+            </div>
+          </SelectItem>
           {categories.map((cat) => (
             <SelectItem key={cat.title} value={cat.title}>
               <div className="flex items-center gap-3">

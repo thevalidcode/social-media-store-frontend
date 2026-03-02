@@ -38,6 +38,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -45,46 +46,16 @@ import { useAppContext } from "@/context/appContext";
 import Image from "next/image";
 import { del } from "idb-keyval";
 
-// Full navigation definition
-const baseNavigation = [
-  {
-    title: "Overview",
-    items: [
-      { title: "Dashboard", url: "/client/dashboard", icon: LayoutDashboard },
-      { title: "Services", url: "/client/services", icon: Server },
-      { title: "New Order", url: "/client/new-order", icon: PlusIcon },
-      { title: "My Orders", url: "/client/orders", icon: ShoppingCart },
-    ],
-  },
-  {
-    title: "Blogs",
-    items: [{ title: "Blog", url: "/client/blog", icon: BookOpen }],
-  },
-  {
-    title: "Payments",
-    items: [
-      { title: "Deposit", url: "/client/add-funds", icon: CreditCard },
-      { title: "Invite Friends", url: "/client/referral", icon: UserPlus },
-    ],
-  },
-  {
-    title: "Help & Support",
-    items: [
-      { title: "FAQ", url: "/client/faq", icon: HelpCircle },
-      { title: "Contact Support", url: "/client/support", icon: MessageSquare },
-      { title: "API Docs", url: "/client/api-docs", icon: Code },
-    ],
-  },
-];
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const router = useRouter();
+  const { setOpenMobile } = useSidebar();
   const {
     generalSetting,
     isStoreGeneralSettingsLoading,
     userInfo,
     setUserInfo,
+    storeInfo,
   } = useAppContext();
 
   const isActive = (path: string) => pathname === path;
@@ -101,10 +72,54 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Compute authentication status explicitly
   const isAuthenticated = !!userInfo;
 
+  const analyticsAllowed = storeInfo?.features?.analytics ?? false;
+
+  // Full navigation definition
+  const baseNavigation = [
+    {
+      title: "Overview",
+      items: [
+        analyticsAllowed && {
+          title: "Dashboard",
+          url: "/client/dashboard",
+          icon: LayoutDashboard,
+        },
+        { title: "Services", url: "/client/services", icon: Server },
+        { title: "New Order", url: "/client/new-order", icon: PlusIcon },
+        { title: "My Orders", url: "/client/orders", icon: ShoppingCart },
+      ],
+    },
+    {
+      title: "Blogs",
+      items: [{ title: "Blog", url: "/client/blog", icon: BookOpen }],
+    },
+    {
+      title: "Payments",
+      items: [
+        { title: "Deposit", url: "/client/add-funds", icon: CreditCard },
+        { title: "Invite Friends", url: "/client/referral", icon: UserPlus },
+      ],
+    },
+    {
+      title: "Help & Support",
+      items: [
+        { title: "FAQ", url: "/client/faq", icon: HelpCircle },
+        {
+          title: "Contact Support",
+          url: "/client/support",
+          icon: MessageSquare,
+        },
+        { title: "API Docs", url: "/client/api-docs", icon: Code },
+      ],
+    },
+  ];
+
   // Filter navigation dynamically
   const navigationItems = baseNavigation
     .map((group) => {
       const filteredItems = group.items.filter((item) => {
+        // Remove falsy items (from conditional rendering)
+        if (!item) return false;
         // Hide private-only routes when user is NOT authenticated
         if (!isAuthenticated && !publicRoutes.includes(item.url)) {
           return false;
@@ -115,7 +130,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     })
     .filter((group) => group.items.length > 0); // Remove empty groups
 
-  if (isStoreGeneralSettingsLoading) return <div>Loading...</div>;
+  if (isStoreGeneralSettingsLoading) return null;
 
   const handleAuthAction = async () => {
     if (userInfo) {
@@ -126,7 +141,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       router.push("/auth/signin");
     }
   };
-
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
@@ -160,23 +174,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {group.items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton size="md" asChild>
-                      <Link
-                        href={item.url}
-                        className={
-                          isActive(item.url)
-                            ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                            : ""
-                        }
-                      >
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {group.items
+                  .filter((item) => !!item)
+                  .map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton size="md" asChild>
+                        <Link
+                          href={item.url}
+                          onClick={() => setOpenMobile(false)}
+                          className={
+                            isActive(item.url)
+                              ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                              : ""
+                          }
+                        >
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

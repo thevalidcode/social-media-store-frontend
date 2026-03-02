@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { FeatureGate } from "@/components/FeatureGate";
+import { useAppContext } from "@/context/appContext";
 
 interface ServiceFiltersProps {
   categories: string[];
@@ -33,6 +34,9 @@ export default function ServiceFilters({
   maxProducts = 0,
   hasUnlimited = false,
 }: ServiceFiltersProps) {
+  const { storeInfo } = useAppContext();
+  const isSubscriptionActive = storeInfo?.subscriptionStatus === "ACTIVE";
+  
   const [filters, setFilters] = useState({
     category: "All",
     search: "",
@@ -95,18 +99,25 @@ export default function ServiceFilters({
         </div>
       </div>
       <FeatureGate
-        isAllowed={canAddMore}
-        featureLabel="Service limit"
+        isAllowed={isSubscriptionActive}
+        featureLabel="Service Creation"
         variant="tooltip"
-        description={hasUnlimited ? "" : `You've reached the maximum of ${maxProducts} services/products. Upgrade to add more.`}
+        description="You need an active subscription to add services. Please renew your subscription to continue."
       >
-        <Button
-          type="button"
-          className="bg-primary text-white hover:bg-primary/90 rounded-sm py-2 px-4 cursor-pointer"
-          onClick={addService}
+        <FeatureGate
+          isAllowed={canAddMore}
+          featureLabel="Service limit"
+          variant="tooltip"
+          description={hasUnlimited ? "" : `You've reached the maximum of ${maxProducts} services/products. Upgrade to add more.`}
         >
-          Add Service
-        </Button>
+          <Button
+            type="button"
+            className="bg-primary text-white hover:bg-primary/90 rounded-sm py-2 px-4 cursor-pointer"
+            onClick={addService}
+          >
+            Add Service
+          </Button>
+        </FeatureGate>
       </FeatureGate>
     </div>
   );

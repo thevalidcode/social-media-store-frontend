@@ -37,6 +37,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Provider } from "@/types";
 import ProviderDialog from "./components/ProviderDialog";
 import { EmptyState } from "@/components/empty-state";
+import { FeatureGate } from "@/components/FeatureGate";
+import { useAppContext } from "@/context/appContext";
 
 export default function ProvidersPage() {
   const [providers, setProviders] = useState<Provider | null>(null);
@@ -51,6 +53,8 @@ export default function ProvidersPage() {
   const { mutate: deleteSingleProvider } = useDeleteProvider();
   const { mutate: deleteMultipleProviders } = useDeleteMultipleProviders();
   const queryClient = useQueryClient();
+  const { storeInfo } = useAppContext();
+  const isSubscriptionActive = storeInfo?.subscriptionStatus === "ACTIVE";
   const isVisible = false;
   const providersList: Provider[] = Array.isArray(providersData)
     ? providersData
@@ -134,6 +138,7 @@ export default function ProvidersPage() {
           isOpen={isOpen}
           provider={providers}
           onClose={handleCloseDialog}
+          isSubscriptionActive={isSubscriptionActive}
         />
       </>
     );
@@ -169,10 +174,17 @@ export default function ProvidersPage() {
               )}
             </AnimatePresence>
           )}
-          <Button className="cursor-pointer" onClick={() => handleOpenDialog()}>
-            <Plus className="h-4 w-4" />
-            Add Provider
-          </Button>
+          <FeatureGate
+            isAllowed={isSubscriptionActive}
+            featureLabel="Provider Management"
+            variant="tooltip"
+            description="You need an active subscription to manage providers. Please renew your subscription to continue."
+          >
+            <Button className="cursor-pointer" onClick={() => handleOpenDialog()}>
+              <Plus className="h-4 w-4" />
+              Add Provider
+            </Button>
+          </FeatureGate>
         </div>
 
         {/* Desktop Table */}
@@ -313,6 +325,7 @@ export default function ProvidersPage() {
         isOpen={isOpen}
         provider={providers}
         onClose={handleCloseDialog}
+        isSubscriptionActive={isSubscriptionActive}
       />
 
       {/* delete dialog */}

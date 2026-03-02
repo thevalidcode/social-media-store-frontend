@@ -28,9 +28,7 @@ export default function ServicesList({
   const CATEGORIES = (categoryWithServices as ServiceCategory[]) ?? [];
   const SORT_BY = (sortBy as SortOption[]) ?? [{ value: "id", label: "ID" }];
 
-  const [selectedCategory, setSelectedCategory] = useState<ServiceCategory>(
-    CATEGORIES[0]
-  );
+  const [selectedCategoryTitle, setSelectedCategoryTitle] = useState<string>("all");
   const [selectedSort, setSelectedSort] = useState<string>(
     SORT_BY[0]?.value ?? "id"
   );
@@ -43,8 +41,8 @@ export default function ServicesList({
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleCategoryChange = (title: string) => {
-    const cat = CATEGORIES.find((c) => c.title === title);
-    if (cat) setSelectedCategory(cat);
+    setSelectedCategoryTitle(title);
+    setPage(1); // Reset to first page when category changes
   };
 
   const handleSortChange = (v: string) => setSelectedSort(v);
@@ -55,7 +53,15 @@ export default function ServicesList({
   };
 
   const sortedServices = useMemo(() => {
-    let list = [...(selectedCategory?.services ?? [])];
+    // Get services based on selected category
+    let list: Service[] = [];
+    if (selectedCategoryTitle === "all") {
+      // Flatten all services from all categories
+      list = CATEGORIES.flatMap(cat => cat.services ?? []);
+    } else {
+      const selectedCategory = CATEGORIES.find((c) => c.title === selectedCategoryTitle);
+      list = [...(selectedCategory?.services ?? [])];
+    }
 
     // Apply search filter
     if (searchQuery.trim()) {
@@ -76,7 +82,7 @@ export default function ServicesList({
       default:
         return list;
     }
-  }, [selectedCategory, selectedSort, searchQuery]);
+  }, [selectedCategoryTitle, selectedSort, searchQuery, CATEGORIES]);
 
   const paginatedServices = useMemo(() => {
     const startIndex = (page - 1) * pageSize;
@@ -114,13 +120,13 @@ export default function ServicesList({
       <PageContent pageType="SERVICES" />
 
       {/* Controls */}
-      {showControls && selectedCategory && (
+      {showControls && (
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 p-4 rounded-xl shadow-sm border">
           {/* Left Side - Filters */}
           <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
             <CategorySelector
               categories={CATEGORIES}
-              value={selectedCategory.title}
+              value={selectedCategoryTitle}
               onChange={handleCategoryChange}
             />
             <SortSelector

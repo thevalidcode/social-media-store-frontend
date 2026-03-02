@@ -10,6 +10,7 @@ import { useAppContext } from "@/context/appContext";
 import { useCurrencyConverter } from "@/lib/currencyConverter";
 import { useEffect, useState } from "react";
 import ImportServicesDialog from "./ImportServicesDialog";
+import { FeatureGate } from "@/components/FeatureGate";
 
 interface ServiceFormProps {
   service: any;
@@ -18,6 +19,7 @@ interface ServiceFormProps {
   categoryOptions: any[];
   providerOptions: any[];
   isEditing?: boolean;
+  isSubscriptionActive?: boolean;
 }
 
 export default function ServiceForm({
@@ -27,6 +29,7 @@ export default function ServiceForm({
   providerOptions,
   setOpen,
   isEditing,
+  isSubscriptionActive = true,
 }: ServiceFormProps) {
   const { userCurrency } = useAppContext();
   const convert = useCurrencyConverter();
@@ -86,16 +89,23 @@ export default function ServiceForm({
       {!isEditing && (
         <div className="flex justify-between items-center">
           <Label>Add Service Details</Label>
-          <Button
-            size="sm"
-            variant="outline"
-            type="button"
-            onClick={() => {
-              setShowImportServices(true);
-            }}
+          <FeatureGate
+            isAllowed={isSubscriptionActive}
+            featureLabel="Import Services"
+            variant="tooltip"
+            description="You need an active subscription to import services. Please renew your subscription to continue."
           >
-            Import from Provider
-          </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              type="button"
+              onClick={() => {
+                setShowImportServices(true);
+              }}
+            >
+              Import from Provider
+            </Button>
+          </FeatureGate>
         </div>
       )}
 

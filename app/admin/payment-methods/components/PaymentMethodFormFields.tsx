@@ -8,6 +8,7 @@ import { FormEvent } from "react";
 import { PaymentGateway } from "@/types";
 import { motion } from "framer-motion";
 import WysiwygEditor from "@/components/WysiwygEditor";
+import { FeatureGate } from "@/components/FeatureGate";
 
 interface NewPaymentGateway extends PaymentGateway {
   secretKey?: string;
@@ -18,6 +19,7 @@ interface PaymentMethodFormFieldsProps {
   isEdit: boolean;
   onSubmit: (e: FormEvent) => void;
   onFieldChange: (key: keyof NewPaymentGateway, value: string) => void;
+  isSubscriptionActive?: boolean;
 }
 
 export default function PaymentMethodFormFields({
@@ -25,6 +27,7 @@ export default function PaymentMethodFormFields({
   isEdit,
   onSubmit,
   onFieldChange,
+  isSubscriptionActive = true,
 }: PaymentMethodFormFieldsProps) {
   return (
     <motion.form
@@ -126,9 +129,16 @@ export default function PaymentMethodFormFields({
       )}
 
       <DialogFooter className="pt-4">
-        <Button type="submit" className="w-full sm:w-auto">
-          {isEdit ? "Update Gateway" : "Create Gateway"}
-        </Button>
+        <FeatureGate
+          isAllowed={isSubscriptionActive}
+          featureLabel="Payment Gateway Management"
+          variant="tooltip"
+          description="You need an active subscription to manage payment gateways. Please renew your subscription to continue."
+        >
+          <Button type="submit" className="w-full sm:w-auto">
+            {isEdit ? "Update Gateway" : "Create Gateway"}
+          </Button>
+        </FeatureGate>
       </DialogFooter>
     </motion.form>
   );

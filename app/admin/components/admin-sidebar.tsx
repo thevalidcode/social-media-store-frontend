@@ -37,6 +37,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -124,6 +125,7 @@ export function AdminSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
+  const { setOpenMobile } = useSidebar();
   const isActive = (path: string) => {
     return pathname === path;
   };
@@ -137,7 +139,7 @@ export function AdminSidebar({
     setAdminInfo,
   } = useAppContext();
 
-  if (isStoreGeneralSettingsLoading) return <div>Loading...</div>;
+  if (isStoreGeneralSettingsLoading) return null
 
   const handleAuthAction = async () => {
     setAdminInfo(null);
@@ -182,6 +184,7 @@ export function AdminSidebar({
                     <SidebarMenuButton size="md" asChild>
                       <Link
                         href={item.url}
+                        onClick={() => setOpenMobile(false)}
                         className={
                           isActive(item.url)
                             ? "bg-sidebar-accent text-sidebar-accent-foreground"

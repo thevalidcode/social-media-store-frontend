@@ -21,14 +21,29 @@ export type StoreFeatures = {
   staff_accounts: number;
   social_store_order_sync: boolean;
   social_store_service_sync: boolean;
-  [k: string]: any;
 };
+
+export type SubscriptionStatus =
+  | "ACTIVE"
+  | "PENDING"
+  | "FAILED"
+  | "EXPIRED"
+  | "TRIAL"
+  | "CANCELED";
+
+export type BillingInterval = "MONTHLY" | "YEARLY";
 
 export type Store = {
   name: string;
   description: string;
   features: StoreFeatures;
-  planId: number;
   status: StoreStatus;
   storeId: number;
+  planName: string;
+  subscriptionStatus: SubscriptionStatus;
+  startedAt: string;
+  createdAt: string;
+  expiresAt: string;
+  gracePeriod: number;
+  billingCycle: BillingInterval;
 };

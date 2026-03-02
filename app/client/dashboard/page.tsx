@@ -15,14 +15,16 @@ import {
 } from "lucide-react";
 import { useCurrencyConverter } from "@/lib/currencyConverter";
 import { useAppContext } from "@/context/appContext";
-import { EmptyState } from "@/components/empty-state";import { useGetCategories } from "@/hooks/use-category";
+import { EmptyState } from "@/components/empty-state";
+import { useGetCategories } from "@/hooks/use-category";
+import { FeatureGate } from "@/components/FeatureGate";
 
 export default function Dashboard() {
   const { data, isLoading } = useGetUserDashboardStatistics();
   const { data: categories, isLoading: isCategoriesLoading } =
     useGetCategories();
 
-  const { userCurrency } = useAppContext();
+  const { userCurrency, storeInfo } = useAppContext();
 
   const convert = useCurrencyConverter();
 
@@ -35,7 +37,7 @@ export default function Dashboard() {
     userCurrency,
     data?.yourSpent!,
     true,
-    false
+    false,
   );
 
   const metrics = [
@@ -60,45 +62,56 @@ export default function Dashboard() {
       value: data ? formatted : 0,
     },
   ];
+  const analyticsAllowed = storeInfo?.features?.analytics ?? false;
   return (
     <div className="space-y-4 px-3">
-      <MetricsCards
-        metrics={metrics.map((m) => ({
-          title: m.label,
-          icon: m.icon,
-          value: m.value,
-        }))}
-      />
-      {/* charts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <DynamicStackedChart
-          title="Orders Overview"
-          description="Showing total orders for the last 6 months."
-          data={data ? data.ordersData : []}
-          config={ordersConfig}
-          dataKeys={["completed", "orders"]}
-          trendPercentage={93}
+      <FeatureGate
+        isAllowed={analyticsAllowed}
+        featureLabel="Analytics"
+        description="Analytics features are not available for your store. Please contact support for more information."
+        variant="page"
+      >
+        <MetricsCards
+          metrics={metrics.map((m) => ({
+            title: m.label,
+            icon: m.icon,
+            value: m.value,
+          }))}
         />
-        <DynamicStackedChart
-          title="Payments Overview"
-          description="Payment amounts in USD for the last 6 months"
-          data={data ? data.paymentsData : []}
-          config={paymentsConfig}
-          dataKeys={["successful", "failed"]}
-          trendPercentage={60}
-        />
-      </div>
-      {data &&
-      data.recentlyAddedServices &&
-      data.recentlyAddedServices.length === 0 ? (
-        <EmptyState
-          icon={Server}
-          title="No Service Found"
-          description="No service has been created yet."
-        />
-      ) : (
-        <RecentActivity services={data?.recentlyAddedServices} categories={categories||[]} />
-      )}
+        {/* charts */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <DynamicStackedChart
+            title="Orders Overview"
+            description="Showing total orders for the last 6 months."
+            data={data ? data.ordersData : []}
+            config={ordersConfig}
+            dataKeys={["completed", "orders"]}
+            trendPercentage={93}
+          />
+          <DynamicStackedChart
+            title="Payments Overview"
+            description="Payment amounts in USD for the last 6 months"
+            data={data ? data.paymentsData : []}
+            config={paymentsConfig}
+            dataKeys={["successful", "failed"]}
+            trendPercentage={60}
+          />
+        </div>
+        {data &&
+        data.recentlyAddedServices &&
+        data.recentlyAddedServices.length === 0 ? (
+          <EmptyState
+            icon={Server}
+            title="No Service Found"
+            description="No service has been created yet."
+          />
+        ) : (
+          <RecentActivity
+            services={data?.recentlyAddedServices}
+            categories={categories || []}
+          />
+        )}
+      </FeatureGate>
     </div>
   );
 }

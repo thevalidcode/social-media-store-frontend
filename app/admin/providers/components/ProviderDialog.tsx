@@ -46,6 +46,7 @@ interface ProviderDialogProps {
   onClose: () => void;
   provider: Provider | null;
   isEdit: boolean;
+  isSubscriptionActive?: boolean;
 }
 
 type DialogMode = "select" | "manual";
@@ -55,6 +56,7 @@ export default function ProviderDialog({
   onClose,
   provider,
   isEdit,
+  isSubscriptionActive = true,
 }: ProviderDialogProps) {
   const [mode, setMode] = useState<DialogMode>("select");
   const [selectedProvider, setSelectedProvider] =
@@ -451,9 +453,16 @@ export default function ProviderDialog({
                   )}
 
                   <DialogFooter className="pt-4">
-                    <Button type="submit" className="w-full sm:w-auto">
-                      Create Provider
-                    </Button>
+                    <FeatureGate
+                      isAllowed={isSubscriptionActive}
+                      featureLabel="Provider Management"
+                      variant="tooltip"
+                      description="You need an active subscription to manage providers. Please renew your subscription to continue."
+                    >
+                      <Button type="submit" className="w-full sm:w-auto">
+                        Create Provider
+                      </Button>
+                    </FeatureGate>
                   </DialogFooter>
                 </motion.form>
               </AnimatePresence>
@@ -556,9 +565,16 @@ export default function ProviderDialog({
               )}
 
               <DialogFooter className="pt-4">
-                <Button type="submit" className="w-full sm:w-auto">
-                  Update Provider
-                </Button>
+                <FeatureGate
+                  isAllowed={isSubscriptionActive}
+                  featureLabel="Provider Management"
+                  variant="tooltip"
+                  description="You need an active subscription to manage providers. Please renew your subscription to continue."
+                >
+                  <Button type="submit" className="w-full sm:w-auto">
+                    Update Provider
+                  </Button>
+                </FeatureGate>
               </DialogFooter>
             </motion.form>
           </AnimatePresence>

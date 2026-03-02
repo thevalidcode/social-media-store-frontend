@@ -27,6 +27,7 @@ import Loading from "@/app/loading";
 import { EmptyState } from "@/components/empty-state";
 import { Server } from "lucide-react";
 import { useGetCategories } from "@/hooks/use-category";
+import { FeatureGate } from "@/components/FeatureGate";
 
 interface CartItem {
   serviceId: number; // The store-scoped ID of the service
@@ -67,16 +68,17 @@ export default function NewOrderPage() {
   const { data: services, isLoading } = useGetServicesByPublic();
   const { data: categories, isLoading: isCategoriesLoading } =
     useGetCategories();
+  const { storeInfo } = useAppContext();
 
   const [categoryWithServices, setCategoryWithServices] = useState<
     ServiceCategory[]
   >([]);
 
   const [category, setCategory] = useState<string>(
-    categoryWithServices[0]?.title || ""
+    categoryWithServices[0]?.title || "",
   );
   const [filteredServices, setFilteredServices] = useState<Service[]>(
-    () => categoryWithServices[0]?.services || []
+    () => categoryWithServices[0]?.services || [],
   );
 
   const searchParams = useSearchParams();
@@ -89,7 +91,7 @@ export default function NewOrderPage() {
   // Update filtered services when category changes
   useEffect(() => {
     const selectedCategory = categoryWithServices.find(
-      (c) => c.title === category
+      (c) => c.title === category,
     );
     setFilteredServices(selectedCategory?.services || []);
   }, [category, categoryWithServices]);
@@ -111,7 +113,7 @@ export default function NewOrderPage() {
 
     if (catParam) {
       const foundCat = categoryWithServices.find(
-        (c) => c.title.toLowerCase() === catParam.toLowerCase()
+        (c) => c.title.toLowerCase() === catParam.toLowerCase(),
       );
       if (foundCat) setCategory(foundCat.title);
     }
@@ -195,7 +197,7 @@ export default function NewOrderPage() {
         return prev.map((p) =>
           p.serviceUid === service.uid
             ? { ...p, quantity: p.quantity + safeQty, link: link || p.link }
-            : p
+            : p,
         );
       }
       return [
@@ -220,14 +222,14 @@ export default function NewOrderPage() {
     if (safe < 0) return;
     setCart((prev) =>
       prev.map((p) =>
-        p.serviceUid === serviceUid ? { ...p, quantity: safe } : p
-      )
+        p.serviceUid === serviceUid ? { ...p, quantity: safe } : p,
+      ),
     );
   };
 
   const updateLink = (serviceUid: string, link: string): void => {
     setCart((prev) =>
-      prev.map((p) => (p.serviceUid === serviceUid ? { ...p, link } : p))
+      prev.map((p) => (p.serviceUid === serviceUid ? { ...p, link } : p)),
     );
   };
 
@@ -315,103 +317,112 @@ export default function NewOrderPage() {
     }
   };
 
+  const isSubscriptionActive = storeInfo?.subscriptionStatus === "ACTIVE";
+
   return (
     <div className="max-w-7xl mx-auto p-6">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left */}
-        <div className="lg:col-span-2 space-y-6">
-          <PageContent pageType="ORDER" />
-          <Card className="p-4 shadow-lg hover:shadow-2xl transition-shadow duration-300">
-            <CardHeader>
-              <CardTitle className="text-2xl font-semibold">
-                New Order
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col md:items-end md:gap-6 gap-4">
-                <CategorySelect
-                  value={category}
-                  onChange={setCategory}
-                  categories={categoryWithServices}
-                />
+      <FeatureGate
+        isAllowed={isSubscriptionActive}
+        featureLabel="Order Creation"
+        description="You need an active subscription to create orders. Please contact the store owner to renew the subscription."
+        variant="page"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left */}
+          <div className="lg:col-span-2 space-y-6">
+            <PageContent pageType="ORDER" />
+            <Card className="p-4 shadow-lg hover:shadow-2xl transition-shadow duration-300">
+              <CardHeader>
+                <CardTitle className="text-2xl font-semibold">
+                  New Order
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col md:items-end md:gap-6 gap-4">
+                  <CategorySelect
+                    value={category}
+                    onChange={setCategory}
+                    categories={categoryWithServices}
+                  />
 
-                <div className="w-full gap-2 flex flex-col">
-                  <Label>Quick actions</Label>
-                  <div className="flex gap-3">
-                    <Button
-                      onClick={() => {
-                        const first = filteredServices[0];
-                        if (first) addToCart(first, 1, "");
-                      }}
-                      className="w-[50%]"
-                    >
-                      Add first
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        filteredServices.forEach((s) => addToCart(s, 1, ""));
-                      }}
-                      className="w-[50%]"
-                    >
-                      Add all
-                    </Button>
+                  <div className="w-full gap-2 flex flex-col">
+                    <Label>Quick actions</Label>
+                    <div className="flex gap-3">
+                      <Button
+                        onClick={() => {
+                          const first = filteredServices[0];
+                          if (first) addToCart(first, 1, "");
+                        }}
+                        className="w-[50%]"
+                      >
+                        Add first
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          filteredServices.forEach((s) => addToCart(s, 1, ""));
+                        }}
+                        className="w-[50%]"
+                      >
+                        Add all
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="mt-6">
-                <ServiceList
-                  services={filteredServices}
-                  category={
-                    categoryWithServices.find(
-                      (c) => c.title === category
-                    ) as ServiceCategory
-                  }
-                  cartItems={cart.map((c) => ({
-                    serviceId: c.serviceId,
-                    serviceUid: c.serviceUid,
-                    quantity: c.quantity,
-                    link: c.link,
-                  }))}
-                  addToCart={addToCart}
-                  updateQuantity={updateQuantity}
-                  updateLink={updateLink}
-                />
-              </div>
-            </CardContent>
-          </Card>
+                <div className="mt-6">
+                  <ServiceList
+                    services={filteredServices}
+                    category={
+                      categoryWithServices.find(
+                        (c) => c.title === category,
+                      ) as ServiceCategory
+                    }
+                    cartItems={cart.map((c) => ({
+                      serviceId: c.serviceId,
+                      serviceUid: c.serviceUid,
+                      quantity: c.quantity,
+                      link: c.link,
+                    }))}
+                    addToCart={addToCart}
+                    updateQuantity={updateQuantity}
+                    updateLink={updateLink}
+                  />
+                </div>
+              </CardContent>
+            </Card>
 
-          <CartMobile
-            cart={cart}
-            services={allServices}
-            dripEnabled={dripEnabled}
-            runs={runs}
-          />
+            <CartMobile
+              cart={cart}
+              services={allServices}
+              dripEnabled={dripEnabled}
+              runs={runs}
+            />
+          </div>
+
+          {/* Right */}
+          <div>
+            <CartSidebar
+              cart={cart}
+              services={allServices}
+              dripEnabled={dripEnabled}
+              setDripEnabled={setDripEnabled}
+              intervalMinutes={intervalMinutes}
+              setIntervalMinutes={setIntervalMinutes}
+              runs={runs}
+              setRuns={setRuns}
+              grandTotal={grandTotal}
+              updateQuantity={updateQuantity}
+              updateLink={updateLink}
+              removeFromCart={removeFromCart}
+              handleSubmit={handleSubmit}
+              errors={errors}
+              submitting={submitting}
+              schedulePreview={schedulePreview}
+            />
+          </div>
         </div>
-
-        {/* Right */}
-        <div>
-          <CartSidebar
-            cart={cart}
-            services={allServices}
-            dripEnabled={dripEnabled}
-            setDripEnabled={setDripEnabled}
-            intervalMinutes={intervalMinutes}
-            setIntervalMinutes={setIntervalMinutes}
-            runs={runs}
-            setRuns={setRuns}
-            grandTotal={grandTotal}
-            updateQuantity={updateQuantity}
-            updateLink={updateLink}
-            removeFromCart={removeFromCart}
-            handleSubmit={handleSubmit}
-            errors={errors}
-            submitting={submitting}
-            schedulePreview={schedulePreview}
-          />
-        </div>
-      </div>
+      </FeatureGate>
     </div>
   );
 }

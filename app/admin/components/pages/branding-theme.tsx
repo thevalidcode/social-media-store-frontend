@@ -71,6 +71,7 @@ export default function BrandingThemeSettings() {
   const { theme: colorScheme } = useTheme();
   const { mutateAsync: updateStoreSettings, isPending: isSavingBranding } =
     useUpdateStoreSettings();
+  const isSubscriptionActive = storeInfo?.subscriptionStatus === "ACTIVE";
 
   const [selectedBrand, setSelectedBrand] = useState<ThemeOption>(
     brandColors[0]
@@ -197,15 +198,22 @@ export default function BrandingThemeSettings() {
             previews.
           </p>
         </div>
-        <Button
-          className="gap-2"
-          onClick={handleSaveTheme}
-          size="lg"
-          disabled={isSavingBranding}
+        <FeatureGate
+          isAllowed={isSubscriptionActive}
+          featureLabel="Branding Management"
+          variant="tooltip"
+          description="You need an active subscription to update branding. Please renew your subscription to continue."
         >
-          <Sparkles className="h-4 w-4" />
-          {isSavingBranding ? "Saving..." : "Apply Branding"}
-        </Button>
+          <Button
+            className="gap-2"
+            onClick={handleSaveTheme}
+            size="lg"
+            disabled={isSavingBranding}
+          >
+            <Sparkles className="h-4 w-4" />
+            {isSavingBranding ? "Saving..." : "Apply Branding"}
+          </Button>
+        </FeatureGate>
       </div>
 
       <FeatureGate

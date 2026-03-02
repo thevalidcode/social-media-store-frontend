@@ -30,7 +30,9 @@ export default function PaymentToolbar({
   const [search, setSearch] = useState("");
   const { mutateAsync: addGateway } = useCreatePaymentGateway();
   const convert = useCurrencyConverter();
-  const { userCurrency } = useAppContext();
+  const { userCurrency, storeInfo } = useAppContext();
+  const isSubscriptionActive = storeInfo?.subscriptionStatus === "ACTIVE";
+  
   const handleAddClick = () => {
     if (!canAddMoreGateways) return;
     onAddClick();
@@ -54,14 +56,21 @@ export default function PaymentToolbar({
             className="max-w-sm"
           />
           <FeatureGate
-            isAllowed={canAddMoreGateways}
-            featureLabel="Payment gateway limit"
+            isAllowed={isSubscriptionActive}
+            featureLabel="Payment Gateway Management"
             variant="tooltip"
-            description={`You've reached the maximum of ${maxPaymentGateways} payment gateways. Upgrade to add more.`}
+            description="You need an active subscription to manage payment gateways. Please renew your subscription to continue."
           >
-            <Button onClick={handleAddClick}>
-              <Plus className="w-4 h-4 mr-2" /> Add Gateway
-            </Button>
+            <FeatureGate
+              isAllowed={canAddMoreGateways}
+              featureLabel="Payment gateway limit"
+              variant="tooltip"
+              description={`You've reached the maximum of ${maxPaymentGateways} payment gateways. Upgrade to add more.`}
+            >
+              <Button onClick={handleAddClick}>
+                <Plus className="w-4 h-4 mr-2" /> Add Gateway
+              </Button>
+            </FeatureGate>
           </FeatureGate>
         </React.Fragment>
       )}

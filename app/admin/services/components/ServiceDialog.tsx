@@ -23,6 +23,7 @@ import { useCreateService, useUpdateService } from "@/hooks/use-services";
 import { useGetProviders } from "@/hooks/use-providers";
 import { CurrencyCode, useCurrencyConverter } from "@/lib/currencyConverter";
 import { useAppContext } from "@/context/appContext";
+import { FeatureGate } from "@/components/FeatureGate";
 
 type SelectOption = {
   value: string | number;
@@ -82,8 +83,10 @@ export default function ServiceDialog({
   const { mutate: updateService } = useUpdateService();
   const { mutate: updateCategory } = useUpdateCategory();
 
-  const { userCurrency } = useAppContext();
+  const { userCurrency, storeInfo } = useAppContext();
   const convert = useCurrencyConverter();
+  const isSubscriptionActive = storeInfo?.subscriptionStatus === "ACTIVE";
+  
   useEffect(() => {
     if (categoryData)
       setCategoryOptions(
@@ -219,6 +222,7 @@ export default function ServiceDialog({
                   setOpen={setOpen}
                   categoryOptions={categoryOptions}
                   providerOptions={providerOptions}
+                  isSubscriptionActive={isSubscriptionActive}
                 />
               )}
 
@@ -226,15 +230,22 @@ export default function ServiceDialog({
                 <Button variant="outline" onClick={() => setOpen(false)}>
                   Cancel
                 </Button>
-                <Button type="submit">
-                  {isCategoryMode
-                    ? editingItem
-                      ? "Update Category"
-                      : "Add Category"
-                    : editingItem
-                    ? "Update Service"
-                    : "Add Service"}
-                </Button>
+                <FeatureGate
+                  isAllowed={isSubscriptionActive}
+                  featureLabel={isCategoryMode ? "Category Management" : "Service Management"}
+                  variant="tooltip"
+                  description="You need an active subscription to manage services and categories. Please renew your subscription to continue."
+                >
+                  <Button type="submit">
+                    {isCategoryMode
+                      ? editingItem
+                        ? "Update Category"
+                        : "Add Category"
+                      : editingItem
+                      ? "Update Service"
+                      : "Add Service"}
+                  </Button>
+                </FeatureGate>
               </DialogFooter>
             </div>
           </form>

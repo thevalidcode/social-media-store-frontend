@@ -56,7 +56,8 @@ export default function PaymentMethodForm({
   onSave: (gateway: PaymentGateway) => Promise<PaymentGatewayFormResponse>;
   initialData?: PaymentGateway;
 }) {
-  const { domain, userCurrency } = useAppContext();
+  const { domain, userCurrency, storeInfo } = useAppContext();
+  const isSubscriptionActive = storeInfo?.subscriptionStatus === "ACTIVE";
   const [mode, setMode] = useState<DialogMode>("select");
   const [selectedPlatform, setSelectedPlatform] =
     useState<PlatformOption | null>(null);
@@ -367,6 +368,7 @@ export default function PaymentMethodForm({
                       isEdit={false}
                       onSubmit={handleSubmit}
                       onFieldChange={handleChange}
+                      isSubscriptionActive={isSubscriptionActive}
                     />
                   </AnimatePresence>
                 </div>
@@ -383,6 +385,7 @@ export default function PaymentMethodForm({
                   isEdit={true}
                   onSubmit={handleSubmit}
                   onFieldChange={handleChange}
+                  isSubscriptionActive={isSubscriptionActive}
                 />
               </AnimatePresence>
             </div>

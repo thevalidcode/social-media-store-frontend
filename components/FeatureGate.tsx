@@ -7,12 +7,7 @@ import { Lock, Sparkles, ArrowUpRight, X } from "lucide-react";
 
 import { Button } from "./ui/button";
 import { cn } from "@/lib/utils";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "./ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import {
   Dialog,
   DialogContent,
@@ -27,7 +22,8 @@ type FeatureGateVariant =
   | "tooltip"
   | "popover"
   | "overlay"
-  | "dialog";
+  | "dialog"
+  | "page";
 
 type FeatureGateProps = {
   isAllowed?: boolean;
@@ -56,6 +52,92 @@ export function FeatureGate({
   const [showDialog, setShowDialog] = useState(false);
 
   if (isAllowed) return <>{children}</>;
+
+  // Page variant - Full-page professional lock screen
+  if (variant === "page") {
+    return (
+      <div
+        className={cn(
+          "min-h-[60vh] flex items-center justify-center p-6",
+          className,
+        )}
+      >
+        <div className="w-full max-w-2xl">
+          <div className="relative overflow-hidden rounded-2xl border border-border bg-linear-to-br from-card via-card to-muted/20 shadow-2xl">
+            {/* Decorative gradient overlay */}
+            <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-primary/10 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+
+            <div className="relative p-8 sm:p-12">
+              {/* Icon */}
+              <div className="flex justify-center mb-6">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-xl animate-pulse" />
+                  <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-linear-to-br from-primary to-primary/80 shadow-lg">
+                    <Lock className="h-10 w-10 text-primary-foreground" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Title */}
+              <div className="text-center space-y-3 mb-8">
+                <h2 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
+                  {featureLabel}
+                </h2>
+                <div className="flex items-center justify-center gap-2">
+                  <div className="h-px w-12 bg-linear-to-r from-transparent via-border to-transparent" />
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+                    <Sparkles className="h-4 w-4" /> Premium Feature
+                  </span>
+                  <div className="h-px w-12 bg-linear-to-r from-transparent via-border to-transparent" />
+                </div>
+              </div>
+
+              {/* Description */}
+              {description && (
+                <p className="text-center text-base sm:text-lg text-muted-foreground leading-relaxed mb-8 max-w-xl mx-auto">
+                  {description}
+                </p>
+              )}
+
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button
+                  asChild
+                  size="lg"
+                  className="gap-2 px-8 py-6 text-base font-semibold shadow-lg hover:shadow-xl transition-shadow"
+                >
+                  <Link
+                    href={ctaHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Sparkles className="h-5 w-5" />
+                    {ctaLabel}
+                    <ArrowUpRight className="h-5 w-5" />
+                  </Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="px-8 py-6 text-base"
+                  onClick={() => window.history.back()}
+                >
+                  Go Back
+                </Button>
+              </div>
+
+              {/* Footer note */}
+              <p className="text-center text-xs text-muted-foreground mt-8">
+                Upgrade your plan to unlock this feature and many more
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Tooltip variant - Shows tooltip on hover
   if (variant === "tooltip") {
@@ -137,7 +219,7 @@ export function FeatureGate({
             <div className="flex flex-col sm:flex-row gap-3 mt-4">
               <Button
                 asChild
-                className="flex-1 gap-2"
+                className="flex-1 gap-2 py-4"
                 size="lg"
                 variant="default"
               >
@@ -272,15 +354,17 @@ export function FeatureGate({
         className={cn(
           "flex items-start gap-3 rounded-md border border-border bg-muted/30 px-3 py-2.5",
           "shadow-xs",
-          className
+          className,
         )}
       >
-        <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
-          <Lock className="h-4 w-4" />
-        </div>
-        <div className="flex-1 space-y-1.5">
-          <div className="font-semibold text-sm text-foreground">
-            {featureLabel} is locked
+        <div className="flex-1 space-y-1.5 flex items-center flex-col">
+          <div className="flex items-center gap-2">
+            <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Lock className="h-4 w-4" />
+            </div>
+            <div className="font-semibold text-sm text-foreground">
+              {featureLabel} is locked
+            </div>
           </div>
           {description ? (
             <p className="text-muted-foreground text-xs leading-relaxed">
@@ -303,10 +387,10 @@ export function FeatureGate({
       className={cn(
         "group relative overflow-hidden rounded-xl border border-border bg-card p-4 sm:p-5",
         "shadow-sm transition-transform duration-200 ease-out hover:shadow-md hover:-translate-y-0.5",
-        className
+        className,
       )}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/10 pointer-events-none" />
+      <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-transparent to-primary/10 pointer-events-none" />
       <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">

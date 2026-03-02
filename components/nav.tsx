@@ -16,11 +16,7 @@ export default function Nav() {
   const title = generalSetting?.storeName || "Social Media Store";
 
   if (isStoreGeneralSettingsLoading) {
-    return (
-      <header className="p-6 border-b text-center">
-        <span>Loading…</span>
-      </header>
-    );
+    return <header className="p-6 border-b text-center"></header>;
   }
 
   return (

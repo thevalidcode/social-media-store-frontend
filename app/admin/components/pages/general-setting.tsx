@@ -35,8 +35,17 @@ import { Country, State, City } from "country-state-city";
 import { ICountry, IState, ICity } from "country-state-city";
 
 export default function GeneralSettingsForm() {
-  const { generalSetting, userCurrency, setUserCurrency, storeInfo } =
-    useAppContext();
+  const {
+    generalSetting,
+    storeId,
+    setGeneralSetting,
+    userCurrency,
+    setUserCurrency,
+    storeInfo,
+  } = useAppContext();
+  const { mutateAsync: updateSettings } = useUpdateStoreSettings();
+  const isSubscriptionActive = storeInfo?.subscriptionStatus === "ACTIVE";
+  
   const [storeName, setStoreName] = useState(generalSetting?.storeName || "");
   const [storeDescription, setStoreDescription] = useState(
     generalSetting?.storeDescription || "",
@@ -55,7 +64,6 @@ export default function GeneralSettingsForm() {
   const [showBanner, setShowBanner] = useState<boolean>(
     generalSetting?.showBanner ?? true,
   );
-  const { mutateAsync: updateStoreSettings } = useUpdateStoreSettings();
 
   const canToggleBanner = storeInfo?.features?.hide_platform_banner ?? false;
 
@@ -101,7 +109,7 @@ export default function GeneralSettingsForm() {
   }, [storeAddress.storeCountry, storeAddress.storeState]);
 
   const handleSave = async () => {
-    await updateStoreSettings({
+    await updateSettings({
       storeName: storeName,
       storeDescription,
       defaultClientCurrency: clientCurrency,
@@ -125,10 +133,17 @@ export default function GeneralSettingsForm() {
             Configure your store's basic information and preferences.
           </p>
         </div>
-        <Button onClick={handleSave} size="lg" className="gap-2">
-          <Sparkles className="h-4 w-4" />
-          Save Changes
-        </Button>
+        <FeatureGate
+          isAllowed={isSubscriptionActive}
+          featureLabel="Settings Management"
+          variant="tooltip"
+          description="You need an active subscription to update store settings. Please renew your subscription to continue."
+        >
+          <Button onClick={handleSave} size="lg" className="gap-2">
+            <Sparkles className="h-4 w-4" />
+            Save Changes
+          </Button>
+        </FeatureGate>
       </div>
 
       <div className="space-y-8">
