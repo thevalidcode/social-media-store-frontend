@@ -131,9 +131,9 @@ export function SelectWithSearch({
             maxHeight: "min(400px, 60vh)",
           }}
         >
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col max-h-full">
             {/* Search Input */}
-            <div className="border-b p-2 bg-background/50 backdrop-blur-sm sticky top-0 z-10">
+            <div className="border-b p-2 bg-background/50 backdrop-blur-sm flex-shrink-0">
               <div className="relative flex items-center">
                 <SearchIcon className="text-muted-foreground absolute left-2.5 size-4 pointer-events-none" />
                 <input
@@ -161,7 +161,7 @@ export function SelectWithSearch({
             <div
               id="select-options-list"
               role="listbox"
-              className="overflow-y-auto overscroll-contain p-1"
+              className="overflow-y-auto overscroll-contain p-1 max-h-[350px]"
             >
               {filteredOptions.length === 0 ? (
                 <div className="text-muted-foreground py-8 text-center text-sm">
