@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SelectWithSearch, SelectOption } from "@/components/ui/select-with-search";
 import { Switch } from "@/components/ui/switch";
 import { useEffect, useState } from "react";
 import { useUpdateStoreSettings } from "@/hooks/use-store";
@@ -519,18 +520,18 @@ export default function GeneralSettingsForm() {
                   >
                     Admin Currency
                   </Label>
-                  <Select value={userCurrency} onValueChange={setUserCurrency}>
-                    <SelectTrigger id="adminCurrency" className="h-11 w-full">
-                      <SelectValue placeholder="Select currency..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(currency).map(([key, value]) => (
-                        <SelectItem key={key} value={key}>
-                          {key} - {value.split("|")[0]}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <SelectWithSearch
+                    value={userCurrency}
+                    onValueChange={setUserCurrency}
+                    placeholder="Select currency..."
+                    searchPlaceholder="Search currency..."
+                    options={Object.entries(currency).map(([key, value]) => ({
+                      value: key,
+                      label: `${key} - ${value.split("|")[0]}`,
+                    }))}
+                    emptyMessage="No currency found"
+                    className="w-full"
+                  />
                 </div>
               </div>
             </div>

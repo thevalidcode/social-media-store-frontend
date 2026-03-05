@@ -28,9 +28,10 @@ export default function ServicesList({
   const CATEGORIES = (categoryWithServices as ServiceCategory[]) ?? [];
   const SORT_BY = (sortBy as SortOption[]) ?? [{ value: "id", label: "ID" }];
 
-  const [selectedCategoryTitle, setSelectedCategoryTitle] = useState<string>("all");
+  const [selectedCategoryTitle, setSelectedCategoryTitle] =
+    useState<string>("all");
   const [selectedSort, setSelectedSort] = useState<string>(
-    SORT_BY[0]?.value ?? "id"
+    SORT_BY[0]?.value ?? "id",
   );
 
   const [open, setOpen] = useState(false);
@@ -57,9 +58,11 @@ export default function ServicesList({
     let list: Service[] = [];
     if (selectedCategoryTitle === "all") {
       // Flatten all services from all categories
-      list = CATEGORIES.flatMap(cat => cat.services ?? []);
+      list = CATEGORIES.flatMap((cat) => cat.services ?? []);
     } else {
-      const selectedCategory = CATEGORIES.find((c) => c.title === selectedCategoryTitle);
+      const selectedCategory = CATEGORIES.find(
+        (c) => c.title === selectedCategoryTitle,
+      );
       list = [...(selectedCategory?.services ?? [])];
     }
 
@@ -69,7 +72,9 @@ export default function ServicesList({
       list = list.filter(
         (service) =>
           service.name.toLowerCase().includes(query) ||
-          service.description?.toLowerCase().includes(query)
+          service.storeScopedId.toString().includes(query) ||
+          service.category.toLowerCase().includes(query) ||
+          service.description?.toLowerCase().includes(query),
       );
     }
 
@@ -103,7 +108,7 @@ export default function ServicesList({
 
   const navigateToNewOrder = (
     categoryIdentifier: string,
-    serviceId: number
+    serviceId: number,
   ) => {
     const params = new URLSearchParams();
     params.set("category", categoryIdentifier);

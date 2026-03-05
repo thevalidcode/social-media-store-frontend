@@ -28,6 +28,8 @@ import { EmptyState } from "@/components/empty-state";
 import { Server } from "lucide-react";
 import { useGetCategories } from "@/hooks/use-category";
 import { FeatureGate } from "@/components/FeatureGate";
+import { FloatingCart } from "./components/FloatingCart";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 interface CartItem {
   serviceId: number; // The store-scoped ID of the service
@@ -82,6 +84,21 @@ export default function NewOrderPage() {
   );
 
   const searchParams = useSearchParams();
+
+  const [showFloatingCart, setShowFloatingCart] = useState(false);
+  const [mobileCartOpen, setMobileCartOpen] = useState(false);
+  // ...existing code...
+
+  // Handle scroll to show/hide floating cart
+  useEffect(() => {
+    const handleScroll = () => {
+      // Show floating cart when scrolled down 200px
+      setShowFloatingCart(window.scrollY > 200);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const parsed = groupServicesByCategory(services || [], categories || []);
@@ -423,6 +440,25 @@ export default function NewOrderPage() {
           </div>
         </div>
       </FeatureGate>
+
+      {/* Floating Cart Button */}
+      <FloatingCart
+        itemCount={cart.length}
+        onClick={() => setMobileCartOpen(true)}
+        isVisible={showFloatingCart}
+      />
+
+      {/* Mobile Cart Sheet */}
+      <Sheet open={mobileCartOpen} onOpenChange={setMobileCartOpen}>
+        <SheetContent side="bottom" className="h-[85vh]">
+          <CartMobile
+            cart={cart}
+            services={allServices}
+            dripEnabled={dripEnabled}
+            runs={runs}
+          />
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

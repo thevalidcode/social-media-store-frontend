@@ -91,11 +91,12 @@ export const OrderEditDialog = ({
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="PENDING">PENDING</SelectItem>
-                <SelectItem value="PROCESSING">PROCESSING</SelectItem>
-                <SelectItem value="COMPLETED">COMPLETED</SelectItem>
-                <SelectItem value="FAILED">FAILED</SelectItem>
-                <SelectItem value="CANCELED">CANCELED</SelectItem>
+                <SelectItem value="PENDING">Pending</SelectItem>
+                <SelectItem value="PROCESSING">Processing</SelectItem>
+                <SelectItem value="COMPLETED">Completed</SelectItem>
+                <SelectItem value="FAILED">Failed</SelectItem>
+                <SelectItem value="PARTIAL">Partial</SelectItem>
+                <SelectItem value="CANCELED">Canceled</SelectItem>
               </SelectContent>
             </Select>
           </div>

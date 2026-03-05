@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SelectWithSearch, SelectOption } from "@/components/ui/select-with-search";
 
 import { currency } from "@/app/_docs/doc";
 import { useAppContext } from "@/context/appContext";
@@ -203,18 +204,18 @@ export default function AdminProfilePage() {
               </Field>
 
               <Field label="Currency">
-                <Select value={userCurrency} onValueChange={setUserCurrency}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select currency" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(currency).map(([k, v]) => (
-                      <SelectItem key={k} value={k}>
-                        {k} - {v.split("|")[0]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <SelectWithSearch
+                  value={userCurrency}
+                  onValueChange={setUserCurrency}
+                  placeholder="Select currency"
+                  searchPlaceholder="Search currency..."
+                  options={Object.entries(currency).map(([k, v]) => ({
+                    value: k,
+                    label: `${k} - ${v.split("|")[0]}`,
+                  }))}
+                  emptyMessage="No currency found"
+                  className="w-full"
+                />
               </Field>
 
               <div className="flex justify-end gap-3 pt-4">

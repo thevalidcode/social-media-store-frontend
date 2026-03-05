@@ -15,6 +15,7 @@ import { Service } from "@/types";
 import { useCurrencyConverter } from "@/lib/currencyConverter";
 import { useAppContext } from "@/context/appContext";
 import Decimal from "decimal.js";
+import parse from "html-react-parser";
 
 interface Props {
   open: boolean;
@@ -41,7 +42,7 @@ export const ServiceDialog = ({
         <DialogHeader className="px-6 py-4 border-b">
           <DialogTitle className="text-left">{activeService?.name}</DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
-            {activeService?.description}
+            {parse(activeService?.description || "")}
           </DialogDescription>
         </DialogHeader>
 
@@ -65,7 +66,7 @@ export const ServiceDialog = ({
                     userCurrency,
                     activeService.price,
                     true,
-                    true
+                    true,
                   ).formatted
                 }
               </div>
@@ -82,7 +83,7 @@ export const ServiceDialog = ({
                   variant="outline"
                   onClick={() =>
                     setModalQty((q) =>
-                      Math.max(activeService?.min ?? 1, Math.max(1, q - 1))
+                      Math.max(activeService?.min ?? 1, Math.max(1, q - 1)),
                     )
                   }
                 >
@@ -106,8 +107,8 @@ export const ServiceDialog = ({
                     setModalQty((q) =>
                       Math.min(
                         activeService?.max ?? Number.MAX_SAFE_INTEGER,
-                        q + 1
-                      )
+                        q + 1,
+                      ),
                     )
                   }
                 >
@@ -125,7 +126,7 @@ export const ServiceDialog = ({
                           .mul(modalQty)
                           .toString(),
                         true,
-                        false
+                        false,
                       ).formatted
                     }
                   </div>
@@ -139,7 +140,7 @@ export const ServiceDialog = ({
                   onClick={() =>
                     navigateToNewOrder(
                       activeService.category ?? activeService.category,
-                      activeService.storeScopedId
+                      activeService.storeScopedId,
                     )
                   }
                 >

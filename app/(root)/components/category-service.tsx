@@ -13,6 +13,7 @@ import {
   Star,
   Zap,
 } from "lucide-react";
+import parse from "html-react-parser";
 
 // Category data with matching IDs for text and images
 const categories = [
@@ -195,7 +196,7 @@ export default function CategoryService() {
 
                 {/* Description */}
                 <p className="text-gray-300 mb-6 leading-relaxed">
-                  {category.description}
+                  {parse(category.description)}
                 </p>
 
                 {/* Features List */}

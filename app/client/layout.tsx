@@ -12,7 +12,7 @@ import { useAppContext } from "@/context/appContext";
 // Memoize the sidebar to prevent re-renders
 const MemoizedSidebar = memo(AppSidebar);
 
-export function SidebarLayout({ children }: { children: React.ReactNode }) {
+function SidebarLayout({ children }: { children: React.ReactNode }) {
   const { userInfo, setUserInfo } = useAppContext();
   const { data: userData } = useGetUserByUid(userInfo?.uid || "");
 

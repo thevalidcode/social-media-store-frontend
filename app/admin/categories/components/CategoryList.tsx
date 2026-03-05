@@ -19,7 +19,7 @@ import CategoryDialog from "./CategoryDialog";
 
 export default function CategoryList() {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null
+    null,
   );
   const [filters, setFilters] = useState({
     search: "",
@@ -30,7 +30,7 @@ export default function CategoryList() {
   const [open, setOpen] = useState<boolean>(false);
   const [deleteIds, setDeleteIds] = useState<number[]>([]);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(100);
   const { data: categoriesData, isLoading } = useGetCategories();
   const { mutate: deleteMultipleCategories } = useDeleteMultipleCategorys();
   const { mutate: updateCategory } = useUpdateCategory();
@@ -95,7 +95,7 @@ export default function CategoryList() {
       .map((c) => c.uid);
     deleteMultipleCategories({ uids: categoryUids });
     setCategories((prev) =>
-      prev.filter((c) => !deleteIds.includes(c.storeScopedId))
+      prev.filter((c) => !deleteIds.includes(c.storeScopedId)),
     );
     setDeleteIds([]);
   };
@@ -110,8 +110,8 @@ export default function CategoryList() {
 
     setCategories((prevCategories) =>
       prevCategories.map((cat) =>
-        cat.storeScopedId === categoryId ? { ...cat, status: newStatus } : cat
-      )
+        cat.storeScopedId === categoryId ? { ...cat, status: newStatus } : cat,
+      ),
     );
     updateCategory({ uid: category.uid, status: newStatus });
   };
@@ -159,7 +159,7 @@ export default function CategoryList() {
         totalItems={sorted.length}
         onPageChange={setPage}
         onPageSizeChange={setPageSize}
-        pageSizeOptions={[10, 20, 50]}
+        pageSizeOptions={[100, 200, 500]}
       />
 
       {/* Delete dialog */}

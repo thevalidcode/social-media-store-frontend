@@ -32,7 +32,7 @@ export default function ServiceList() {
   const [open, setOpen] = useState<boolean>(false);
   const [deleteIds, setDeleteIds] = useState<number[]>([]);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(100);
   const { data: servicesData, isLoading } = useGetServicesByAdmin();
   const { mutate: deleteMultipleServices } = useDeleteMultipleServices();
   const { mutate: updateService } = useUpdateService();
@@ -46,7 +46,7 @@ export default function ServiceList() {
   const handleAddServiceClick = () => {
     if (!canAddMoreServices) {
       toast.error(
-        `You can only add up to ${maxProducts} services/products. Upgrade your plan for more.`
+        `You can only add up to ${maxProducts} services/products. Upgrade your plan for more.`,
       );
       return;
     }
@@ -63,9 +63,11 @@ export default function ServiceList() {
   const filteredServices = services.filter((s) => {
     const matchesCategory =
       filters.category === "All" || s.category === filters.category;
-    const matchesSearch = s.name
-      .toLowerCase()
-      .includes(filters.search.toLowerCase());
+    const matchesSearch =
+      s.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+      s.description?.toLowerCase().includes(filters.search.toLowerCase()) ||
+      s.storeScopedId.toString().includes(filters.search) ||
+      s.category.toLowerCase().includes(filters.search.toLowerCase());
     const matchesStatus =
       filters.status === "All" || s.status === filters.status;
     return matchesCategory && matchesSearch && matchesStatus;
@@ -115,7 +117,7 @@ export default function ServiceList() {
       .map((u) => u.uid);
     deleteMultipleServices({ uids: usersUids });
     setServices((prev) =>
-      prev.filter((u) => !deleteIds.includes(u.storeScopedId))
+      prev.filter((u) => !deleteIds.includes(u.storeScopedId)),
     );
     setDeleteIds([]);
   };
@@ -131,8 +133,8 @@ export default function ServiceList() {
       prevServices.map((service) =>
         service.storeScopedId === serviceId
           ? { ...service, status: newStatus }
-          : service
-      )
+          : service,
+      ),
     );
     updateService({ ...selectedService, status: newStatus });
   };
@@ -186,7 +188,7 @@ export default function ServiceList() {
         totalItems={sorted.length}
         onPageChange={setPage}
         onPageSizeChange={setPageSize}
-        pageSizeOptions={[10, 20, 50]}
+        pageSizeOptions={[100, 200, 500]}
       />
 
       {/* Delete dialog */}

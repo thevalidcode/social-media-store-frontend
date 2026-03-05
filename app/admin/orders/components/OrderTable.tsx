@@ -47,7 +47,7 @@ export const OrderTable = ({
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const updateOrder = useUpdateOrder();
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(100);
 
   const paginatedOrders = useMemo(() => {
     if (!orders) return [];
@@ -99,7 +99,7 @@ export const OrderTable = ({
                 key={order.storeScopedId}
                 className={cn(
                   "hover:bg-muted/40 transition-colors",
-                  rowClassName
+                  rowClassName,
                 )}
               >
                 <TableCell className="font-mono text-sm">
@@ -143,7 +143,7 @@ export const OrderTable = ({
                       userCurrency,
                       order.price,
                       true,
-                      false
+                      false,
                     ).formatted
                   }
                 </TableCell>
@@ -221,7 +221,7 @@ export const OrderTable = ({
                         userCurrency,
                         order.price,
                         true,
-                        false
+                        false,
                       ).formatted
                     }
                   </span>
@@ -244,7 +244,7 @@ export const OrderTable = ({
           totalItems={orders.length}
           onPageChange={setPage}
           onPageSizeChange={setPageSize}
-          pageSizeOptions={[10, 20, 50]}
+          pageSizeOptions={[100, 200, 500]}
         />
       )}
 
