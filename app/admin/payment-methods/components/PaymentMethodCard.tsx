@@ -60,7 +60,7 @@ export default function PaymentMethodCard({ gateways, setGateways }: Props) {
               ) : null}
 
               {gateway.content ? (
-                <div className="prose prose-sm max-w-none text-sm text-muted-foreground">
+                <div className="richtext-content richtext-render prose prose-sm max-w-none text-sm text-muted-foreground">
                   {parse(gateway.content)}
                 </div>
               ) : null}

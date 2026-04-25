@@ -13,13 +13,7 @@ import { Extension } from "@tiptap/core";
 import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import CustomSelect, { Option } from "@/components/ui/CustomSelect";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { WysiwygEditorProps } from "@/types";
@@ -40,6 +34,22 @@ const defaultEnable = {
   fontSize: true,
   code: true,
 };
+
+const headingOptions: Option<string>[] = [
+  { label: "Normal", value: "" },
+  { label: "Heading 1", value: "1" },
+  { label: "Heading 2", value: "2" },
+  { label: "Heading 3", value: "3" },
+  { label: "Heading 4", value: "4" },
+];
+
+const colorOptions: Option<string>[] = [
+  { label: "Color", value: "" },
+  { label: "Dark", value: "#111827" },
+  { label: "Red", value: "#ef4444" },
+  { label: "Green", value: "#10b981" },
+  { label: "Blue", value: "#2563eb" },
+];
 
 function useBuiltExtensions(
   enable: Required<NonNullable<WysiwygEditorProps["enable"]>>
@@ -104,7 +114,7 @@ export default function WysiwygEditor({
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm sm:prose md:prose-lg focus:outline-none min-h-[240px] p-4 rounded-md",
+          "richtext-content richtext-editor prose prose-sm sm:prose md:prose-lg focus:outline-none min-h-[240px] p-4 rounded-md",
         "aria-label": `${collection} editor`,
         placeholder,
       },
@@ -219,6 +229,18 @@ export default function WysiwygEditor({
 
   const Toolbar = () => {
     if (!editor) return null;
+
+    const activeHeading =
+      headingOptions.find((option) => {
+        if (!option.value) return !editor.isActive("heading");
+        return editor.isActive("heading", { level: Number(option.value) });
+      }) ?? headingOptions[0];
+
+    const activeColor =
+      colorOptions.find(
+        (option) => option.value && editor.isActive("textStyle", { color: option.value }),
+      ) ?? colorOptions[0];
+
     return (
       <div className="flex flex-wrap gap-2 items-center bg-card p-2 rounded-md border border-border">
         {enable.bold && (
@@ -256,23 +278,22 @@ export default function WysiwygEditor({
         )}
 
         {enable.headings && (
-          <Select
-            value=""
-            onValueChange={(v) => {
-              const level = Number(v) as 1 | 2 | 3 | 4 | 5 | 6;
-              headSelect(level || 1);
-            }}
-          >
-            <SelectTrigger className="w-28">
-              <SelectValue placeholder="Normal" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1">Heading 1</SelectItem>
-              <SelectItem value="2">Heading 2</SelectItem>
-              <SelectItem value="3">Heading 3</SelectItem>
-              <SelectItem value="4">Heading 4</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="w-36">
+            <CustomSelect
+              options={headingOptions}
+              value={activeHeading}
+              onChange={(selected) => {
+                if (Array.isArray(selected)) return;
+                const level = Number(selected.value) as 1 | 2 | 3 | 4 | 5 | 6;
+                if (!level) {
+                  editor.chain().focus().setParagraph().run();
+                  return;
+                }
+                headSelect(level);
+              }}
+              placeholder="Normal"
+            />
+          </div>
         )}
 
         {enable.lists && (
@@ -362,26 +383,20 @@ export default function WysiwygEditor({
         )}
 
         {enable.color && (
-          <Select
-            value=""
-            onValueChange={(value) =>
-              editor
-                .chain()
-                .focus()
-                .setColor(value || "")
-                .run()
-            }
-          >
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Color" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="#111827">Dark</SelectItem>
-              <SelectItem value="#ef4444">Red</SelectItem>
-              <SelectItem value="#10b981">Green</SelectItem>
-              <SelectItem value="#2563eb">Blue</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="w-32">
+            <CustomSelect
+              options={colorOptions}
+              value={activeColor}
+              onChange={(selected) => {
+                if (Array.isArray(selected) || !selected.value) {
+                  editor.chain().focus().unsetColor().run();
+                  return;
+                }
+                editor.chain().focus().setColor(selected.value).run();
+              }}
+              placeholder="Color"
+            />
+          </div>
         )}
 
         <div className="ml-auto flex items-center gap-2">

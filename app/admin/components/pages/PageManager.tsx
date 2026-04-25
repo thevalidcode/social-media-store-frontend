@@ -252,7 +252,7 @@ export default function PageManager() {
               </p>
             </CardHeader>
             <CardContent>
-              <div className="prose prose-sm sm:prose lg:prose-lg max-w-none dark:prose-invert">
+              <div className="richtext-content richtext-render prose prose-sm sm:prose lg:prose-lg max-w-none dark:prose-invert">
                 {content ? (
                   parse(content)
                 ) : (

@@ -124,7 +124,7 @@ export const ServiceDialog = ({
                   <h2 className="text-xl font-semibold leading-tight text-foreground md:text-2xl">
                     {activeService.name}
                   </h2>
-                  <div className="text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap break-words">
+                  <div className="richtext-content richtext-render text-sm leading-relaxed text-muted-foreground whitespace-pre-wrap break-words">
                     {parse(activeService?.description || "")}
                   </div>
                 </div>

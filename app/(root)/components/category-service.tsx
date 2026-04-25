@@ -195,9 +195,9 @@ export default function CategoryService() {
                 </div>
 
                 {/* Description */}
-                <p className="text-gray-300 mb-6 leading-relaxed">
+                <div className="richtext-content richtext-render text-gray-300 mb-6 leading-relaxed">
                   {parse(category.description)}
-                </p>
+                </div>
 
                 {/* Features List */}
                 <div className="grid grid-cols-2 gap-2">

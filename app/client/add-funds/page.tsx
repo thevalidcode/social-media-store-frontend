@@ -501,7 +501,7 @@ export default function AddFundsPage() {
                   ) : null}
 
                   {selectedGateway.content ? (
-                    <div className="prose prose-sm mt-3 max-w-none text-sm text-muted-foreground">
+                    <div className="richtext-content richtext-render prose prose-sm mt-3 max-w-none text-sm text-muted-foreground">
                       {parse(selectedGateway.content)}
                     </div>
                   ) : null}

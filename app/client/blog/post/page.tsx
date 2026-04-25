@@ -53,7 +53,7 @@ export default function BlogDetailPage() {
         </header>
 
         {/* Content Section */}
-        <section className="prose prose-lg max-w-none">
+        <section className="richtext-content richtext-render prose prose-lg max-w-none">
           {parse(post.content)}
         </section>
 

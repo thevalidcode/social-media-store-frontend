@@ -167,3 +167,32 @@
     @apply text-2xl font-medium;
   }
 }
+
+.richtext-content ul,
+.richtext-content ol {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+}
+
+.richtext-content ul {
+  list-style: disc;
+}
+
+.richtext-content ol {
+  list-style: decimal;
+}
+
+.richtext-content li {
+  display: list-item;
+  margin: 0.25rem 0;
+}
+
+.richtext-content a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.richtext-content img {
+  max-width: 100%;
+  height: auto;
+}

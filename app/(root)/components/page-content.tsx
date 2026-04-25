@@ -87,7 +87,7 @@ export function PageContent({
         </div>
       )}
 
-      <div className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none dark:prose-invert">
+      <div className="richtext-content richtext-render prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none dark:prose-invert">
         {page?.content ? parse(page.content) : null}
       </div>
     </motion.div>
