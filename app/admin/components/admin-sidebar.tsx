@@ -12,6 +12,7 @@ import {
   Settings,
   Shield,
   ShoppingCart,
+  Trash2,
   User,
   Users,
 } from "lucide-react";
@@ -44,88 +45,105 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAppContext } from "@/context/appContext";
 import Image from "next/image";
 import { del } from "idb-keyval";
-
-// Admin navigation data
-const adminNavigationItems = [
-  {
-    title: "Management",
-    items: [
-      {
-        title: "Users",
-        url: "/admin/users",
-        icon: Users,
-      },
-      {
-        title: "Orders",
-        url: "/admin/orders",
-        icon: ShoppingCart,
-      },
-      {
-        title: "Services",
-        url: "/admin/services",
-        icon: Shield,
-      },
-      {
-        title: "Categories",
-        url: "/admin/categories",
-        icon: Folder,
-      },
-      { title: "Providers", url: "/admin/providers", icon: Network },
-    ],
-  },
-  {
-    title: "Content",
-    items: [
-      {
-        title: "Blogs",
-        url: "/admin/blogs",
-        icon: BookOpen,
-      },
-      {
-        title: "Support",
-        url: "/admin/support",
-        icon: MessageCircle,
-      },
-      {
-        title: "FAQs",
-        url: "/admin/faqs",
-        icon: HelpCircle,
-      },
-    ],
-  },
-  {
-    title: "Reports",
-    items: [
-      {
-        title: "Analytics",
-        url: "/admin/analytics",
-        icon: BarChart,
-      },
-      {
-        title: "Payments",
-        url: "/admin/payments",
-        icon: CreditCard,
-      },
-    ],
-  },
-  {
-    title: "System",
-    items: [
-      {
-        title: "Payment Methods",
-        url: "/admin/payment-methods",
-        icon: CreditCard,
-      },
-      { title: "Settings", url: "/admin/settings", icon: Settings },
-    ],
-  },
-];
+import { useGetAllCancellations } from "@/hooks/use-cancellations";
+import { Badge } from "@/components/ui/badge";
 
 export function AdminSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
+
+  // Get all cancellations count
+  const { data: allCancellations } = useGetAllCancellations();
+  const pendingCount =
+    allCancellations?.filter((cancel) => cancel.status === "PENDING").length ||
+    0;
+
+  const allCount = allCancellations?.length || 0;
+
+  // Admin navigation data
+  const adminNavigationItems = [
+    {
+      title: "Management",
+      items: [
+        {
+          title: "Users",
+          url: "/admin/users",
+          icon: Users,
+        },
+        {
+          title: "Orders",
+          url: "/admin/orders",
+          icon: ShoppingCart,
+        },
+        allCount > 0 && {
+          title: "Cancellations",
+          url: "/client/cancellations",
+          icon: Trash2,
+          badge: allCount,
+        },
+        {
+          title: "Services",
+          url: "/admin/services",
+          icon: Shield,
+        },
+        {
+          title: "Categories",
+          url: "/admin/categories",
+          icon: Folder,
+        },
+        { title: "Providers", url: "/admin/providers", icon: Network },
+      ],
+    },
+    {
+      title: "Content",
+      items: [
+        {
+          title: "Blogs",
+          url: "/admin/blogs",
+          icon: BookOpen,
+        },
+        {
+          title: "Support",
+          url: "/admin/support",
+          icon: MessageCircle,
+        },
+        {
+          title: "FAQs",
+          url: "/admin/faqs",
+          icon: HelpCircle,
+        },
+      ],
+    },
+    {
+      title: "Reports",
+      items: [
+        {
+          title: "Analytics",
+          url: "/admin/analytics",
+          icon: BarChart,
+        },
+        {
+          title: "Payments",
+          url: "/admin/payments",
+          icon: CreditCard,
+        },
+      ],
+    },
+    {
+      title: "System",
+      items: [
+        {
+          title: "Payment Methods",
+          url: "/admin/payment-methods",
+          icon: CreditCard,
+        },
+        { title: "Settings", url: "/admin/settings", icon: Settings },
+      ],
+    },
+  ];
+
   const isActive = (path: string) => {
     return pathname === path;
   };
@@ -139,7 +157,7 @@ export function AdminSidebar({
     setAdminInfo,
   } = useAppContext();
 
-  if (isStoreGeneralSettingsLoading) return null
+  if (isStoreGeneralSettingsLoading) return null;
 
   const handleAuthAction = async () => {
     setAdminInfo(null);
@@ -179,24 +197,32 @@ export function AdminSidebar({
             <SidebarGroupLabel>{group.title}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {group.items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton size="md" asChild>
-                      <Link
-                        href={item.url}
-                        onClick={() => setOpenMobile(false)}
-                        className={
-                          isActive(item.url)
-                            ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                            : ""
-                        }
-                      >
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {group.items
+                  .filter((item) => !!item)
+                  .map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton size="md" asChild>
+                        <Link
+                          href={item.url}
+                          onClick={() => setOpenMobile(false)}
+                          className={
+                            isActive(item.url)
+                              ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                              : ""
+                          }
+                        >
+                          <item.icon />
+                          <span className="flex-1">{item.title}</span>
+                          {item.title === "Cancellations" &&
+                            pendingCount > 0 && (
+                              <Badge variant="destructive" className="ml-auto">
+                                {pendingCount}
+                              </Badge>
+                            )}
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

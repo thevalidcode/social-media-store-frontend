@@ -6,7 +6,6 @@ import { QueryProvider } from "@/provider/queryProvider";
 import "./globals.css";
 import { ThemeProvider } from "./providers/theme-provider";
 import FaviconSetter from "@/components/FaviconSetter";
-import MadeInValidPanelBanner from "@/components/MadeInValidPanelBanner";
 import CustomToaster from "@/components/CustomToaster";
 
 export default function RootLayout({
@@ -24,7 +23,6 @@ export default function RootLayout({
                 <FaviconSetter />
                 <CustomToaster />
                 <main>{children}</main>
-                <MadeInValidPanelBanner />
               </ThemeProvider>
             </AppProvider>
           </QueryProvider>

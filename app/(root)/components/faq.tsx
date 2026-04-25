@@ -64,11 +64,6 @@ const faqs = [
           "We accept all major payment methods including credit cards, PayPal, cryptocurrency (Bitcoin, Ethereum), and bank transfers. All transactions are secure and encrypted.",
       },
       {
-        question: "Do you offer refunds?",
-        answer:
-          "Yes, we offer a 100% money-back guarantee if you're not satisfied with our services. We also provide partial refunds for orders that don't meet our quality standards.",
-      },
-      {
         question: "Are there any hidden fees?",
         answer:
           "No hidden fees! The price you see is the price you pay. We believe in transparent pricing and will never surprise you with additional charges.",
@@ -171,7 +166,7 @@ export function FaqSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="text-center mt-16"
+          className="text-center"
         >
           <div className="bg-background border border-border/50 rounded-2xl p-8 max-w-2xl mx-auto">
             <h3 className="text-2xl font-bold mb-4">Still have questions?</h3>

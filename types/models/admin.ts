@@ -17,6 +17,7 @@ export interface Admin {
   apiKey: string; // Unique API key
   role: AdminRole;
   status: AdminStatus;
+  currency?: string;
   storeId: number; // Foreign key to store
   timestamp: string; // ISO date string
   lastSeen: string; // ISO date string

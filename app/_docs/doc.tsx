@@ -127,7 +127,7 @@ export const adminTheme = [
         "--input": "oklch(1 0 0 / 15%)",
         "--ring": "oklch(0.556 0 0)",
         "--chart-1": "oklch(0.488 0.243 264.376)",
-        "--chart-2": "oklch(0.696 0.0.17 162.48)",
+        "--chart-2": "oklch(0.696 0.17 162.48)",
         "--chart-3": "oklch(0.769 0.188 70.08)",
         "--chart-4": "oklch(0.627 0.265 303.9)",
         "--chart-5": "oklch(0.645 0.246 16.439)",
@@ -144,7 +144,7 @@ export const adminTheme = [
   },
   {
     title: "Red",
-    hex: "#FF0000",
+    hex: "#EF4444",
     schema: {
       ":root": {
         "--radius": "0.65rem",
@@ -217,7 +217,7 @@ export const adminTheme = [
   },
   {
     title: "Rose",
-    hex: "#FF00FF",
+    hex: "#F43F5E",
     schema: {
       ":root": {
         "--radius": "0.65rem",
@@ -363,7 +363,7 @@ export const adminTheme = [
   },
   {
     title: "Green",
-    hex: "#00FF00",
+    hex: "#22C55E",
     schema: {
       ":root": {
         "--radius": "0.65rem",
@@ -436,7 +436,7 @@ export const adminTheme = [
   },
   {
     title: "Yellow",
-    hex: "#FFFF00",
+    hex: "#EAB308",
     schema: {
       ":root": {
         "--radius": "0.65rem",
@@ -509,7 +509,7 @@ export const adminTheme = [
   },
   {
     title: "Violet",
-    hex: "#800080",
+    hex: "#8B5CF6",
     schema: {
       ":root": {
         "--radius": "0.65rem",
@@ -1528,6 +1528,6 @@ export const timezoneToCurrency: Record<string, CurrencyCode> = {
 export const platformLogos: Record<PaymentGatewayPlatform, string> = {
   PAYSTACK: "/images/paystack.png",
   FLUTTERWAVE: "/images/flutterwave.jpeg",
-  REFERRAL: "/images/manual-payment.webp",
+  CREDIT: "/images/manual-payment.webp",
   MANUAL: "/images/manual-payment.webp",
 };

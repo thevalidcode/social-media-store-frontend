@@ -5,7 +5,11 @@ import { currency } from "@/app/_docs/doc";
 import { SelectWithSearch, SelectOption } from "@/components/ui/select-with-search";
 import { useAppContext } from "@/context/appContext";
 
-export default function CurrencySelect() {
+interface CurrencySelectProps {
+  onValueChange?: (currency: string) => void;
+}
+
+export default function CurrencySelect({ onValueChange }: CurrencySelectProps) {
   const { setUserCurrency, userCurrency } = useAppContext();
 
   const currencyOptions: SelectOption[] = Object.entries(currency).map(([code, name]) => ({
@@ -16,7 +20,10 @@ export default function CurrencySelect() {
   return (
     <SelectWithSearch
       value={userCurrency}
-      onValueChange={setUserCurrency}
+      onValueChange={(value) => {
+        setUserCurrency(value);
+        onValueChange?.(value);
+      }}
       placeholder="Select currency"
       searchPlaceholder="Search currency..."
       options={currencyOptions}

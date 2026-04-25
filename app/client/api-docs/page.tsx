@@ -1,15 +1,27 @@
-import APISection from "@/app/(root)/components/APIPage";
-import { Metadata } from "next";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Social Media Store API",
-  description: "API",
-  keywords: ["api", "social media store api", "stores", "api"],
-};
-export default function ApiPage() {
+import APISection from "@/app/(root)/components/APIPage";
+import Loading from "@/app/loading";
+import { FeatureGate } from "@/components/FeatureGate";
+import { useAppContext } from "@/context/appContext";
+
+export default function ApiDocsClientPage() {
+  const { storeInfo, isStoreGeneralSettingsLoading } = useAppContext();
+
+  if (isStoreGeneralSettingsLoading) return <Loading />;
+
+  const apiAccessAllowed = storeInfo?.features?.api_access ?? false;
+
   return (
-    <div>
-      <APISection />
-    </div>
+    <FeatureGate
+      isAllowed={apiAccessAllowed}
+      featureLabel="API access is unavailable"
+      description="This store plan does not include API access."
+      variant="page"
+    >
+      <div>
+        <APISection />
+      </div>
+    </FeatureGate>
   );
 }

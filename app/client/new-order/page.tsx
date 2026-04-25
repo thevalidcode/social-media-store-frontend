@@ -1,19 +1,16 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { addMinutes, format } from "date-fns";
 import { useSearchParams } from "next/navigation";
 import type { Service, ServiceCategory } from "@/types";
 
-import { CategorySelect } from "./components/CategorySelect";
-import { ServiceList } from "./components/ServiceList";
-import { CartSidebar } from "./components/CartSidebar";
-import { CartMobile } from "./components/CartMobile";
+import { CategorySelect } from "@/app/client/new-order/components/CategorySelect";
+import { ServiceList } from "@/app/client/new-order/components/ServiceList";
+import { CartDrawer } from "@/app/client/components/CartDrawer";
 import { PageContent } from "@/app/(root)/components/page-content";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import {
   CreateBulkOrderProps,
@@ -25,44 +22,17 @@ import { useGetServicesByPublic } from "@/hooks/use-services";
 import { groupServicesByCategory } from "@/lib/groupServices";
 import Loading from "@/app/loading";
 import { EmptyState } from "@/components/empty-state";
-import { Server } from "lucide-react";
+import { ShoppingBag, Server } from "lucide-react";
 import { useGetCategories } from "@/hooks/use-category";
 import { FeatureGate } from "@/components/FeatureGate";
-import { FloatingCart } from "./components/FloatingCart";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
-
-interface CartItem {
-  serviceId: number; // The store-scoped ID of the service
-  serviceUid: string;
-  name: string;
-  price: number;
-  quantity: number;
-  link: string;
-}
-
-interface DripFeedPayload {
-  enabled: boolean;
-  intervalMinutes: number;
-  runs: number;
-}
-
-interface OrderPayload {
-  category: string;
-  items: { serviceId: number; quantity: number; unitPrice: number }[];
-  dripFeed: DripFeedPayload;
-  totalPrice: number;
-}
-
-const perUnitPrice = (price: number): number => price / 1000;
+import { useLocalCart } from "@/hooks/use-local-cart";
+import { useCurrencyConverter } from "@/lib/currencyConverter";
+import { Wallet } from "lucide-react";
 
 export default function NewOrderPage() {
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [dripEnabled, setDripEnabled] = useState<boolean>(false);
-  const [intervalMinutes, setIntervalMinutes] = useState<number>(60);
-  const [runs, setRuns] = useState<number>(1);
   const [errors, setErrors] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
-  const { userInfo } = useAppContext();
+  const { userInfo, userCurrency, setUserInfo } = useAppContext();
   const { mutateAsync: mutateBulkOrder, isPending: isBulkOrderPending } =
     useCreateBulkOrder();
   const { mutateAsync: mutateOrder, isPending: isOrderPending } =
@@ -71,10 +41,12 @@ export default function NewOrderPage() {
   const { data: categories, isLoading: isCategoriesLoading } =
     useGetCategories();
   const { storeInfo } = useAppContext();
+  const convert = useCurrencyConverter();
 
   const [categoryWithServices, setCategoryWithServices] = useState<
     ServiceCategory[]
   >([]);
+  const { cart, setCart, clearCart, isHydrated, updateDripFeed } = useLocalCart();
 
   const [category, setCategory] = useState<string>(
     categoryWithServices[0]?.title || "",
@@ -84,21 +56,6 @@ export default function NewOrderPage() {
   );
 
   const searchParams = useSearchParams();
-
-  const [showFloatingCart, setShowFloatingCart] = useState(false);
-  const [mobileCartOpen, setMobileCartOpen] = useState(false);
-  // ...existing code...
-
-  // Handle scroll to show/hide floating cart
-  useEffect(() => {
-    const handleScroll = () => {
-      // Show floating cart when scrolled down 200px
-      setShowFloatingCart(window.scrollY > 200);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   useEffect(() => {
     const parsed = groupServicesByCategory(services || [], categories || []);
@@ -120,7 +77,7 @@ export default function NewOrderPage() {
     }
   }, [categoryWithServices]);
 
-  // handle category/service in query params
+  // Handle category/service in query params
   useEffect(() => {
     const catParam = searchParams?.get("category");
     const svcParam = searchParams?.get("service");
@@ -142,14 +99,14 @@ export default function NewOrderPage() {
       if (svc) {
         if (!catParam) setCategory(svc.category);
         setCart((prev) => {
-          const exists = prev.find((p) => p.serviceId === svc.storeScopedId);
+          const exists = prev.find((p) => p.serviceUid === svc.uid);
           if (exists) return prev;
           return [
             ...prev,
             {
               serviceId: svc.storeScopedId,
               serviceUid: svc.uid,
-              name: svc.name,
+              serviceName: svc.name,
               price:
                 typeof svc.price === "string"
                   ? parseFloat(svc.price)
@@ -160,51 +117,17 @@ export default function NewOrderPage() {
                   : parseInt(qtyParam, 10) || 1
                 : 1,
               link: "",
+              dripFeed: false,
+              intervalMinutes: 60,
+              runs: 1,
+              currency: svc.currency || userCurrency,
             },
           ];
         });
       }
     }
-  }, [searchParams]);
+  }, [searchParams, categoryWithServices, setCart, userCurrency]);
 
-  const effectiveQuantity = (qty: number): number =>
-    dripEnabled ? qty * runs : qty;
-
-  const grandTotal = useMemo<number>(() => {
-    return cart.reduce<number>((acc, item) => {
-      const totalQty = effectiveQuantity(item.quantity);
-      return acc + perUnitPrice(item.price) * totalQty;
-    }, 0);
-  }, [cart, dripEnabled, runs]);
-
-  const schedulePreview = useMemo<string[]>(() => {
-    if (!dripEnabled) return [];
-    const preview: string[] = [];
-    let next = new Date();
-    for (let i = 0; i < Math.min(runs, 10); i++) {
-      next = addMinutes(next, intervalMinutes);
-      preview.push(format(next, "yyyy-MM-dd HH:mm"));
-    }
-    return preview;
-  }, [dripEnabled, intervalMinutes, runs]);
-
-  const allServices = useMemo<Service[]>(() => {
-    return categoryWithServices.flatMap((cat) => cat.services || []);
-  }, [categoryWithServices]);
-
-  if (isLoading || isCategoriesLoading) {
-    return <Loading />;
-  }
-
-  if (filteredServices.length === 0) {
-    return (
-      <EmptyState
-        icon={Server}
-        title="No Service Found"
-        description="No service have been created yet."
-      />
-    );
-  }
   const addToCart = (service: Service, qty = 1, link = ""): void => {
     const safeQty = Number.isFinite(qty) ? qty : parseInt(String(qty), 10) || 0;
     if (safeQty <= 0) return;
@@ -222,21 +145,38 @@ export default function NewOrderPage() {
         {
           serviceId: service.storeScopedId,
           serviceUid: service.uid,
-          name: service.name,
+          serviceName: service.name,
           price:
             typeof service.price === "string"
               ? parseFloat(service.price)
               : service.price,
           quantity: safeQty,
           link,
+          dripFeed: false,
+          intervalMinutes: 60,
+          runs: 1,
+          currency: service.currency || userCurrency,
         },
       ];
     });
   };
 
-  const updateQuantity = (serviceUid: string, qty: number): void => {
+  const updateQuantity = (
+    serviceUid: string,
+    qty: number,
+    service?: Service,
+  ): void => {
     const safe = Number.isFinite(qty) ? qty : parseInt(String(qty), 10) || 0;
     if (safe < 0) return;
+    const fallbackService =
+      service || categoryWithServices.flatMap((c) => c.services || []).find((s) => s.uid === serviceUid);
+
+    const existing = cart.find((p) => p.serviceUid === serviceUid);
+    if (!existing && fallbackService && safe > 0) {
+      addToCart(fallbackService, safe, "");
+      return;
+    }
+
     setCart((prev) =>
       prev.map((p) =>
         p.serviceUid === serviceUid ? { ...p, quantity: safe } : p,
@@ -244,7 +184,18 @@ export default function NewOrderPage() {
     );
   };
 
-  const updateLink = (serviceUid: string, link: string): void => {
+  const updateLink = (serviceUid: string, link: string, service?: Service): void => {
+    const fallbackService =
+      service || categoryWithServices.flatMap((c) => c.services || []).find((s) => s.uid === serviceUid);
+    const existing = cart.find((p) => p.serviceUid === serviceUid);
+
+    if (!existing && fallbackService) {
+      if (link.trim()) {
+        addToCart(fallbackService, 1, link);
+      }
+      return;
+    }
+
     setCart((prev) =>
       prev.map((p) => (p.serviceUid === serviceUid ? { ...p, link } : p)),
     );
@@ -254,211 +205,398 @@ export default function NewOrderPage() {
     setCart((prev) => prev.filter((p) => p.serviceUid !== serviceUid));
   };
 
+  const userBalance = Number.parseFloat(String(userInfo?.balance || 0)) || 0;
+  const cartTotal = useMemo(() => {
+    return cart.reduce((sum, item) => {
+      const basePrice = Number(item.price) / 1000;
+      const effectiveQty = item.dripFeed
+        ? item.quantity * (item.runs || 1)
+        : item.quantity;
+      const converted = convert(
+        item.currency as any,
+        userCurrency,
+        basePrice * effectiveQty,
+        false,
+        false,
+      );
+      return sum + Number(converted.amount || 0);
+    }, 0);
+  }, [cart, convert, userCurrency]);
+  const projectedBalance = userBalance - cartTotal;
+
   const validate = (): string | null => {
     if (cart.length === 0) return "Cart must have at least one item.";
     if (cart.some((i) => i.quantity <= 0))
       return "All quantities must be greater than zero.";
     if (cart.some((i) => !i.link.trim()))
       return "Each service requires a link.";
-    if (dripEnabled) {
-      if (intervalMinutes < 1) return "Interval minutes must be at least 1.";
-      if (runs < 1) return "Runs must be at least 1.";
-    }
     return null;
   };
 
-  const handleSubmit = async (): Promise<void> => {
+  const handleCheckout = async (): Promise<void> => {
     setErrors(null);
     const validationError = validate();
     if (validationError) {
       setErrors(validationError);
+      toast.error(validationError);
       return;
     }
 
     setSubmitting(true);
     try {
       const handleOrderSuccess = () => {
-        toast.success("Order submitted.");
-        setCart([]);
-        setDripEnabled(false);
-        setIntervalMinutes(60);
-        setRuns(1);
+        toast.success("Order submitted successfully!");
+        clearCart();
         setErrors(null);
       };
 
       const handleOrderError = (error: any) => {
-        setErrors("Failed to submit order.");
+        const errorMsg = error?.message || "Failed to submit order.";
+        setErrors(errorMsg);
+        toast.error(errorMsg);
       };
 
       const handleOrderSettled = () => setSubmitting(false);
 
       if (cart.length === 1) {
+        const item = cart[0];
+        const totalQty = item.dripFeed
+          ? item.quantity * (item.runs || 1)
+          : item.quantity;
         const singleOrder = {
-          serviceUid: cart[0].serviceUid,
-          quantity: effectiveQuantity(cart[0].quantity),
-          url: cart[0].link,
-          dripFeed: dripEnabled,
-          interval: dripEnabled ? intervalMinutes : undefined,
-          runs: dripEnabled ? runs : undefined,
+          serviceUid: item.serviceUid,
+          quantity: totalQty,
+          url: item.link,
+          dripFeed: item.dripFeed,
+          interval: item.dripFeed ? item.intervalMinutes : undefined,
+          runs: item.dripFeed ? item.runs : undefined,
           userUid: userInfo?.uid!,
         };
 
         await mutateOrder(singleOrder, {
-          onSuccess: handleOrderSuccess,
+          onSuccess: (response: { balance?: number }) => {
+            if (
+              typeof response?.balance === "number" &&
+              Number.isFinite(response.balance)
+            ) {
+              const current = userInfo;
+              if (current) {
+                // Keep wallet value in sync after successful checkout.
+                const updatedBalance = response.balance.toFixed(2);
+                if (updatedBalance !== current.balance) {
+                  const nextUser = { ...current, balance: updatedBalance };
+                  setUserInfo(nextUser);
+                }
+              }
+            }
+            handleOrderSuccess();
+          },
           onError: handleOrderError,
           onSettled: handleOrderSettled,
         });
       } else {
         const bulkOrderPayload: CreateBulkOrderProps = {
-          orders: cart.map((c) => ({
-            serviceUid: c.serviceUid,
-            quantity: effectiveQuantity(c.quantity),
-            url: c.link,
-            dripFeed: dripEnabled,
-            interval: dripEnabled ? intervalMinutes : undefined,
-            runs: dripEnabled ? runs : undefined,
-            userUid: userInfo?.uid!,
-          })),
+          orders: cart.map((c) => {
+            const totalQty = c.dripFeed
+              ? c.quantity * (c.runs || 1)
+              : c.quantity;
+            return {
+              serviceUid: c.serviceUid,
+              quantity: totalQty,
+              url: c.link,
+              dripFeed: c.dripFeed,
+              interval: c.dripFeed ? c.intervalMinutes || 60 : undefined,
+              runs: c.dripFeed ? c.runs || 1 : undefined,
+              userUid: userInfo?.uid!,
+            };
+          }),
         };
 
         await mutateBulkOrder(bulkOrderPayload, {
-          onSuccess: handleOrderSuccess,
+          onSuccess: (response: { balance?: number }) => {
+            if (
+              typeof response?.balance === "number" &&
+              Number.isFinite(response.balance)
+            ) {
+              const current = userInfo;
+              if (current) {
+                const updatedBalance = response.balance.toFixed(2);
+                if (updatedBalance !== current.balance) {
+                  setUserInfo({ ...current, balance: updatedBalance });
+                }
+              }
+            }
+            handleOrderSuccess();
+          },
           onError: handleOrderError,
           onSettled: handleOrderSettled,
         });
       }
     } catch (error) {
       console.error(error);
-      setErrors("Unexpected error.");
+      setErrors("Unexpected error occurred.");
       setSubmitting(false);
     }
   };
 
   const isSubscriptionActive = storeInfo?.subscriptionStatus === "ACTIVE";
+  const allServices = useMemo<Service[]>(() => {
+    return categoryWithServices.flatMap((cat) => cat.services || []);
+  }, [categoryWithServices]);
+
+  // Compute per-service errors
+  const serviceErrors = useMemo(() => {
+    const errors = new Map<string, string[]>();
+    cart.forEach((item) => {
+      const service = allServices.find((s) => s.uid === item.serviceUid);
+      if (!service) return;
+
+      const itemErrors: string[] = [];
+      if (item.quantity < service.min) {
+        itemErrors.push(`Min: ${service.min} (current: ${item.quantity})`);
+      }
+      if (item.quantity > service.max) {
+        itemErrors.push(`Max: ${service.max} (current: ${item.quantity})`);
+      }
+      if (!item.link.trim()) {
+        itemErrors.push("No link provided");
+      }
+      if (itemErrors.length > 0) {
+        errors.set(item.serviceUid, itemErrors);
+      }
+    });
+    return errors;
+  }, [cart, allServices]);
+
+  if (isLoading || isCategoriesLoading || !isHydrated) {
+    return <Loading />;
+  }
+
+  if (filteredServices.length === 0) {
+    return (
+      <EmptyState
+        icon={Server}
+        title="No Service Found"
+        description="No services have been created yet."
+      />
+    );
+  }
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <div className="min-h-screen md:p-4 p-2">
       <FeatureGate
         isAllowed={isSubscriptionActive}
         featureLabel="Order Creation"
         description="You need an active subscription to create orders. Please contact the store owner to renew the subscription."
         variant="page"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left */}
-          <div className="lg:col-span-2 space-y-6">
-            <PageContent pageType="ORDER" />
-            <Card className="p-4 shadow-lg hover:shadow-2xl transition-shadow duration-300">
-              <CardHeader>
-                <CardTitle className="text-2xl font-semibold">
-                  New Order
-                </CardTitle>
+        {/* Header Section */}
+        <div className="mb-8">
+          <PageContent pageType="ORDER" />
+          <div className="flex items-center justify-between mt-6">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground">
+                Create New Order
+              </h1>
+              <p className="text-muted-foreground mt-2">
+                {cart.length > 0 && (
+                  <span className="font-semibold text-primary">
+                    {cart.length} item{cart.length !== 1 ? "s" : ""} in cart
+                  </span>
+                )}
+                {cart.length === 0 && (
+                  <span>Browse services and add to your cart</span>
+                )}
+              </p>
+              <div className="mt-3 inline-flex items-center gap-2 rounded-lg border border-border bg-muted/20 px-3 py-1.5 text-sm">
+                <Wallet className="h-4 w-4 text-primary" />
+                <span className="text-muted-foreground">Balance:</span>
+                <span className="font-semibold text-foreground">
+                  {userBalance.toFixed(2)} {userCurrency}
+                </span>
+              </div>
+            </div>
+            {cart.length > 0 && (
+              <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 border border-primary/20">
+                <ShoppingBag className="w-5 h-5 text-primary" />
+                <span className="font-semibold text-primary">
+                  {cart.length} items
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Main Content Area */}
+          <div className="lg:col-span-3 space-y-6">
+            {/* Category Filter Card */}
+            <Card className="shadow-md hover:shadow-lg transition-all duration-300 border-border">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg">Filter Services</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="flex flex-col md:items-end md:gap-6 gap-4">
+              <CardContent className="space-y-4">
+                <div>
                   <CategorySelect
                     value={category}
                     onChange={setCategory}
                     categories={categoryWithServices}
                   />
-
-                  <div className="w-full gap-2 flex flex-col">
-                    <Label>Quick actions</Label>
-                    <div className="flex gap-3">
-                      <Button
-                        onClick={() => {
-                          const first = filteredServices[0];
-                          if (first) addToCart(first, 1, "");
-                        }}
-                        className="w-[50%]"
-                      >
-                        Add first
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          filteredServices.forEach((s) => addToCart(s, 1, ""));
-                        }}
-                        className="w-[50%]"
-                      >
-                        Add all
-                      </Button>
-                    </div>
-                  </div>
                 </div>
 
-                <div className="mt-6">
-                  <ServiceList
-                    services={filteredServices}
-                    category={
-                      categoryWithServices.find(
-                        (c) => c.title === category,
-                      ) as ServiceCategory
-                    }
-                    cartItems={cart.map((c) => ({
-                      serviceId: c.serviceId,
-                      serviceUid: c.serviceUid,
-                      quantity: c.quantity,
-                      link: c.link,
-                    }))}
-                    addToCart={addToCart}
-                    updateQuantity={updateQuantity}
-                    updateLink={updateLink}
-                  />
+                {/* Quick Actions */}
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    onClick={() => {
+                      const first = filteredServices[0];
+                      if (first) addToCart(first, 1, "");
+                      toast("Added to cart");
+                    }}
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    Add first
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      if (filteredServices.length > 0) {
+                        filteredServices.forEach((s) => addToCart(s, 1, ""));
+                        toast.success(
+                          `Added ${filteredServices.length} services to cart`,
+                        );
+                      }
+                    }}
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    Add all
+                  </Button>
                 </div>
               </CardContent>
             </Card>
 
-            <CartMobile
-              cart={cart}
-              services={allServices}
-              dripEnabled={dripEnabled}
-              runs={runs}
-            />
+            {/* Services Grid Card */}
+            <Card className="shadow-md hover:shadow-lg transition-all duration-300 border-border">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg">
+                  {category || "Services"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ServiceList
+                  services={filteredServices}
+                  category={
+                    categoryWithServices.find(
+                      (c) => c.title === category,
+                    ) as ServiceCategory
+                  }
+                  cartItems={cart.map((c) => ({
+                    serviceId: c.serviceId,
+                    serviceUid: c.serviceUid,
+                    quantity: c.quantity,
+                    link: c.link,
+                    dripFeed: c.dripFeed,
+                    intervalMinutes: c.intervalMinutes,
+                    runs: c.runs,
+                  }))}
+                  addToCart={addToCart}
+                  updateQuantity={updateQuantity}
+                  updateLink={updateLink}
+                  updateDripFeed={updateDripFeed}
+                />
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Right */}
-          <div>
-            <CartSidebar
-              cart={cart}
-              services={allServices}
-              dripEnabled={dripEnabled}
-              setDripEnabled={setDripEnabled}
-              intervalMinutes={intervalMinutes}
-              setIntervalMinutes={setIntervalMinutes}
-              runs={runs}
-              setRuns={setRuns}
-              grandTotal={grandTotal}
-              updateQuantity={updateQuantity}
-              updateLink={updateLink}
-              removeFromCart={removeFromCart}
-              handleSubmit={handleSubmit}
-              errors={errors}
-              submitting={submitting}
-              schedulePreview={schedulePreview}
-            />
+          {/* Sidebar - Cart Summary (Desktop)*/}
+          <div className="hidden lg:block">
+            <div className="sticky top-6 space-y-4">
+              <Card className="shadow-lg">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <ShoppingBag className="w-5 h-5" />
+                    Order Summary
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {cart.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-6">
+                      Your cart is empty
+                    </p>
+                  ) : (
+                    <div className="space-y-3 max-h-48 overflow-y-auto">
+                      {cart.map((item) => (
+                        <div
+                          key={item.serviceUid}
+                          className="p-2 rounded bg-card border border-border text-xs"
+                        >
+                          <p className="font-semibold text-foreground truncate">
+                            {item.serviceName}
+                          </p>
+                          <p className="text-muted-foreground">
+                            Qty: {item.quantity}{" "}
+                            {item.dripFeed && (
+                              <span className="text-primary">
+                                × {item.runs} runs
+                              </span>
+                            )}
+                          </p>
+                          <p className="text-muted-foreground">
+                            Total qty: {item.dripFeed ? item.quantity * (item.runs || 1) : item.quantity}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="rounded-md border border-border/70 bg-muted/20 px-3 py-2 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Cart total</span>
+                      <span className="font-semibold text-foreground">
+                        {cartTotal.toFixed(2)} {userCurrency}
+                      </span>
+                    </div>
+                    <div className="mt-1 flex justify-between">
+                      <span className="text-muted-foreground">After checkout</span>
+                      <span
+                        className={
+                          projectedBalance < 0
+                            ? "font-semibold text-destructive"
+                            : "font-semibold text-foreground"
+                        }
+                      >
+                        {projectedBalance.toFixed(2)} {userCurrency}
+                      </span>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={handleCheckout}
+                    disabled={cart.length === 0 || submitting}
+                    className="w-full"
+                  >
+                    {submitting ? "Processing..." : "Checkout"}
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </FeatureGate>
 
-      {/* Floating Cart Button */}
-      <FloatingCart
-        itemCount={cart.length}
-        onClick={() => setMobileCartOpen(true)}
-        isVisible={showFloatingCart}
+      {/* Cart Drawer - Mobile & Desktop */}
+      <CartDrawer
+        cart={cart}
+        onCheckout={handleCheckout}
+        submitting={submitting || isBulkOrderPending || isOrderPending}
+        error={errors}
+        onUpdateQuantity={updateQuantity}
+        onUpdateLink={updateLink}
+        onUpdateDripFeed={updateDripFeed}
+        onRemoveFromCart={removeFromCart}
+        serviceErrors={serviceErrors}
+        userBalance={userBalance}
       />
-
-      {/* Mobile Cart Sheet */}
-      <Sheet open={mobileCartOpen} onOpenChange={setMobileCartOpen}>
-        <SheetContent side="bottom" className="h-[85vh]">
-          <CartMobile
-            cart={cart}
-            services={allServices}
-            dripEnabled={dripEnabled}
-            runs={runs}
-          />
-        </SheetContent>
-      </Sheet>
     </div>
   );
 }

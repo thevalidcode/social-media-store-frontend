@@ -50,6 +50,7 @@ export default function AdminProfilePage() {
       fullName: profile.fullName ?? undefined,
       username: profile.username,
       image: profile.image || "",
+      currency: userCurrency,
     });
 
     toast.success("Profile updated");
@@ -206,7 +207,10 @@ export default function AdminProfilePage() {
               <Field label="Currency">
                 <SelectWithSearch
                   value={userCurrency}
-                  onValueChange={setUserCurrency}
+                  onValueChange={(value) => {
+                    setUserCurrency(value);
+                    setProfile((prev) => ({ ...prev, currency: value }));
+                  }}
                   placeholder="Select currency"
                   searchPlaceholder="Search currency..."
                   options={Object.entries(currency).map(([k, v]) => ({

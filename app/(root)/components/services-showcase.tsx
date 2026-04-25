@@ -26,42 +26,44 @@ const services = [
   {
     id: "followers",
     title: "Followers & Subscribers",
-    description:
-      "Grow your audience with real, active followers across all major platforms",
+    description: "Audience growth services across major social platforms.",
     icon: Users,
-    color: "from-blue-500 to-cyan-500",
+    color: "text-blue-600",
     platforms: [
       { name: "Instagram", icon: Instagram, color: "text-pink-500" },
       { name: "YouTube", icon: Youtube, color: "text-red-500" },
       { name: "TikTok", icon: Music, color: "text-black dark:text-white" },
       { name: "Twitter", icon: Twitter, color: "text-blue-400" },
     ],
-    features: ["Real Users", "Fast Delivery", "High Retention", "24/7 Support"],
-    price: "From $2.99",
+    features: [
+      "Clear options",
+      "Fast processing",
+      "Order tracking",
+      "Support ready",
+    ],
+    price: "Category available",
   },
   {
     id: "likes",
     title: "Likes & Reactions",
-    description:
-      "Boost engagement with authentic likes and reactions to make your content viral",
+    description: "Engagement options for posts, reels, and videos.",
     icon: Heart,
-    color: "from-pink-500 to-rose-500",
+    color: "text-pink-600",
     platforms: [
       { name: "Instagram", icon: Instagram, color: "text-pink-500" },
       { name: "Facebook", icon: Facebook, color: "text-blue-600" },
       { name: "YouTube", icon: Youtube, color: "text-red-500" },
       { name: "TikTok", icon: Music, color: "text-black dark:text-white" },
     ],
-    features: ["Instant Start", "High Quality", "Safe & Secure", "Money Back"],
-    price: "From $0.99",
+    features: ["Quick setup", "Quality filters", "Safe flow", "Status updates"],
+    price: "Category available",
   },
   {
     id: "comments",
     title: "Comments & Reviews",
-    description:
-      "Generate meaningful comments and reviews to build trust and credibility",
+    description: "Comment-based engagement packages for selected platforms.",
     icon: MessageCircle,
-    color: "from-green-500 to-emerald-500",
+    color: "text-green-600",
     platforms: [
       { name: "Instagram", icon: Instagram, color: "text-pink-500" },
       { name: "YouTube", icon: Youtube, color: "text-red-500" },
@@ -69,20 +71,19 @@ const services = [
       { name: "TikTok", icon: Music, color: "text-black dark:text-white" },
     ],
     features: [
-      "Custom Comments",
-      "Natural Language",
-      "Varied Styles",
-      "Real Users",
+      "Category based",
+      "Structured delivery",
+      "Platform support",
+      "Order visibility",
     ],
-    price: "From $1.99",
+    price: "Category available",
   },
   {
     id: "views",
     title: "Views & Watch Time",
-    description:
-      "Increase your content reach with views and watch time to boost algorithm performance",
+    description: "View and watch-time services for video-focused channels.",
     icon: Eye,
-    color: "from-purple-500 to-violet-500",
+    color: "text-violet-600",
     platforms: [
       { name: "YouTube", icon: Youtube, color: "text-red-500" },
       { name: "TikTok", icon: Music, color: "text-black dark:text-white" },
@@ -90,20 +91,19 @@ const services = [
       { name: "Facebook", icon: Facebook, color: "text-blue-600" },
     ],
     features: [
-      "High Retention",
-      "Real Views",
-      "Fast Delivery",
-      "Algorithm Safe",
+      "Retention choices",
+      "Platform specific",
+      "Fast processing",
+      "Consistent tracking",
     ],
-    price: "From $1.49",
+    price: "Category available",
   },
   {
     id: "shares",
     title: "Shares & Retweets",
-    description:
-      "Amplify your content reach with shares and retweets to maximize visibility",
+    description: "Content distribution services for broader platform reach.",
     icon: Share2,
-    color: "from-orange-500 to-amber-500",
+    color: "text-orange-600",
     platforms: [
       { name: "Twitter", icon: Twitter, color: "text-blue-400" },
       { name: "Facebook", icon: Facebook, color: "text-blue-600" },
@@ -111,12 +111,12 @@ const services = [
       { name: "TikTok", icon: Music, color: "text-black dark:text-white" },
     ],
     features: [
-      "Real Shares",
-      "Organic Growth",
-      "Safe Methods",
-      "Quick Results",
+      "Distribution options",
+      "Safe handling",
+      "Quick processing",
+      "Trackable progress",
     ],
-    price: "From $2.49",
+    price: "Category available",
   },
 ];
 
@@ -137,17 +137,17 @@ export function ServicesShowcase() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
             <Star className="w-4 h-4 fill-current" />
-            Premium Services
+            Service Categories
             <Zap className="w-4 h-4" />
           </div>
           <TypographyH2 className="mb-6">
-            Complete Social Media
+            Explore Available
             <br />
-            <span className="text-primary">Growth Solutions</span>
+            <span className="text-primary">Service Options</span>
           </TypographyH2>
           <TypographyP className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            From followers to engagement, we provide everything you need to
-            dominate social media and grow your brand.
+            Browse major categories and move to the services page to view exact
+            offerings, pricing, and order requirements.
           </TypographyP>
         </motion.div>
 
@@ -167,9 +167,9 @@ export function ServicesShowcase() {
                     <motion.div
                       whileHover={{ scale: 1.1, rotate: 5 }}
                       transition={{ duration: 0.3 }}
-                      className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-r ${service.color} mb-4`}
+                      className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-muted mb-4"
                     >
-                      <service.icon className="w-8 h-8 text-white" />
+                      <service.icon className={`w-8 h-8 ${service.color}`} />
                     </motion.div>
                     <h3 className="text-xl font-bold mb-2">{service.title}</h3>
                     <p className="text-muted-foreground text-sm mb-4">

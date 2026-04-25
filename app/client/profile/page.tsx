@@ -20,7 +20,7 @@ import CurrencySelect from "@/components/CurrencySelect";
 import { useAppContext } from "@/context/appContext";
 import { useUpdateUser } from "@/hooks/use-user";
 import { useUploadImage } from "@/hooks/use-file";
-import { useCurrencyConverter } from "@/lib/currencyConverter";
+import { CurrencyCode, useCurrencyConverter } from "@/lib/currencyConverter";
 
 export default function UserProfilePage() {
   const [editing, setEditing] = useState(false);
@@ -55,7 +55,7 @@ export default function UserProfilePage() {
       username: userInfo?.username ?? "",
       image: userInfo?.image ?? "",
       fullName: userInfo?.fullName ?? "",
-      apiKey: userInfo?.apiKey ?? "",
+      currency: userCurrency,
     });
     setEditing(false);
   }
@@ -85,7 +85,7 @@ export default function UserProfilePage() {
           <div className="flex flex-col gap-8 sm:flex-row">
             <div className="relative h-32 w-32 shrink-0">
               <img
-                src={userInfo.image ?? "/images/default-profile.jpg"}
+                src={userInfo.image || "/images/default-profile.jpg"}
                 alt="Profile"
                 className="h-32 w-32 rounded-full object-cover border"
               />
@@ -178,14 +178,21 @@ export default function UserProfilePage() {
                       userCurrency,
                       userInfo.balance,
                       true,
-                      false
+                      false,
                     ).formatted
                   }
                 />
               </Field>
 
               <Field label="Currency">
-                <CurrencySelect />
+                <CurrencySelect
+                  onValueChange={(value) =>
+                    setUserInfo({
+                      ...userInfo!,
+                      currency: value as CurrencyCode,
+                    })
+                  }
+                />
                 <p className="text-sm text-muted-foreground">
                   Selected currency: {userCurrency}
                 </p>

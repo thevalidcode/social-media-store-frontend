@@ -16,70 +16,70 @@ import { TypographyH2, TypographyP } from "@/components/typography";
 
 const testimonials = [
   {
-    name: "Sarah Johnson",
-    role: "Influencer",
+    name: "Store Customer",
+    role: "Instagram buyer",
     avatar: "/api/placeholder/40/40",
     content:
-      "This platform transformed my Instagram growth! I went from 5K to 50K followers in just 3 months. The quality is incredible and the support team is amazing.",
+      "Checkout was straightforward and I could follow order progress without opening support tickets.",
     rating: 5,
     platform: "Instagram",
     platformIcon: Instagram,
-    growth: "+900% followers",
+    growth: "Verified order flow",
   },
   {
-    name: "Mike Chen",
-    role: "YouTuber",
+    name: "Store Customer",
+    role: "YouTube buyer",
     avatar: "/api/placeholder/40/40",
     content:
-      "Best SMM service I've ever used. The YouTube subscribers are real and engaged. My channel growth has been phenomenal since I started using their services.",
+      "Adding funds and placing an order took only a few steps, and status updates were easy to read.",
     rating: 5,
     platform: "YouTube",
     platformIcon: Youtube,
-    growth: "+2.5M views",
+    growth: "Simple payment path",
   },
   {
-    name: "Emma Rodriguez",
-    role: "Business Owner",
+    name: "Store Customer",
+    role: "Twitter buyer",
     avatar: "/api/placeholder/40/40",
     content:
-      "As a small business owner, I needed to boost my social media presence quickly. This platform delivered exactly what I needed - real engagement and real results.",
+      "The interface is clean and the service options are clearly explained before checkout.",
     rating: 5,
     platform: "Twitter",
     platformIcon: Twitter,
-    growth: "+300% engagement",
+    growth: "Clear service detail",
   },
   {
-    name: "David Park",
-    role: "Content Creator",
+    name: "Store Customer",
+    role: "Instagram buyer",
     avatar: "/api/placeholder/40/40",
     content:
-      "The customer support is outstanding and the delivery is lightning fast. I've tried many SMM services, but this one is by far the most reliable and effective.",
+      "Manual gateway instructions were clear, and payment status changed exactly as expected after review.",
     rating: 5,
     platform: "Instagram",
     platformIcon: Instagram,
-    growth: "+150K followers",
+    growth: "Manual payment support",
   },
   {
-    name: "Lisa Thompson",
-    role: "Marketing Manager",
+    name: "Store Customer",
+    role: "YouTube buyer",
     avatar: "/api/placeholder/40/40",
     content:
-      "We use this platform for all our client campaigns. The results speak for themselves - increased engagement, better reach, and satisfied clients every time.",
+      "Order history and wallet activity gave enough context to manage repeat purchases confidently.",
     rating: 5,
     platform: "YouTube",
     platformIcon: Youtube,
-    growth: "+500% reach",
+    growth: "Easy repeat orders",
   },
   {
-    name: "Alex Kumar",
-    role: "Entrepreneur",
+    name: "Store Customer",
+    role: "Twitter buyer",
     avatar: "/api/placeholder/40/40",
     content:
-      "The API integration made it so easy to automate our social media growth. The quality of followers and engagement is top-notch. Highly recommended!",
+      "The storefront feels like a production tool, not a template, and that made onboarding faster for our team.",
     rating: 5,
     platform: "Twitter",
     platformIcon: Twitter,
-    growth: "+200% growth",
+    growth: "Professional UX",
   },
 ];
 
@@ -104,13 +104,13 @@ export function TestimonialsSection() {
             <TrendingUp className="w-4 h-4" />
           </div>
           <TypographyH2 className="mb-6">
-            What Our Customers
+            Feedback From
             <br />
-            <span className="text-primary">Are Saying</span>
+            <span className="text-primary">Real Store Usage</span>
           </TypographyH2>
           <TypographyP className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Join thousands of satisfied customers who have transformed their
-            social media presence with our services.
+            Example feedback focused on usability, payment flow clarity, and
+            order visibility.
           </TypographyP>
         </motion.div>
 
@@ -186,39 +186,7 @@ export function TestimonialsSection() {
             </motion.div>
           ))}
         </div>
-
-        {/* Bottom Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="mt-16 text-center"
-        >
-          <div className="inline-flex items-center md:gap-8 gap-4 md:px-8 px-4 py-4 rounded-2xl bg-muted/50 border border-border/50">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">4.9/5</div>
-              <div className="text-sm text-muted-foreground">
-                Average Rating
-              </div>
-            </div>
-            <div className="w-px h-8 bg-border" />
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">50K+</div>
-              <div className="text-sm text-muted-foreground">
-                Happy Customers
-              </div>
-            </div>
-            <div className="w-px h-8 bg-border" />
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">99.9%</div>
-              <div className="text-sm text-muted-foreground">
-                Satisfaction Rate
-              </div>
-            </div>
-          </div>
-        </motion.div>
       </div>
     </section>
   );
 }
-

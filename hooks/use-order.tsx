@@ -70,6 +70,48 @@ export const useCreateBulkOrder = () => {
 
 // ---------- GET ORDERS ----------
 
+export const useGetOrders = () => {
+  const { api } = useAppContext();
+
+  return useQuery({
+    queryKey: ["userOrders"],
+    queryFn: async () => {
+      const res = await api.get("/orders");
+      return res.data;
+    },
+  });
+};
+
+export const useGetOrderByUid = (orderUid: string) => {
+  const { api } = useAppContext();
+
+  return useQuery({
+    queryKey: ["orderDetail", orderUid],
+    queryFn: async () => {
+      if (!orderUid) return null;
+      const res = await api.get(`/orders/${orderUid}`);
+      return res.data;
+    },
+    enabled: !!orderUid,
+  });
+};
+
+export const useGetOrderByUidForAdmin = (orderUid: string) => {
+  const { api } = useAppContext();
+
+  return useQuery({
+    queryKey: ["orderDetailAdmin", orderUid],
+    queryFn: async () => {
+      if (!orderUid) return null;
+      const res = await api.get(`/orders/admin/${orderUid}`);
+      return res.data;
+    },
+    enabled: !!orderUid,
+  });
+};
+
+// ---------- GET ORDERS ----------
+
 export const useUserGetOrderByStatus = (status: OrderStatus) => {
   const { api, userInfo } = useAppContext();
 
@@ -161,6 +203,32 @@ export const useUpdateOrder = () => {
           queryKey: ["allOrders", variables.update.status],
         });
       }
+    },
+    onError: (error: any) => {
+      const errorMsg = normalizeApiError(error);
+      toast.error(errorMsg);
+    },
+  });
+};
+
+// ---------- CANCEL ORDER ----------
+
+export const useCancelOrder = () => {
+  const { api } = useAppContext();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["cancelOrder"],
+    mutationFn: async (orderUid: string) => {
+      const res = await api.post(`/orders/${orderUid}/cancel`);
+      if (!res.data) throw new Error("Failed to cancel order");
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userOrders"] });
+      queryClient.invalidateQueries({ queryKey: ["allOrders"] });
+      queryClient.invalidateQueries({ queryKey: ["orderDetail"] });
+      toast.success("Order cancelled successfully");
     },
     onError: (error: any) => {
       const errorMsg = normalizeApiError(error);

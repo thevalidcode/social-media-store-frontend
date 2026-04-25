@@ -145,6 +145,18 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
+  // Prefer persisted account currency when authenticated.
+  useEffect(() => {
+    const accountCurrency =
+      userInfo?.currency || adminInfo?.currency || null;
+
+    if (!accountCurrency) return;
+
+    const normalized = accountCurrency.toUpperCase() as CurrencyCode;
+    setUserCurrencyState(normalized);
+    localStorage.setItem("userCurrency", normalized);
+  }, [userInfo?.currency, adminInfo?.currency]);
+
   // Function to detect user's currency from locale
   const detectUserCurrency = (): CurrencyCode => {
     try {

@@ -1,7 +1,11 @@
 import { CurrencyCode } from "@/lib/currencyConverter";
 
 export type PaymentStatus = "PENDING" | "SUCCESS" | "FAILED";
-export type PaymentMethod = "FLUTTERWAVE" | "PAYSTACK" | "MANUAL";
+export type PaymentMethod =
+  | "FLUTTERWAVE"
+  | "PAYSTACK"
+  | "MANUAL"
+  | "CREDIT";
 
 export interface Payment {
   id: number;

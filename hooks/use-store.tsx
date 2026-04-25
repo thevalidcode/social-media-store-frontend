@@ -96,7 +96,8 @@ export function useUpdateStoreDesign() {
       if (!res.data) throw new Error("Failed to update store styles");
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      queryClient.setQueryData(["storeDesign", storeId], data);
       queryClient.invalidateQueries({ queryKey: ["storeDesign", storeId] });
     },
     onError: (error: unknown) => {

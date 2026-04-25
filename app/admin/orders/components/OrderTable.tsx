@@ -17,19 +17,15 @@ import { useCurrencyConverter } from "@/lib/currencyConverter";
 import { EmptyState } from "@/components/empty-state";
 import { Order } from "@/types";
 import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { MoreVertical } from "lucide-react";
-import { useState, useMemo } from "react";
-import { OrderEditDialog } from "./OrderEditDialog";
+  useState,
+  useMemo,
+} from "react";
 import { Button } from "@/components/ui/button";
-import { useUpdateOrder } from "@/hooks/use-order";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import OrderStatusBadge from "@/components/OrderStatusBadge";
 import Pagination from "@/components/pagination";
+import { useRouter } from "next/navigation";
 
 interface OrderTableProps {
   orders?: Order[];
@@ -42,10 +38,9 @@ export const OrderTable = ({
   isLoading,
   rowClassName = "",
 }: OrderTableProps) => {
+  const router = useRouter();
   const { userCurrency } = useAppContext();
   const convert = useCurrencyConverter();
-  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
-  const updateOrder = useUpdateOrder();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(100);
 
@@ -55,15 +50,8 @@ export const OrderTable = ({
     return orders.slice(startIndex, startIndex + pageSize);
   }, [orders, page, pageSize]);
 
-  const handleSaveOrder = (updated: Partial<Order>) => {
-    if (!editingOrder?.uid) return;
-
-    updateOrder.mutate({
-      uid: editingOrder.uid,
-      update: updated,
-    });
-
-    setEditingOrder(null);
+  const handleViewOrder = (uid: string) => {
+    router.push(`/admin/orders/detail?uid=${uid}`);
   };
 
   if (isLoading) return <Loading />;
@@ -151,18 +139,15 @@ export const OrderTable = ({
                   <OrderStatusBadge status={order.status} />
                 </TableCell>
                 <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => setEditingOrder(order)}>
-                        Edit Order
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => handleViewOrder(order.uid)}
+                  >
+                    View order
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -197,13 +182,9 @@ export const OrderTable = ({
                   <h3 className="font-semibold truncate">
                     {order.service.name}
                   </h3>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => setEditingOrder(order)}
-                  >
-                    <MoreVertical className="w-4 h-4" />
-                  </Button>
+                  <span className="text-xs text-muted-foreground">
+                    #{order.storeScopedId}
+                  </span>
                 </div>
 
                 <p className="text-xs text-muted-foreground mt-1 truncate">
@@ -230,6 +211,21 @@ export const OrderTable = ({
                 <div className="mt-3">
                   <OrderStatusBadge status={order.status} />
                 </div>
+
+                <div className="mt-4 flex items-center justify-between gap-3">
+                  <span className="text-xs text-muted-foreground">
+                    @{order.user.username}
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => handleViewOrder(order.uid)}
+                  >
+                    View order
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -245,15 +241,6 @@ export const OrderTable = ({
           onPageChange={setPage}
           onPageSizeChange={setPageSize}
           pageSizeOptions={[100, 200, 500]}
-        />
-      )}
-
-      {editingOrder && (
-        <OrderEditDialog
-          order={editingOrder}
-          open={!!editingOrder}
-          onClose={() => setEditingOrder(null)}
-          onSave={handleSaveOrder}
         />
       )}
     </div>

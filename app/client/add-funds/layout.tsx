@@ -8,7 +8,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (generalSetting) {
-      document.title = `Deposit | ${generalSetting.storeName}`;
+      document.title = `Add Funds | ${generalSetting.storeName}`;
     } else {
       document.title = "Loading…";
     }

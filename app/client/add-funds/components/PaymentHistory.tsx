@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -34,11 +34,7 @@ export function PaymentHistory() {
   const [pageSize, setPageSize] = useState(10);
   const [filters, setFilters] = useState<PaymentFilters>({});
   const convert = useCurrencyConverter();
-  const { data: paymentsData, isLoading } = useGetPayments(
-    page,
-    pageSize,
-    filters
-  );
+  const { data: paymentsData, isLoading } = useGetPayments(page, pageSize, filters);
 
   return (
     <motion.div
@@ -47,24 +43,24 @@ export function PaymentHistory() {
       transition={{ delay: 0.4 }}
       className="mt-12"
     >
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <Card className="border-border/70 shadow-sm">
+        <CardHeader className="space-y-4 border-b bg-muted/20">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <CardTitle className="text-2xl">Payment History</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                Track all your payment transactions
+              <p className="mt-1 text-sm text-muted-foreground">
+                Track all your wallet top-ups and gateway transactions.
               </p>
             </div>
 
-            {/* Filters */}
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Select
                 value={filters.status || "all"}
                 onValueChange={(value) =>
                   setFilters((prev) => ({
                     ...prev,
-                    status: value === "all" ? undefined : (value as any),
+                    status:
+                      value === "all" ? undefined : (value as PaymentFilters["status"]),
                   }))
                 }
               >
@@ -84,7 +80,8 @@ export function PaymentHistory() {
                 onValueChange={(value) =>
                   setFilters((prev) => ({
                     ...prev,
-                    method: value === "all" ? undefined : (value as any),
+                    method:
+                      value === "all" ? undefined : (value as PaymentFilters["method"]),
                   }))
                 }
               >
@@ -100,12 +97,8 @@ export function PaymentHistory() {
               </Select>
 
               {(filters.status || filters.method) && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setFilters({})}
-                >
-                  <Filter className="h-4 w-4 mr-2" />
+                <Button variant="ghost" size="sm" onClick={() => setFilters({})}>
+                  <Filter className="mr-2 h-4 w-4" />
                   Clear
                 </Button>
               )}
@@ -116,10 +109,7 @@ export function PaymentHistory() {
           {isLoading ? (
             <div className="space-y-3">
               {[...Array(5)].map((_, i) => (
-                <div
-                  key={i}
-                  className="h-16 bg-muted animate-pulse rounded-lg"
-                />
+                <div key={i} className="h-16 rounded-lg bg-muted animate-pulse" />
               ))}
             </div>
           ) : !paymentsData?.payments?.length ? (
@@ -130,8 +120,7 @@ export function PaymentHistory() {
             />
           ) : (
             <div className="space-y-4">
-              {/* Desktop Table */}
-              <div className="hidden md:block rounded-lg border overflow-hidden">
+              <div className="hidden overflow-hidden rounded-lg border md:block">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/50">
@@ -150,26 +139,10 @@ export function PaymentHistory() {
                           #{payment.storeScopedId}
                         </TableCell>
                         <TableCell>
-                          {
-                            convert(
-                              payment.currency as any,
-                              payment.currency as any,
-                              payment.amount,
-                              true,
-                              false
-                            ).formatted
-                          }
+                          {convert(payment.currency as any, payment.currency as any, payment.amount, true, false).formatted}
                         </TableCell>
                         <TableCell>
-                          {
-                            convert(
-                              payment.currency as any,
-                              payment.currency as any,
-                              payment.chargedAmount,
-                              true,
-                              false
-                            ).formatted
-                          }
+                          {convert(payment.currency as any, payment.currency as any, payment.chargedAmount, true, false).formatted}
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline" className="font-normal">
@@ -199,7 +172,7 @@ export function PaymentHistory() {
                             {payment.status}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-muted-foreground text-sm">
+                        <TableCell className="text-sm text-muted-foreground">
                           {formatDistanceToNow(new Date(payment.createdAt), {
                             addSuffix: true,
                           })}
@@ -210,26 +183,17 @@ export function PaymentHistory() {
                 </Table>
               </div>
 
-              {/* Mobile Cards */}
-              <div className="md:hidden space-y-3">
+              <div className="space-y-3 md:hidden">
                 {paymentsData.payments.map((payment) => (
                   <Card key={payment.id} className="overflow-hidden">
                     <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-3">
+                      <div className="mb-3 flex items-start justify-between gap-3">
                         <div>
                           <p className="text-sm text-muted-foreground">
                             Payment #{payment.storeScopedId}
                           </p>
-                          <p className="text-2xl font-bold mt-1">
-                            {
-                              convert(
-                                payment.currency as any,
-                                payment.currency as any,
-                                payment.chargedAmount,
-                                true,
-                                false
-                              ).formatted
-                            }
+                          <p className="mt-1 text-2xl font-bold">
+                            {convert(payment.currency as any, payment.currency as any, payment.chargedAmount, true, false).formatted}
                           </p>
                         </div>
                         <Badge
@@ -261,15 +225,7 @@ export function PaymentHistory() {
                         <div>
                           <p className="text-muted-foreground">Amount</p>
                           <p className="font-medium">
-                            {
-                              convert(
-                                payment.currency as any,
-                                payment.currency as any,
-                                payment.amount,
-                                true,
-                                false
-                              ).formatted
-                            }
+                            {convert(payment.currency as any, payment.currency as any, payment.amount, true, false).formatted}
                           </p>
                         </div>
                         <div>
@@ -292,7 +248,6 @@ export function PaymentHistory() {
                 ))}
               </div>
 
-              {/* Pagination */}
               <Pagination
                 page={page}
                 pageSize={pageSize}

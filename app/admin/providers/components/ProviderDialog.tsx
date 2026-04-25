@@ -153,7 +153,7 @@ export default function ProviderDialog({
       return;
     }
 
-    if (mode === "manual" && (!apiKey || !url || !name || !image)) {
+    if (mode === "manual" && (!apiKey || !url || !name)) {
       toast.warning("All fields are required");
       return;
     }
@@ -173,7 +173,7 @@ export default function ProviderDialog({
     mutation(isEdit ? { ...providerData } : providerData, {
       onSuccess: () => {
         toast.success(
-          `Provider ${isEdit ? "updated" : "created"} successfully`
+          `Provider ${isEdit ? "updated" : "created"} successfully`,
         );
         queryClient.invalidateQueries({ queryKey: ["providers"] });
         onClose();
@@ -186,17 +186,7 @@ export default function ProviderDialog({
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] p-0 overflow-hidden">
         <DialogHeader className="px-6 py-4 border-b">
           <DialogTitle className="flex items-center gap-2">
-            {isEdit ? (
-              <>
-                <Pencil className="h-5 w-5 text-blue-500" />
-                Edit Provider
-              </>
-            ) : (
-              <>
-                <Plus className="h-5 w-5 text-green-500" />
-                Create New Provider
-              </>
-            )}
+            {isEdit ? <>Edit Provider</> : <>Create New Provider</>}
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
             {isEdit
@@ -395,7 +385,7 @@ export default function ProviderDialog({
                   </div>
 
                   <ImagePicker
-                    label="Provider Image"
+                    label="Provider Image (Optional)"
                     collection="providers"
                     value={image}
                     onChange={(data) => {

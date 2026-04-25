@@ -6,7 +6,7 @@ export interface Provider {
   name: string;
   image?: string;
   url: string;
-  timestamp: string;
+  createdAt: string;
   percentage?: number;
   sync?: boolean;
 }

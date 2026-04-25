@@ -19,11 +19,13 @@ import { useAppContext } from "@/context/appContext";
 import { User } from "@/types";
 import Decimal from "decimal.js";
 import { UpdateUserByAdminProps } from "@/hooks/use-user";
+import { currency } from "@/app/_docs/doc";
+import { SelectWithSearch } from "@/components/ui/select-with-search";
 
 interface EditUserModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  user: User;
+  user: User | null;
   onSave: (updatedUser: UpdateUserByAdminProps) => void;
 }
 
@@ -38,6 +40,7 @@ export default function EditUserModal({
     email: "",
     balance: "",
   });
+  const [selectedCurrency, setSelectedCurrency] = useState<string>("USD");
 
   const [balanceAction, setBalanceAction] = useState<"add" | "remove" | null>(
     null
@@ -53,30 +56,48 @@ export default function EditUserModal({
         email: user.email,
         balance: user.balance,
       });
+      setSelectedCurrency(user.currency || "USD");
       setBalanceChange(0);
       setBalanceAction(null);
     }
   }, [user]);
 
-  const handleSave = () => {
-    let newBalance = new Decimal(form.balance); // Already USD stored
-    const convertedUSDBalance = convert(
-      userCurrency,
-      "USD",
-      balanceChange.toString(),
+  if (!user) {
+    return null;
+  }
+
+  const handleCurrencyChange = (nextCurrency: string) => {
+    if (nextCurrency === selectedCurrency) {
+      return;
+    }
+
+    const convertedBalance = convert(
+      selectedCurrency as any,
+      nextCurrency as any,
+      form.balance,
       true,
-      true
+      false,
     ).amount;
+
+    setForm((prev) => ({ ...prev, balance: convertedBalance }));
+    setSelectedCurrency(nextCurrency);
+    setBalanceChange(0);
+    setBalanceAction(null);
+  };
+
+  const handleSave = () => {
+    let newBalance = new Decimal(form.balance);
     if (balanceAction === "add")
-      newBalance = newBalance.plus(convertedUSDBalance);
+      newBalance = newBalance.plus(balanceChange);
     if (balanceAction === "remove")
-      newBalance = newBalance.minus(convertedUSDBalance);
+      newBalance = newBalance.minus(balanceChange);
 
     const updatedUser = {
       username: form.username,
       email: form.email,
       uid: user.uid,
       balance: newBalance.toString(),
+      currency: selectedCurrency,
     };
 
     onSave(updatedUser);
@@ -132,11 +153,11 @@ export default function EditUserModal({
           {/* Balance Section */}
           <div className="border rounded-2xl p-4 bg-muted/50 space-y-3">
             <div className="flex items-center justify-between">
-              <Label>Current Balance</Label>
+              <Label>Current Balance ({selectedCurrency})</Label>
               <span className="text-lg font-medium text-primary">
                 {
                   convert(
-                    user?.currency,
+                    selectedCurrency as any,
                     userCurrency,
                     form.balance,
                     true,
@@ -174,6 +195,25 @@ export default function EditUserModal({
               </Button>
             </div>
 
+            <div className="space-y-1">
+              <Label>Currency</Label>
+              <SelectWithSearch
+                value={selectedCurrency}
+                onValueChange={handleCurrencyChange}
+                placeholder="Select currency"
+                searchPlaceholder="Search currency..."
+                options={Object.entries(currency).map(([code, name]) => ({
+                  value: code,
+                  label: `${code} - ${name.split("|")[0]}`,
+                }))}
+                emptyMessage="No currency found"
+                className="w-full"
+              />
+              <p className="text-xs text-muted-foreground">
+                Changing the currency converts the stored balance to the new currency before saving.
+              </p>
+            </div>
+
             {balanceAction && (
               <div className="space-y-1">
                 <Label>
@@ -188,8 +228,11 @@ export default function EditUserModal({
                   onChange={(e) =>
                     setBalanceChange(parseFloat(e.target.value) || 0)
                   }
-                  placeholder="Enter amount"
+                  placeholder={`Enter amount in ${selectedCurrency}`}
                 />
+                <p className="text-xs text-muted-foreground">
+                  Adjustments are applied directly in {selectedCurrency}.
+                </p>
               </div>
             )}
           </div>

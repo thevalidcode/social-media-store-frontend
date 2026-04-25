@@ -34,6 +34,7 @@ type BaseOrder = {
   dripFeed?: boolean;
   user: User;
   interval?: number;
+  runs?: number;
 };
 
 // Public order (user-facing)

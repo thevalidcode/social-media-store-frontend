@@ -18,12 +18,14 @@ interface Props {
   services: Service[];
   openModal: (s: Service) => void;
   navigateToNewOrder: (cat: string, id: number) => void;
+  onAddToCart?: (service: Service, quantity?: number) => void;
 }
 
 export const ServicesTableDesktop = ({
   services,
   openModal,
   navigateToNewOrder,
+  onAddToCart,
 }: Props) => {
   const convert = useCurrencyConverter();
   const { userCurrency } = useAppContext();
@@ -34,7 +36,7 @@ export const ServicesTableDesktop = ({
           <TableRow>
             <TableHead className="w-16">ID</TableHead>
             <TableHead>Service</TableHead>
-            <TableHead className="w-44">Price Per 1000</TableHead>
+            <TableHead className="w-44">Price</TableHead>
             <TableHead className="w-36">Min - Max</TableHead>
             <TableHead className="w-36">Actions</TableHead>
           </TableRow>
@@ -98,6 +100,13 @@ export const ServicesTableDesktop = ({
                     onClick={() => openModal(s)}
                   >
                     Description
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => onAddToCart?.(s, Math.max(1, s.min || 1))}
+                  >
+                    Add to cart
                   </Button>
                   <Button
                     size="sm"

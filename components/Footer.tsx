@@ -21,6 +21,7 @@ export function Footer() {
   const { generalSetting } = useAppContext();
   const currentYear = new Date().getFullYear();
   const [email, setEmail] = useState("");
+  const showBranding = generalSetting?.showBanner ?? false;
 
   const handleSubscription = () => {
     if (!email) {
@@ -257,11 +258,37 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t mt-12 pt-8 text-center">
-          <p className="text-sm text-muted-foreground">
+        <div className="border-t mt-12 pt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-muted-foreground text-center sm:text-left">
             © {currentYear} {generalSetting?.storeName || "store"}. All rights
             reserved.
           </p>
+          {showBranding && (
+            <Link
+              href="https://validpanel.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center justify-center gap-3 self-center rounded-full border border-border/70 bg-background/80 px-4 py-2 text-sm shadow-sm backdrop-blur transition-colors hover:border-primary/40 hover:bg-primary/5 sm:self-auto"
+            >
+              <span className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+                Built with
+              </span>
+              <span className="inline-flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full border border-border/60 bg-muted">
+                  <Image
+                    src="/images/validpanel.jpeg"
+                    alt="ValidPanel"
+                    width={24}
+                    height={24}
+                    className="h-full w-full object-cover"
+                  />
+                </span>
+                <span className="font-semibold text-foreground transition-colors group-hover:text-primary">
+                  ValidPanel
+                </span>
+              </span>
+            </Link>
+          )}
         </div>
       </div>
     </footer>

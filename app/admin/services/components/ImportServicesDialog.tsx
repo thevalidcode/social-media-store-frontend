@@ -137,12 +137,12 @@ export default function ImportServicesDialog({
   const filteredServices = providerServices.filter(
     (s) =>
       (!selectedProvider || s.provider === selectedProvider) &&
-      s.name.toLowerCase().includes(search.toLowerCase())
+      s.name.toLowerCase().includes(search.toLowerCase()),
   );
 
   const handleSelect = (id: number) => {
     setSelected((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
   };
 
@@ -163,7 +163,7 @@ export default function ImportServicesDialog({
   const totalPages = Math.ceil(filteredServices.length / itemsPerPage);
   const paginatedServices = filteredServices.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   const handleImport = async () => {
@@ -200,7 +200,7 @@ export default function ImportServicesDialog({
             queryKey: ["servicesByAdmin", storeId],
           });
         },
-      }
+      },
     );
   };
 
@@ -227,7 +227,6 @@ export default function ImportServicesDialog({
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] p-0 overflow-y-auto">
         <DialogHeader className="px-6 py-4 border-b">
           <DialogTitle className="flex items-center gap-2">
-            <CheckCircle2 className="h-5 w-5 text-green-500" />
             Import Services from Provider
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
@@ -289,7 +288,7 @@ export default function ImportServicesDialog({
                     checked={
                       filteredServices.length > 0 &&
                       filteredServices.every((s) =>
-                        selected.includes(s.service)
+                        selected.includes(s.service),
                       )
                     }
                     onChange={handleSelectAll}
@@ -334,7 +333,7 @@ export default function ImportServicesDialog({
                                   userCurrency,
                                   s.rate,
                                   true,
-                                  true
+                                  true,
                                 ).formatted
                               }
                             </span>
@@ -465,7 +464,7 @@ export default function ImportServicesDialog({
                                 userCurrency,
                                 svc.rate,
                                 true,
-                                true
+                                true,
                               ).formatted
                             }
                           </p>
@@ -477,7 +476,7 @@ export default function ImportServicesDialog({
                                 userCurrency,
                                 newPrice,
                                 true,
-                                true
+                                true,
                               ).formatted
                             }
                           </p>

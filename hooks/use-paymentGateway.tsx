@@ -13,11 +13,13 @@ export interface CreatePaymentGatewayProps {
   platform: PaymentGatewayPlatform;
   name: string;
   description?: string;
+  content?: string;
   feePercent?: number;
   secretKey?: string;
   status?: PaymentGatewayStatus;
   min: string;
   max: string;
+  currency: string;
 }
 
 export interface UpdatePaymentGatewayProps {
@@ -25,11 +27,13 @@ export interface UpdatePaymentGatewayProps {
   platform?: PaymentGatewayPlatform;
   name?: string;
   description?: string;
+  content?: string;
   feePercent?: number;
   secretKey?: string;
   status?: PaymentGatewayStatus;
   min?: string;
   max?: string;
+  currency?: string;
 }
 
 export interface UpdatePaymentGatewayStatusProps {

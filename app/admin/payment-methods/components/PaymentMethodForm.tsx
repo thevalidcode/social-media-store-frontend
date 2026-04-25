@@ -29,7 +29,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAppContext } from "@/context/appContext";
 import { PaymentGatewayFormResponse } from "@/hooks/use-paymentGateway";
 import PaymentMethodFormFields from "./PaymentMethodFormFields";
-import { useCurrencyConverter } from "@/lib/currencyConverter";
 
 interface NewPaymentGateway extends PaymentGateway {
   secretKey?: string;
@@ -74,16 +73,17 @@ export default function PaymentMethodForm({
       platform: "MANUAL",
       min: "",
       max: "",
+      currency: userCurrency,
       description: "",
+      content: "",
       webhookUrl: "",
       status: "ACTIVE",
       feePercent: 0,
       secretKey: "",
-    }
+    },
   );
   const [showSignaturePopup, setShowSignaturePopup] = useState(false);
   const [signature, setSignature] = useState("");
-  const convert = useCurrencyConverter();
 
   const platforms: PlatformOption[] = [
     {
@@ -113,18 +113,19 @@ export default function PaymentMethodForm({
   const filteredPlatforms = platforms.filter(
     (platform) =>
       platform.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      platform.description.toLowerCase().includes(searchQuery.toLowerCase())
+      platform.description.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   useEffect(() => {
     if (initialData) {
       setForm({
         ...initialData,
-        min: convert("USD", userCurrency, initialData.min).amount,
-        max: convert("USD", userCurrency, initialData.max).amount,
+        min: initialData.min ?? "0",
+        max: initialData.max ?? "0",
+        currency: initialData.currency || userCurrency,
       });
     }
-  }, [initialData]);
+  }, [initialData, userCurrency]);
 
   // Reset form on open/close
   useEffect(() => {
@@ -132,15 +133,16 @@ export default function PaymentMethodForm({
       // Edit mode - always manual
       setMode("manual");
       setSelectedPlatform(
-        platforms.find((p) => p.value === initialData.platform) || null
+        platforms.find((p) => p.value === initialData.platform) || null,
       );
     } else if (open && !initialData) {
       // Create mode - start with select
       setMode("select");
       setSelectedPlatform(null);
       setSearchQuery("");
+      setForm((prev) => ({ ...prev, currency: userCurrency }));
     }
-  }, [open, initialData]);
+  }, [open, initialData, userCurrency]);
 
   const handlePlatformSelect = (platform: PlatformOption) => {
     setSelectedPlatform(platform);
@@ -168,8 +170,10 @@ export default function PaymentMethodForm({
     feePercent: (v) => Number(v),
     min: (v) => Number(v),
     max: (v) => Number(v),
+    currency: (v) => v,
     name: (v) => v,
     description: (v) => v,
+    content: (v) => v,
     secretKey: (v) => v,
     image: (v) => v,
     webhookUrl: (v) => v,
@@ -208,15 +212,9 @@ export default function PaymentMethodForm({
           <DialogHeader className="px-6 py-4 border-b">
             <DialogTitle className="flex items-center gap-2">
               {initialData ? (
-                <>
-                  <Pencil className="h-5 w-5 text-blue-500" />
-                  Edit Payment Method
-                </>
+                <>Edit Payment Method</>
               ) : (
-                <>
-                  <Plus className="h-5 w-5 text-green-500" />
-                  Create New Payment Method
-                </>
+                <>Create New Payment Method</>
               )}
             </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground">
@@ -252,7 +250,7 @@ export default function PaymentMethodForm({
               </div>
 
               <TabsContent value="select" className="mt-0">
-                <div className="px-6 py-4 max-h-[500px] overflow-y-auto">
+                <div className="px-6 py-4 max-h-180 overflow-y-auto">
                   {/* Search */}
                   <div className="relative mb-4">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -361,7 +359,7 @@ export default function PaymentMethodForm({
               </TabsContent>
 
               <TabsContent value="manual" className="mt-0">
-                <div className="max-h-[500px] overflow-y-auto">
+                <div className="max-h-180 overflow-y-auto">
                   <AnimatePresence mode="wait">
                     <PaymentMethodFormFields
                       form={form}
@@ -378,7 +376,7 @@ export default function PaymentMethodForm({
 
           {/* Edit Mode - Always Manual */}
           {initialData && (
-            <div className="max-h-[500px] overflow-y-auto">
+            <div className="max-h-180 overflow-y-auto">
               <AnimatePresence mode="wait">
                 <PaymentMethodFormFields
                   form={form}
@@ -423,7 +421,14 @@ export default function PaymentMethodForm({
           </div>
 
           <DialogFooter className="px-6 py-4 border-t">
-            <Button onClick={() => setShowSignaturePopup(false)}>Close</Button>
+            <Button
+              onClick={() => {
+                setShowSignaturePopup(false);
+                onClose();
+              }}
+            >
+              Close
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -1,14 +1,18 @@
 "use client";
 
+import type { FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Clock, ArrowRight } from "lucide-react";
+import { Clock, ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
 import { getCurrencySymbol } from "@/app/_docs/doc";
 import { CurrencyCode } from "@/lib/currencyConverter";
+import { Badge } from "@/components/ui/badge";
+import { PaymentGatewayPublic } from "@/types";
+import parse from "html-react-parser";
 
 interface PaymentFormProps {
   amount: number;
@@ -20,7 +24,8 @@ interface PaymentFormProps {
   percent: number;
   userCurrency: CurrencyCode;
   isManualPayment: boolean;
-  onSubmit: (e: React.FormEvent) => void;
+  selectedGateway?: PaymentGatewayPublic;
+  onSubmit: (e: FormEvent) => void;
   isDisabled: boolean;
 }
 
@@ -34,10 +39,11 @@ export function PaymentForm({
   percent,
   userCurrency,
   isManualPayment,
+  selectedGateway,
   onSubmit,
   isDisabled,
 }: PaymentFormProps) {
-  const amt = parseFloat(String(amount)) || 0;
+  const amt = Number(amount) || 0;
 
   return (
     <motion.div
@@ -46,15 +52,20 @@ export function PaymentForm({
       transition={{ delay: 0.3 }}
       className="sticky top-6"
     >
-      <Card className="border-2">
-        <CardHeader>
-          <CardTitle className="text-lg">Payment Details</CardTitle>
+      <Card className="overflow-hidden border-border/70 shadow-sm">
+        <CardHeader className="space-y-2 border-b bg-muted/20">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Sparkles className="h-5 w-5 text-primary" />
+            Top-up details
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Confirm the amount, review the gateway fee, and continue to secure checkout.
+          </p>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           <form onSubmit={onSubmit} className="space-y-6">
-            {/* Amount Input */}
             <div className="space-y-3">
-              <Label htmlFor="amount" className="text-sm font-medium">
+              <Label htmlFor="amount" className="text-sm font-medium text-foreground">
                 Enter Amount
               </Label>
               <div className="relative">
@@ -66,10 +77,8 @@ export function PaymentForm({
                   type="number"
                   placeholder="0.00"
                   value={amount || ""}
-                  onChange={(e) =>
-                    onAmountChange(parseFloat(e.target.value) || 0)
-                  }
-                  className="pl-8 text-lg h-12 font-semibold"
+                  onChange={(e) => onAmountChange(Number.parseFloat(e.target.value) || 0)}
+                  className="h-12 pl-8 text-lg font-semibold"
                   required
                   min={minAmount}
                   max={maxAmount}
@@ -90,7 +99,6 @@ export function PaymentForm({
 
             <Separator />
 
-            {/* Summary */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={amt}
@@ -99,20 +107,20 @@ export function PaymentForm({
                 exit={{ opacity: 0, y: -10 }}
                 className="space-y-3"
               >
-                <div className="p-4 rounded-lg bg-muted/50 space-y-3">
-                  <div className="flex justify-between text-sm">
+                <div className="space-y-3 rounded-2xl border border-border bg-muted/20 p-4">
+                  <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Amount</span>
-                    <span className="font-medium">
+                    <span className="font-medium text-foreground">
                       {getCurrencySymbol(userCurrency)}
                       {amt.toLocaleString()}
                     </span>
                   </div>
 
-                  <div className="flex justify-between text-sm">
+                  <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">
                       Processing Fee ({percent}%)
                     </span>
-                    <span className="font-medium">
+                    <span className="font-medium text-foreground">
                       {getCurrencySymbol(userCurrency)}
                       {fee.toLocaleString()}
                     </span>
@@ -120,10 +128,8 @@ export function PaymentForm({
 
                   <Separator />
 
-                  <div className="flex justify-between items-center">
-                    <span className="text-base font-semibold">
-                      Total Amount
-                    </span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-base font-semibold">Total Amount</span>
                     <span className="text-2xl font-bold text-primary">
                       {getCurrencySymbol(userCurrency)}
                       {total}
@@ -131,12 +137,42 @@ export function PaymentForm({
                   </div>
                 </div>
 
-                {/* Submit Button */}
+                {selectedGateway && (
+                  <div className="rounded-2xl border border-border bg-background p-4 shadow-sm">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="flex items-center gap-2 text-sm font-semibold">
+                          <ShieldCheck className="h-4 w-4 text-primary" />
+                          {selectedGateway.name}
+                        </div>
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          Min {Number(selectedGateway.min).toLocaleString()} · Max {Number(selectedGateway.max).toLocaleString()}
+                        </div>
+                      </div>
+                      <Badge variant={isManualPayment ? "destructive" : "outline"}>
+                        {isManualPayment ? "Manual" : "Direct"}
+                      </Badge>
+                    </div>
+
+                    {selectedGateway.description ? (
+                      <div className="mt-3 text-sm text-muted-foreground whitespace-pre-wrap break-words">
+                        {selectedGateway.description}
+                      </div>
+                    ) : null}
+
+                    {selectedGateway.content ? (
+                      <div className="prose prose-sm mt-3 max-w-none text-sm text-muted-foreground">
+                        {parse(selectedGateway.content)}
+                      </div>
+                    ) : null}
+                  </div>
+                )}
+
                 <Button
                   type="submit"
                   size="lg"
                   disabled={isDisabled}
-                  className="w-full group"
+                  className="group h-12 w-full"
                 >
                   {isManualPayment ? (
                     <span className="flex items-center gap-2">
@@ -146,19 +182,22 @@ export function PaymentForm({
                   ) : (
                     <span className="flex items-center gap-2">
                       Continue to Payment
-                      <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </span>
                   )}
                 </Button>
+
+                <p className="text-center text-xs text-muted-foreground">
+                  Your wallet will be credited automatically after a successful payment.
+                </p>
 
                 {isManualPayment && (
                   <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="text-xs text-muted-foreground text-center"
+                    className="text-center text-xs text-muted-foreground"
                   >
-                    Please follow the instructions above to complete your manual
-                    payment
+                    Please follow the instructions above to complete your manual payment.
                   </motion.p>
                 )}
 
@@ -166,11 +205,10 @@ export function PaymentForm({
                   <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="text-xs text-destructive text-center"
+                    className="text-center text-xs text-destructive"
                   >
                     Amount must be between {getCurrencySymbol(userCurrency)}
-                    {minAmount.toLocaleString()} and{" "}
-                    {getCurrencySymbol(userCurrency)}
+                    {minAmount.toLocaleString()} and {getCurrencySymbol(userCurrency)}
                     {maxAmount.toLocaleString()}
                   </motion.p>
                 )}

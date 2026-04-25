@@ -130,7 +130,7 @@ export default function UsersPage() {
 
   const handleSaveUser = (updatedUser: UpdateUserByAdminProps) => {
     setUsers((prev: any[]) =>
-      prev.map((u) => (u.email === updatedUser.email ? updatedUser : u))
+      prev.map((u) => (u.uid === updatedUser.uid ? { ...u, ...updatedUser } : u))
     );
     updateUser(updatedUser);
   };

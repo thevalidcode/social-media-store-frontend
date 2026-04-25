@@ -6,6 +6,7 @@ import { currency } from "@/app/_docs/doc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PhoneInput } from "@/components/ui/phone-input";
 import {
   Select,
   SelectContent,
@@ -30,8 +31,6 @@ import {
   MapPin,
 } from "lucide-react";
 import { toast } from "sonner";
-import PhoneInput from "react-phone-number-input";
-import "react-phone-number-input/style.css";
 import { Country, State, City } from "country-state-city";
 import { ICountry, IState, ICity } from "country-state-city";
 
@@ -456,16 +455,14 @@ export default function GeneralSettingsForm() {
                   </Label>
                   <PhoneInput
                     id="storePhone"
-                    international
-                    defaultCountry={storeAddress.storeCountry as any}
+                    placeholder="Phone number (e.g., +1 234 567 8900)"
                     value={storeAddress.storePhone}
-                    onChange={(value) =>
+                    onChange={(e) =>
                       setStoreAddress((prev) => ({
                         ...prev,
-                        storePhone: value || "",
+                        storePhone: e.target.value || "",
                       }))
                     }
-                    className="flex h-11 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                 </div>
               </div>

@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import PaymentMethodsTable from "./components/PaymentMethodTable";
-import PaymentMethodsCardView from "./components/PaymentMethodCard";
+import { useEffect, useMemo, useState } from "react";
 import PaymentToolbar from "./components/PaymentToolbar";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { PaymentMethodsHeader } from "./components/PaymentMethodsHeader";
+import { PaymentMethodStats } from "./components/PaymentMethodStats";
+import { PaymentMethodCardList } from "./components/PaymentMethodCardList";
 import { PaymentGateway } from "@/types";
 import { useGetAllPaymentGatewaysForAdmins } from "@/hooks/use-paymentGateway";
 import { EmptyState } from "@/components/empty-state";
@@ -15,7 +15,8 @@ import { toast } from "sonner";
 export default function PaymentMethodsPage() {
   const [gateways, setGateways] = useState<PaymentGateway[]>([]);
   const [openForm, setOpenForm] = useState<boolean>(false);
-  const isMobile = useIsMobile();
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("ALL");
   const { data: gatewaysData } = useGetAllPaymentGatewaysForAdmins();
   const { storeInfo } = useAppContext();
 
@@ -34,13 +35,45 @@ export default function PaymentMethodsPage() {
 
   useEffect(() => {
     if (gatewaysData) {
-      setGateways(gatewaysData);
+      setGateways(gatewaysData.filter((gateway) => gateway.platform !== "CREDIT"));
     }
   }, [gatewaysData]);
 
+  const filteredGateways = useMemo(() => {
+    const normalizedSearch = search.trim().toLowerCase();
+
+    return gateways.filter((gateway) => {
+      const matchesStatus = status === "ALL" ? true : gateway.status === status;
+
+      if (!normalizedSearch) {
+        return matchesStatus;
+      }
+
+      const plainDescription = (gateway.description || "").toLowerCase();
+      const contentText = (gateway.content || "").toLowerCase();
+
+      const matchesSearch =
+        gateway.name.toLowerCase().includes(normalizedSearch) ||
+        gateway.platform.toLowerCase().includes(normalizedSearch) ||
+        plainDescription.includes(normalizedSearch) ||
+        contentText.includes(normalizedSearch);
+
+      return matchesStatus && matchesSearch;
+    });
+  }, [gateways, search, status]);
+
   if (gateways.length === 0) {
     return (
-      <>
+      <div className="space-y-6">
+        <PaymentMethodsHeader
+          onCreateClick={handleAddClick}
+          search={search}
+          status={status}
+          onSearchChange={setSearch}
+          onStatusChange={setStatus}
+          canAddMoreGateways={canAddMoreGateways}
+        />
+
         <EmptyState
           icon={CreditCard}
           title="No Payment Method Found"
@@ -52,6 +85,7 @@ export default function PaymentMethodsPage() {
           featureLabel="Payment gateway limit"
           tooltipDescription={`You've reached the maximum of ${maxPaymentGateways} payment gateways. Upgrade to add more.`}
         />
+
         <PaymentToolbar
           openForm={openForm}
           setOpenForm={setOpenForm}
@@ -61,12 +95,23 @@ export default function PaymentMethodsPage() {
           maxPaymentGateways={maxPaymentGateways}
           onAddClick={handleAddClick}
         />
-      </>
+      </div>
     );
   }
 
   return (
     <div className="space-y-6">
+      <PaymentMethodsHeader
+        onCreateClick={handleAddClick}
+        search={search}
+        status={status}
+        onSearchChange={setSearch}
+        onStatusChange={setStatus}
+        canAddMoreGateways={canAddMoreGateways}
+      />
+
+      <PaymentMethodStats gateways={gateways} />
+
       <PaymentToolbar
         openForm={openForm}
         setOpenForm={setOpenForm}
@@ -76,11 +121,11 @@ export default function PaymentMethodsPage() {
         maxPaymentGateways={maxPaymentGateways}
         onAddClick={handleAddClick}
       />
-      {!isMobile ? (
-        <PaymentMethodsTable gateways={gateways} setGateways={setGateways} />
-      ) : (
-        <PaymentMethodsCardView gateways={gateways} setGateways={setGateways} />
-      )}
+
+      <PaymentMethodCardList
+        gateways={filteredGateways}
+        setGateways={setGateways}
+      />
     </div>
   );
 }

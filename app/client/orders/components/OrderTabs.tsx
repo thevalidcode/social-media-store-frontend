@@ -11,7 +11,6 @@ import {
   Clock,
   ListTodo,
   XCircle,
-  ShoppingCart,
 } from "lucide-react";
 import {
   useUserGetAllOrders,

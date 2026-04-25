@@ -18,11 +18,13 @@ import { Search } from "lucide-react";
 type Props = {
   categoryWithServices?: ServiceCategory[];
   showControls?: boolean;
+  onAddToCart?: (service: Service, quantity?: number) => void;
 };
 
 export default function ServicesList({
   categoryWithServices = [],
   showControls = true,
+  onAddToCart,
 }: Props) {
   const router = useRouter();
   const CATEGORIES = (categoryWithServices as ServiceCategory[]) ?? [];
@@ -160,6 +162,7 @@ export default function ServicesList({
         services={paginatedServices}
         openModal={openModal}
         navigateToNewOrder={navigateToNewOrder}
+        onAddToCart={onAddToCart}
       />
 
       {/* Mobile */}
@@ -167,6 +170,7 @@ export default function ServicesList({
         services={paginatedServices}
         openModal={openModal}
         navigateToNewOrder={navigateToNewOrder}
+        onAddToCart={onAddToCart}
       />
 
       {/* Pagination */}
@@ -189,6 +193,7 @@ export default function ServicesList({
         modalQty={modalQty}
         setModalQty={setModalQty}
         navigateToNewOrder={navigateToNewOrder}
+        onAddToCart={onAddToCart}
       />
     </div>
   );

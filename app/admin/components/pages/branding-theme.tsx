@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import ImagePicker from "../ImagePicker";
 import { FeatureGate } from "@/components/FeatureGate";
 import { useAppContext } from "@/context/appContext";
-import { useUpdateStoreSettings } from "@/hooks/use-store";
+import { useGetStoreDesign, useUpdateStoreSettings } from "@/hooks/use-store";
 import AssetPreview from "@/components/AssetPreview";
 import { toast } from "sonner";
 
@@ -34,6 +34,55 @@ const brandColors: ThemeOption[] = adminTheme.map((theme) => ({
   hex: theme.hex,
   schema: theme.schema,
 }));
+
+const getThemeStorageKey = (scope: string | number | null | undefined) =>
+  scope ? `selectedTheme:${scope}` : "selectedTheme";
+
+const themeByTitle = (title: string) =>
+  adminTheme.find((theme) => theme.title === title) || adminTheme[0];
+
+const extraBrandColors: ThemeOption[] = [
+  { name: "Slate", hex: "#64748B", schema: themeByTitle("Neutral").schema },
+  { name: "Stone", hex: "#78716C", schema: themeByTitle("Neutral").schema },
+  { name: "Mint", hex: "#34D399", schema: themeByTitle("Teal").schema },
+  { name: "Sky", hex: "#38BDF8", schema: themeByTitle("Blue").schema },
+  { name: "Gold", hex: "#FACC15", schema: themeByTitle("Yellow").schema },
+  { name: "Coral", hex: "#FB7185", schema: themeByTitle("Rose").schema },
+  { name: "Sapphire", hex: "#0EA5E9", schema: themeByTitle("Cyan").schema },
+  { name: "Plum", hex: "#A855F7", schema: themeByTitle("Violet").schema },
+  { name: "Emerald", hex: "#10B981", schema: themeByTitle("Green").schema },
+];
+
+const allBrandColors = [...brandColors, ...extraBrandColors];
+
+const themeSwatchClassMap: Record<string, string> = {
+  "#000000": "bg-black",
+  "#EF4444": "bg-red-500",
+  "#F43F5E": "bg-rose-500",
+  "#F97316": "bg-orange-500",
+  "#22C55E": "bg-green-500",
+  "#EAB308": "bg-yellow-500",
+  "#8B5CF6": "bg-violet-500",
+  "#14B8A6": "bg-teal-500",
+  "#06B6D4": "bg-cyan-500",
+  "#3B82F6": "bg-blue-500",
+  "#6366F1": "bg-indigo-500",
+  "#EC4899": "bg-pink-500",
+  "#FF7043": "bg-orange-400",
+  "#B4AEE8": "bg-violet-300",
+  "#64748B": "bg-slate-500",
+  "#78716C": "bg-stone-500",
+  "#34D399": "bg-emerald-400",
+  "#38BDF8": "bg-sky-400",
+  "#FACC15": "bg-amber-400",
+  "#FB7185": "bg-rose-400",
+  "#0EA5E9": "bg-sky-500",
+  "#A855F7": "bg-fuchsia-500",
+  "#10B981": "bg-emerald-500",
+};
+
+const getThemeSwatchClass = (hex: string) =>
+  themeSwatchClassMap[hex] ?? "bg-primary";
 
 // Apply theme CSS variables to override global styles on the fly
 const applyThemeStyles = (schema: ThemeSchema, isDark: boolean) => {
@@ -66,12 +115,14 @@ const applyThemeStyles = (schema: ThemeSchema, isDark: boolean) => {
 };
 
 export default function BrandingThemeSettings() {
-  const { generalSetting, storeInfo } = useAppContext();
+  const { generalSetting, storeInfo, storeId, domain } = useAppContext();
   const { applyTheme } = useThemeContext();
   const { theme: colorScheme } = useTheme();
+  const { data: dbTheme } = useGetStoreDesign();
   const { mutateAsync: updateStoreSettings, isPending: isSavingBranding } =
     useUpdateStoreSettings();
   const isSubscriptionActive = storeInfo?.subscriptionStatus === "ACTIVE";
+  const storageKey = getThemeStorageKey(storeId ?? domain);
 
   const [selectedBrand, setSelectedBrand] = useState<ThemeOption>(
     brandColors[0]
@@ -83,22 +134,34 @@ export default function BrandingThemeSettings() {
 
   const canUseCustomBranding = storeInfo?.features?.custom_branding ?? false;
 
-  // Load saved theme on mount
+  // Load saved theme on mount; prefer DB so the page never lags behind
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     try {
-      const saved = localStorage.getItem("selectedTheme");
+      if (dbTheme?.schema) {
+        const theme =
+          allBrandColors.find((t) => t.hex === dbTheme.hex) || {
+            name: dbTheme.name || brandColors[0].name,
+            hex: dbTheme.hex || brandColors[0].hex,
+            schema: dbTheme.schema,
+          };
+        setSelectedBrand(theme);
+        localStorage.setItem(storageKey, JSON.stringify(theme));
+        return;
+      }
+
+      const saved = localStorage.getItem(storageKey);
       if (saved) {
         const parsed: ThemeOption = JSON.parse(saved);
         const theme =
-          brandColors.find((t) => t.hex === parsed.hex) || brandColors[0];
+          allBrandColors.find((t) => t.hex === parsed.hex) || brandColors[0];
         setSelectedBrand(theme);
       }
     } catch (e) {
       console.error("Error loading theme from localStorage", e);
     }
-  }, []);
+  }, [dbTheme, storageKey]);
 
   // Keep local branding state in sync when store data changes
   useEffect(() => {
@@ -118,9 +181,9 @@ export default function BrandingThemeSettings() {
     setSelectedBrand(theme);
   };
 
-  const handleSaveTheme =async  () => {
-    applyTheme(selectedBrand);
-    localStorage.setItem("selectedTheme", JSON.stringify(selectedBrand));
+  const handleSaveTheme = async () => {
+    await applyTheme(selectedBrand);
+    localStorage.setItem(storageKey, JSON.stringify(selectedBrand));
 
     await updateStoreSettings({
       logoUrl,
@@ -259,8 +322,10 @@ export default function BrandingThemeSettings() {
                     </div>
                     <div className="flex items-center gap-2">
                       <div
-                        className="w-6 h-6 rounded-full border-2 border-white shadow-sm"
-                        style={{ backgroundColor: selectedBrand.hex }}
+                        className={cn(
+                          "w-6 h-6 rounded-full border-2 border-white shadow-sm",
+                          getThemeSwatchClass(selectedBrand.hex)
+                        )}
                       />
                       <span className="text-sm font-medium">
                         {selectedBrand.name}
@@ -271,7 +336,7 @@ export default function BrandingThemeSettings() {
                   {/* Color Grid */}
                   <div className="flex justify-center">
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 p-4 bg-background rounded-lg border">
-                      {brandColors.map((theme) => (
+                      {allBrandColors.map((theme) => (
                         <motion.button
                           key={theme.hex}
                           title={theme.name}
@@ -280,9 +345,9 @@ export default function BrandingThemeSettings() {
                             "w-12 h-12 rounded-xl border-2 transition-all duration-200 hover:scale-110",
                             selectedBrand.hex === theme.hex
                               ? "ring-2 ring-offset-2 ring-primary border-primary shadow-lg"
-                              : "border-border hover:border-primary/50"
+                              : "border-border hover:border-primary/50",
+                            getThemeSwatchClass(theme.hex)
                           )}
-                          style={{ backgroundColor: theme.hex }}
                           onClick={() => handleBrandSelect(theme)}
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.95 }}

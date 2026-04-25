@@ -14,7 +14,7 @@ interface LoginProps {
   storeId: number;
 }
 export function useAdminLogin() {
-  const { api, setAdminInfo } = useAppContext();
+  const { api, setAdminInfo, setUserCurrency } = useAppContext();
   const router = useRouter();
   return useMutation({
     mutationKey: ["adminLogins"],
@@ -36,6 +36,9 @@ export function useAdminLogin() {
       setAdminInfo({
         ...data,
       });
+      if (data?.currency) {
+        setUserCurrency(data.currency);
+      }
       router.push("/admin/users");
       toast.success("Admin logged in successfully");
     },
@@ -52,11 +55,12 @@ interface UpdateAdminProps {
   apiKey?: string;
   fullName?: string;
   image?: string;
+  currency?: string;
   status?: AdminStatus;
 }
 
 export function useUpdateAdmin() {
-  const { api, setAdminInfo } = useAppContext();
+  const { api, setAdminInfo, setUserCurrency } = useAppContext();
   return useMutation({
     mutationFn: async (data: UpdateAdminProps) => {
       const res = await api.patch(`/admins`, data);
@@ -64,10 +68,12 @@ export function useUpdateAdmin() {
       return res.data;
     },
     onSuccess: (updatedAdmin: any) => {
-      toast.success("Admin updated successfully");
       setAdminInfo({
         ...updatedAdmin.admin,
       });
+      if (updatedAdmin?.admin?.currency) {
+        setUserCurrency(updatedAdmin.admin.currency);
+      }
     },
     onError: (error: unknown) => {
       const errorMsg = normalizeApiError(error, "Failed to update admin");

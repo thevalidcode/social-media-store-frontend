@@ -83,13 +83,28 @@ export const CartMobile: React.FC<Props> = ({
                 <div className="font-bold">
                   {
                     convert(
-                      "USD",
+                      userCurrency,
                       userCurrency,
                       cart.reduce((acc, c) => {
+                        const svc = services.find(
+                          (s) => s.storeScopedId === c.serviceId,
+                        );
+                        const sourceCurrency = (svc?.currency || userCurrency) as any;
                         const effQty = dripEnabled
                           ? c.quantity * runs
                           : c.quantity;
-                        return acc + perUnitPrice(c.price) * effQty;
+                        const lineTotal = perUnitPrice(c.price) * effQty;
+                        const convertedLineTotal = Number(
+                          convert(
+                            sourceCurrency,
+                            userCurrency,
+                            lineTotal,
+                            false,
+                            false,
+                          ).amount,
+                        );
+
+                        return acc + convertedLineTotal;
                       }, 0),
                       true,
                       true

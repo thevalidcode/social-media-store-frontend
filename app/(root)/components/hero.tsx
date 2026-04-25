@@ -1,250 +1,250 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
 import Link from "next/link";
 import {
-  Instagram,
-  Youtube,
-  Twitter,
-  Facebook,
-  Music,
-  TrendingUp,
-  Users,
-  Zap,
-  Star,
   ArrowRight,
-  Play,
+  Heart,
+  MessageCircle,
+  Share2,
+  Zap,
+  CheckCircle2,
 } from "lucide-react";
-import { TypographyH1, TypographyP } from "@/components/typography";
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6 },
+  },
+};
 
 export function HeroSection() {
-  const socialIcons = [
-    { icon: Instagram, color: "text-pink-500", delay: 0.1 },
-    { icon: Youtube, color: "text-red-500", delay: 0.2 },
-    { icon: Twitter, color: "text-blue-400", delay: 0.3 },
-    { icon: Facebook, color: "text-blue-600", delay: 0.4 },
-    { icon: Music, color: "text-black dark:text-white", delay: 0.5 },
-  ];
-
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-background via-background to-primary/5">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        {/* Floating Social Icons */}
-        {socialIcons.map((social, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, scale: 0, rotate: -180 }}
-            animate={{
-              opacity: [0, 0.1, 0.2, 0.1, 0],
-              scale: [0, 1, 1.2, 1, 0],
-              rotate: [0, 180, 360],
-              x: [0, 100, -50, 0],
-              y: [0, -100, 50, 0],
-            }}
-            transition={{
-              duration: 8,
-              delay: social.delay,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className={`absolute top-1/4 left-1/4 w-12 h-12 sm:w-16 sm:h-16 ${social.color} opacity-20`}
-          >
-            <social.icon className="w-full h-full" />
-          </motion.div>
-        ))}
-
-        {/* Gradient Orbs */}
-        <motion.div
-          animate={{
-            x: [0, 100, 0],
-            y: [0, -100, 0],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute top-20 right-20 w-64 h-64 sm:w-72 sm:h-72 lg:w-80 lg:h-80 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            x: [0, -100, 0],
-            y: [0, 100, 0],
-            scale: [1, 0.8, 1],
-          }}
-          transition={{
-            duration: 12,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute bottom-20 left-20 w-80 h-80 sm:w-96 sm:h-96 lg:w-[28rem] lg:h-[28rem] bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-full blur-3xl"
-        />
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background pt-20 pb-20">
+      {/* Animated Background */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-pulse animation-delay-2000" />
       </div>
 
-      {/* Main Hero Content */}
-      <div className="relative min-h-screen grid place-items-center z-10 pt-24 lg:pt-24 pb-12 sm:pb-16 lg:pb-20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-5xl mx-auto">
-            {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6 sm:mb-8"
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 w-full">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          {/* Left Column - Content */}
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <motion.h1
+              variants={itemVariants}
+              className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight text-foreground leading-[0.95]"
             >
-              <Star className="w-4 h-4 fill-current" />
-              #1 Social Media Marketing Platform
-              <TrendingUp className="w-4 h-4" />
-            </motion.div>
+              Get Massive
+              <br />
+              <span className="text-primary">Engagement</span>
+            </motion.h1>
 
-            {/* Main Headline */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="mb-6 sm:mb-8"
+            <motion.p
+              variants={itemVariants}
+              className="mt-6 text-lg text-muted-foreground max-w-md font-medium leading-relaxed"
             >
-              <TypographyH1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent leading-tight">
-                Dominate Social Media
-                <br />
-                <span className="text-primary">Like Never Before</span>
-              </TypographyH1>
-            </motion.div>
+              Real followers. Real likes. Real growth.
+            </motion.p>
 
-            {/* Subtitle */}
+            {/* CTAs */}
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="mb-8 sm:mb-12"
+              variants={itemVariants}
+              className="mt-10 flex flex-col sm:flex-row gap-4"
             >
-              <TypographyP className="text-lg sm:text-xl lg:text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-                Get{" "}
-                <span className="text-primary font-semibold">
-                  real followers
-                </span>
-                ,
-                <span className="text-primary font-semibold">
-                  {" "}
-                  authentic likes
-                </span>
-                , and
-                <span className="text-primary font-semibold">
-                  {" "}
-                  genuine engagement{" "}
-                </span>
-                across all major platforms. Start growing today!
-              </TypographyP>
-            </motion.div>
-
-            {/* Stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 lg:gap-12 mb-10 sm:mb-12 lg:mb-16"
-            >
-              <div className="text-center">
-                <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary mb-2">
-                  1M+
-                </div>
-                <div className="text-sm sm:text-base text-muted-foreground font-medium">
-                  Orders Completed
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary mb-2">
-                  50K+
-                </div>
-                <div className="text-sm sm:text-base text-muted-foreground font-medium">
-                  Happy Customers
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary mb-2">
-                  99.9%
-                </div>
-                <div className="text-sm sm:text-base text-muted-foreground font-medium">
-                  Success Rate
-                </div>
-              </div>
-            </motion.div>
-
-            {/* CTA Buttons */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 sm:mb-16 lg:mb-20"
-            >
-              <Link href="/auth/signup" className="w-full sm:w-auto">
+              <Link href="/auth/signup" className="flex-1">
                 <Button
                   size="lg"
-                  className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold group"
+                  className="w-full h-16 px-8 text-lg font-black rounded-2xl shadow-2xl shadow-primary/40 hover:shadow-primary/60 transition-all hover:scale-105 active:scale-95"
                 >
-                  Start Growing Now
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  Start Now
+                  <Zap className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Link href="/client/services" className="w-full sm:w-auto">
+              <Link href="/client/services" className="flex-1">
                 <Button
                   variant="outline"
                   size="lg"
-                  className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold group"
+                  className="w-full h-16 px-8 text-lg font-bold rounded-2xl group"
                 >
-                  <Play className="mr-2 w-5 h-5" />
-                  View Services
+                  <span className="flex items-center justify-center gap-2">
+                    Browse
+                    <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                  </span>
                 </Button>
               </Link>
             </motion.div>
-          </div>
-        </div>
-      </div>
 
-      {/* Trust Indicators Section - Separate from main hero */}
-      <div className="relative z-10 bg-card/30 backdrop-blur-sm border-y border-border/50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+            {/* Trust Indicators */}
+            <motion.div
+              variants={itemVariants}
+              className="mt-10 flex flex-col gap-2"
+            >
+              {[
+                "100% Real Engagement",
+                "Instant Delivery",
+                "Refill Guarantee",
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-2 text-sm font-bold text-muted-foreground"
+                >
+                  <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
+                  {item}
+                </div>
+              ))}
+            </motion.div>
+          </motion.div>
+
+          {/* Right Column - Visual */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="text-center max-w-4xl mx-auto"
+            initial={{ opacity: 0, scale: 0.9, x: 50 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="hidden lg:flex lg:items-center lg:justify-center relative"
           >
-            <p className="text-base sm:text-lg text-muted-foreground mb-8 sm:mb-12 font-medium">
-              Trusted by leading brands worldwide
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
-              <div className="flex flex-col items-center gap-3 p-4 sm:p-6 rounded-lg bg-background/50 border border-border/30 hover:border-primary/20 transition-colors duration-300">
-                <Zap className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500" />
-                <span className="font-semibold text-sm sm:text-base">
-                  Instant Delivery
-                </span>
-                <p className="text-xs sm:text-sm text-muted-foreground text-center">
-                  Get results within minutes, not days
-                </p>
+            {/* Engagement Visualization */}
+            <div className="relative w-full aspect-square">
+              {/* Large Phone-like Frame */}
+              <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-br from-secondary to-primary p-1 shadow-2xl">
+                <div className="h-full rounded-[2.8rem] bg-card overflow-hidden flex flex-col">
+                  {/* Header */}
+                  <div className="p-6 border-b border-border bg-muted/30 flex items-center justify-between">
+                    <span className="text-sm font-black uppercase tracking-widest text-muted-foreground">
+                      Live Engagement
+                    </span>
+                    <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 p-6 space-y-6 overflow-y-auto">
+                    {/* Post Simulation */}
+                    <div className="space-y-4">
+                      <div className="h-3 w-3/4 bg-muted rounded-full" />
+                      <div className="h-40 bg-muted rounded-xl" />
+                    </div>
+
+                    {/* Engagement Metrics - Animated */}
+                    <div className="space-y-4">
+                      {[
+                        {
+                          icon: Heart,
+                          label: "Likes",
+                          value: 12400,
+                          color: "text-red-500",
+                        },
+                        {
+                          icon: MessageCircle,
+                          label: "Comments",
+                          value: 3200,
+                          color: "text-blue-500",
+                        },
+                        {
+                          icon: Share2,
+                          label: "Shares",
+                          value: 8900,
+                          color: "text-green-500",
+                        },
+                      ].map((metric, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.5 + i * 0.1, duration: 0.5 }}
+                          className="flex items-center justify-between p-4 rounded-2xl bg-muted/40 hover:bg-muted/60 transition-colors group cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`p-2 rounded-lg bg-muted/40 ${metric.color}`}
+                            >
+                              <metric.icon className="h-5 w-5" />
+                            </div>
+                            <span className="font-bold text-sm">
+                              {metric.label}
+                            </span>
+                          </div>
+                          <motion.span
+                            className="text-2xl font-black text-primary"
+                            key={metric.value}
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", stiffness: 100 }}
+                          >
+                            {metric.value.toLocaleString()}
+                          </motion.span>
+                        </motion.div>
+                      ))}
+                    </div>
+
+                    {/* Live Counter */}
+                    <div className="mt-8 p-4 rounded-2xl bg-primary/10 border border-primary/20">
+                      <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-1">
+                        Engagement Surge
+                      </p>
+                      <div className="flex items-baseline gap-1">
+                        <motion.span
+                          className="text-3xl font-black text-primary"
+                          animate={{ scale: [1, 1.15, 1] }}
+                          transition={{ duration: 1, repeat: Infinity }}
+                        >
+                          +245%
+                        </motion.span>
+                        <span className="text-xs font-bold text-muted-foreground">
+                          in 24h
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="p-4 border-t border-border bg-muted/20 text-center">
+                    <p className="text-xs font-bold text-green-500 animate-pulse">
+                      ✓ Delivering engagement in real-time...
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div className="flex flex-col items-center gap-3 p-4 sm:p-6 rounded-lg bg-background/50 border border-border/30 hover:border-primary/20 transition-colors duration-300">
-                <Users className="w-6 h-6 sm:w-8 sm:h-8 text-green-500" />
-                <span className="font-semibold text-sm sm:text-base">
-                  Real Users
-                </span>
-                <p className="text-xs sm:text-sm text-muted-foreground text-center">
-                  Genuine engagement from real people
-                </p>
-              </div>
-              <div className="flex flex-col items-center gap-3 p-4 sm:p-6 rounded-lg bg-background/50 border border-border/30 hover:border-primary/20 transition-colors duration-300">
-                <Star className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500 fill-current" />
-                <span className="font-semibold text-sm sm:text-base">
-                  24/7 Support
-                </span>
-                <p className="text-xs sm:text-sm text-muted-foreground text-center">
-                  Round-the-clock customer assistance
-                </p>
-              </div>
+
+              {/* Floating Badges */}
+              <motion.div
+                animate={{ y: [-10, 10, -10] }}
+                transition={{ duration: 3, repeat: Infinity }}
+                className="absolute -top-8 -right-8 rounded-2xl bg-background p-4 shadow-xl border border-border"
+              >
+                <div className="text-center">
+                  <p className="text-2xl font-black text-secondary">🚀</p>
+                  <p className="text-xs font-bold mt-1">Viral Ready</p>
+                </div>
+              </motion.div>
+
+              <motion.div
+                animate={{ y: [10, -10, 10] }}
+                transition={{ duration: 4, repeat: Infinity }}
+                className="absolute -bottom-8 -left-8 rounded-2xl bg-background p-4 shadow-xl border border-border"
+              >
+                <div className="text-center">
+                  <p className="text-2xl font-black text-primary">⚡</p>
+                  <p className="text-xs font-bold mt-1">Instant</p>
+                </div>
+              </motion.div>
             </div>
           </motion.div>
         </div>

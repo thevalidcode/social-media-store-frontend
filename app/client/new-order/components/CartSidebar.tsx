@@ -197,7 +197,7 @@ export const CartSidebar: React.FC<Props> = ({
           <div className="flex justify-between items-center">
             <div className="text-sm font-medium">Grand Total</div>
             <div className="text-2xl font-bold">
-              {convert("USD", userCurrency, grandTotal, true, false).formatted}
+              {convert(userCurrency, userCurrency, grandTotal, true, false).formatted}
             </div>
           </div>
 

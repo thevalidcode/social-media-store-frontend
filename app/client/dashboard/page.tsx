@@ -11,6 +11,7 @@ import {
   DollarSignIcon,
   Server,
   ShoppingCartIcon,
+  WalletIcon,
   XIcon,
 } from "lucide-react";
 import { useCurrencyConverter } from "@/lib/currencyConverter";
@@ -18,13 +19,14 @@ import { useAppContext } from "@/context/appContext";
 import { EmptyState } from "@/components/empty-state";
 import { useGetCategories } from "@/hooks/use-category";
 import { FeatureGate } from "@/components/FeatureGate";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function Dashboard() {
   const { data, isLoading } = useGetUserDashboardStatistics();
   const { data: categories, isLoading: isCategoriesLoading } =
     useGetCategories();
 
-  const { userCurrency, storeInfo } = useAppContext();
+  const { userCurrency, storeInfo, userInfo } = useAppContext();
 
   const convert = useCurrencyConverter();
 
@@ -33,12 +35,22 @@ export default function Dashboard() {
   }
 
   const { formatted } = convert(
-    "USD",
+    (userInfo?.currency || userCurrency) as any,
     userCurrency,
     data?.yourSpent!,
     true,
     false,
   );
+
+  const walletFormatted = userInfo
+    ? convert(
+        userInfo.currency as any,
+        userCurrency,
+        userInfo.balance,
+        true,
+        false,
+      ).formatted
+    : "--";
 
   const metrics = [
     {
@@ -71,6 +83,31 @@ export default function Dashboard() {
         description="Analytics features are not available for your store. Please contact support for more information."
         variant="page"
       >
+        <div className="grid gap-4 lg:grid-cols-[1.5fr_0.9fr]">
+          <div className="space-y-2">
+            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+              Dashboard
+            </h1>
+            <p className="text-sm text-muted-foreground max-w-2xl">
+              Overview of orders, payments, and wallet activity for your store.
+            </p>
+          </div>
+          <Card className="border-border/70 bg-card/80 shadow-sm">
+            <CardContent className="p-4 flex items-center justify-between gap-4">
+              <div>
+                <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Wallet balance
+                </div>
+                <div className="mt-1 text-2xl font-semibold">
+                  {walletFormatted}
+                </div>
+              </div>
+              <div className="rounded-full bg-primary/10 p-3 text-primary">
+                <WalletIcon className="h-6 w-6" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
         <MetricsCards
           metrics={metrics.map((m) => ({
             title: m.label,

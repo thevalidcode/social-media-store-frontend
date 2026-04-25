@@ -23,7 +23,7 @@ export function useCreateUser() {
     mutationFn: async (newUser: NewUser) => {
       if (!storeId) {
         throw new Error(
-          "Store configuration not found. Please contact support."
+          "Store configuration not found. Please contact support.",
         );
       }
 
@@ -52,7 +52,7 @@ export function useCreateUser() {
         // Log the response for debugging
         console.error("User creation failed. Response:", res.data);
         throw new Error(
-          "Failed to create user: No user object returned from server."
+          "Failed to create user: No user object returned from server.",
         );
       }
       return res.data;
@@ -74,7 +74,7 @@ interface LoginProps {
   storeId: number;
 }
 export function useUserLogin() {
-  const { api, setUserInfo } = useAppContext();
+  const { api, setUserInfo, setUserCurrency } = useAppContext();
   const router = useRouter();
   return useMutation({
     mutationKey: ["userLogins"],
@@ -87,7 +87,7 @@ export function useUserLogin() {
 
       if (!res.data) {
         throw new Error(
-          "Failed to login user: No response data received from server."
+          "Failed to login user: No response data received from server.",
         );
       }
       return res.data.user;
@@ -96,6 +96,9 @@ export function useUserLogin() {
       setUserInfo({
         ...data,
       });
+      if (data?.currency) {
+        setUserCurrency(data.currency);
+      }
       // Redirect to the appropriate dashboard. The user session is now active.
       router.push("/client/dashboard");
       toast.success("User logged in successfully");
@@ -203,14 +206,13 @@ export const useDeleteASingleUser = () => {
 // update user info
 interface UpdateUserProps {
   username?: string;
-  apiKey?: string;
   fullName?: string;
   image?: string | null;
-  status?: UserStatus;
+  currency?: string;
 }
 
 export function useUpdateUser() {
-  const { api, setUserInfo } = useAppContext();
+  const { api, setUserInfo, setUserCurrency } = useAppContext();
 
   return useMutation({
     mutationFn: async (data: UpdateUserProps) => {
@@ -223,6 +225,9 @@ export function useUpdateUser() {
       setUserInfo({
         ...updatedUser.user,
       });
+      if (updatedUser?.user?.currency) {
+        setUserCurrency(updatedUser.user.currency);
+      }
     },
     onError: (error: unknown) => {
       const errorMsg = normalizeApiError(error, "Failed to update user");
@@ -237,6 +242,7 @@ export interface UpdateUserByAdminProps {
   email?: string;
   fullName?: string;
   balance?: string;
+  currency?: string;
   uid: string;
   status?: UserStatus;
 }
@@ -271,7 +277,7 @@ export function useForgotPassword() {
     mutationFn: async (data: ForgetPasswordProps) => {
       const res = await api.post(
         `/users/forgot-password?storeId=${storeId}`,
-        data
+        data,
       );
       if (!res.data) throw new Error("Failed to send email");
       return res.data;
@@ -298,7 +304,7 @@ export function useResetPassword() {
     mutationFn: async (data: ResetPasswordProps) => {
       const res = await api.post(
         `/users/reset-password?storeId=${storeId}`,
-        data
+        data,
       );
       if (!res.data) throw new Error("Failed to reset password");
       return res.data;
@@ -330,7 +336,7 @@ export function useVerifySessionCode() {
         { ...data, storeId },
         {
           withCredentials: true,
-        }
+        },
       );
       if (!res.data.user) throw new Error("Failed to verify session");
       return res.data.user;

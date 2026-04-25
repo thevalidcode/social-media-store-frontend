@@ -11,12 +11,14 @@ interface Props {
   services: Service[];
   openModal: (s: Service) => void;
   navigateToNewOrder: (cat: string, id: number) => void;
+  onAddToCart?: (service: Service, quantity?: number) => void;
 }
 
 export const ServicesCardsMobile = ({
   services,
   openModal,
   navigateToNewOrder,
+  onAddToCart,
 }: Props) => {
   const convert = useCurrencyConverter();
   const { userCurrency } = useAppContext();
@@ -57,7 +59,7 @@ export const ServicesCardsMobile = ({
                       .formatted
                   }
                 </div>
-                <div className="ml-auto flex gap-2">
+                  <div className="ml-auto flex gap-2">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -65,6 +67,13 @@ export const ServicesCardsMobile = ({
                   >
                     Description
                   </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onAddToCart?.(s, Math.max(1, s.min || 1))}
+                    >
+                      Add
+                    </Button>
                   <Button
                     size="sm"
                     onClick={() =>

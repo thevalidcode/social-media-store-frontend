@@ -18,6 +18,7 @@ interface SelectWithSearchProps {
   placeholder?: string;
   options: SelectOption[];
   className?: string;
+  contentClassName?: string;
   disabled?: boolean;
   searchPlaceholder?: string;
   emptyMessage?: string;
@@ -31,6 +32,7 @@ export function SelectWithSearch({
   placeholder = "Select an option",
   options,
   className,
+  contentClassName,
   disabled,
   searchPlaceholder = "Search...",
   emptyMessage = "No results found",
@@ -39,6 +41,7 @@ export function SelectWithSearch({
 }: SelectWithSearchProps) {
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
+  const [triggerWidth, setTriggerWidth] = React.useState<number | null>(null);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
 
@@ -67,6 +70,28 @@ export function SelectWithSearch({
     }
   }, [open]);
 
+  React.useEffect(() => {
+    const triggerElement = triggerRef.current;
+
+    if (!triggerElement) return;
+
+    const updateWidth = () => {
+      setTriggerWidth(triggerElement.getBoundingClientRect().width);
+    };
+
+    updateWidth();
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateWidth();
+    });
+
+    resizeObserver.observe(triggerElement);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
+
   const defaultRenderOption = (option: SelectOption) => (
     <>
       {option.icon && (
@@ -88,11 +113,11 @@ export function SelectWithSearch({
           type="button"
           disabled={disabled}
           role="combobox"
-          aria-expanded={open ? "true" : "false"}
+          aria-expanded="false"
           aria-controls="select-options-list"
           aria-label={placeholder}
           className={cn(
-            "border-input text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 dark:hover:bg-input/50 flex w-full items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs transition-all outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 hover:bg-accent/50",
+            "border-input text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 dark:hover:bg-input/50 flex w-full min-w-0 items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs transition-all outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 hover:bg-accent/50",
             selectedOption && "text-foreground",
             size === "default" && "h-9",
             size === "sm" && "h-8",
@@ -123,11 +148,15 @@ export function SelectWithSearch({
       <Popover.Portal>
         <Popover.Content
           className={cn(
-            "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 z-50 w-[--radix-popover-trigger-width] max-w-[95vw] overflow-hidden rounded-md border shadow-md",
+            "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 z-50 overflow-hidden rounded-md border shadow-md",
+            contentClassName,
           )}
           align="start"
           sideOffset={4}
           style={{
+            width: triggerWidth ? `${triggerWidth}px` : undefined,
+            minWidth: triggerWidth ? `${triggerWidth}px` : undefined,
+            maxWidth: "calc(100vw - 1rem)",
             maxHeight: "min(400px, 60vh)",
           }}
         >
@@ -176,7 +205,6 @@ export function SelectWithSearch({
                         key={option.value}
                         type="button"
                         role="option"
-                        aria-selected={isSelected}
                         disabled={option.disabled}
                         onClick={() => handleSelect(option.value)}
                         title={option.label}

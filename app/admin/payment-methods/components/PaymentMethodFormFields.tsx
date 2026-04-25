@@ -1,14 +1,23 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { FormEvent } from "react";
 import { PaymentGateway } from "@/types";
 import { motion } from "framer-motion";
-import WysiwygEditor from "@/components/WysiwygEditor";
 import { FeatureGate } from "@/components/FeatureGate";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { currency as currencyMap } from "@/app/_docs/doc";
+import WysiwygEditor from "@/components/WysiwygEditor";
 
 interface NewPaymentGateway extends PaymentGateway {
   secretKey?: string;
@@ -53,20 +62,46 @@ export default function PaymentMethodFormFields({
       {/* Description Field */}
       <div className="flex flex-col lg:gap-2 gap-1">
         <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          value={form.description ?? ""}
+          onChange={(e) => onFieldChange("description", e.target.value)}
+          placeholder="Short note shown to users (supports line breaks)"
+          rows={3}
+        />
+      </div>
+
+      {/* Content Field */}
+      <div className="flex flex-col lg:gap-2 gap-1">
+        <Label htmlFor="content">Content</Label>
         <WysiwygEditor
-          key={form.uid || (isEdit ? "edit" : "new")}
-          initialContent={form.description}
-          onChange={(e) => onFieldChange("description", e)}
           collection="payment-gateways"
-          className="min-h-[200px]"
-          placeholder="e.g. Pay with card, transfer e.t.c"
+          initialContent={form.content ?? ""}
+          placeholder="Optional rich content shown to users on add funds page"
+          onChange={(html) => onFieldChange("content", html)}
+          showToolbar
+          enable={{
+            bold: true,
+            italic: true,
+            underline: false,
+            headings: true,
+            lists: true,
+            align: true,
+            image: true,
+            link: true,
+            highlight: true,
+            color: true,
+            fontFamily: false,
+            fontSize: false,
+            code: false,
+          }}
         />
       </div>
 
       {/* Min and Max Amount */}
       <div className="flex lg:gap-2 gap-1">
         <div className="flex flex-col lg:gap-2 gap-1 w-full">
-          <Label htmlFor="min">Min Amount</Label>
+          <Label htmlFor="min">Min Amount ({form.currency || "USD"})</Label>
           <Input
             id="min"
             type="text"
@@ -76,7 +111,7 @@ export default function PaymentMethodFormFields({
           />
         </div>
         <div className="flex flex-col lg:gap-2 gap-1 w-full">
-          <Label htmlFor="max">Max Amount</Label>
+          <Label htmlFor="max">Max Amount ({form.currency || "USD"})</Label>
           <Input
             id="max"
             type="text"
@@ -87,8 +122,27 @@ export default function PaymentMethodFormFields({
         </div>
       </div>
 
+      <div className="flex flex-col lg:gap-2 gap-1">
+        <Label htmlFor="currency">Gateway Currency</Label>
+        <Select
+          value={form.currency || "USD"}
+          onValueChange={(value) => onFieldChange("currency", value)}
+        >
+          <SelectTrigger id="currency" className="w-full">
+            <SelectValue placeholder="Select currency" />
+          </SelectTrigger>
+          <SelectContent className="max-h-80">
+            {Object.entries(currencyMap).map(([code, name]) => (
+              <SelectItem key={code} value={code}>
+                {code} - {name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Secret Key - Only for non-manual platforms */}
-      {form.platform !== "MANUAL" && form.platform !== "REFERRAL" && (
+      {form.platform !== "MANUAL" && form.platform !== "CREDIT" && (
         <div className="flex flex-col lg:gap-2 gap-1">
           <Label htmlFor="secretKey">Secret Key</Label>
           <Input
@@ -115,7 +169,7 @@ export default function PaymentMethodFormFields({
       </div>
 
       {/* Webhook URL - Only for non-manual platforms */}
-      {form.platform !== "MANUAL" && form.platform !== "REFERRAL" && (
+      {form.platform !== "MANUAL" && form.platform !== "CREDIT" && (
         <div className="flex flex-col lg:gap-2 gap-1">
           <Label htmlFor="webhookUrl">Webhook URL</Label>
           <Input

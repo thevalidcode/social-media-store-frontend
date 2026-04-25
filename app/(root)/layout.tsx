@@ -1,12 +1,12 @@
 "use client";
 
+import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import Nav from "@/components/nav";
 import Wrapper from "@/components/wrapper";
-import { useAppContext } from "@/context/appContext";
-import Loading from "../loading";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { Footer } from "@/components/Footer";
+import Loading from "../loading";
+import { useAppContext } from "@/context/appContext";
 
 export default function RootLayout({
   children,
@@ -14,12 +14,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const { isLoading, error, userInfo, generalSetting } = useAppContext();
-
   const router = useRouter();
+  const pathname = usePathname();
 
-  if (isLoading) <Loading />;
-
-  const pathname = window.location.pathname;
   useEffect(() => {
     if (!isLoading && !error && userInfo) {
       const excludePaths = [
@@ -33,15 +30,15 @@ export default function RootLayout({
         router.push("/client/dashboard");
       }
     }
-  }, [isLoading, error, userInfo, pathname]);
+  }, [error, isLoading, pathname, router, userInfo]);
 
   useEffect(() => {
-    if (generalSetting) {
-      document.title = `${generalSetting.storeName}`;
-    } else {
-      document.title = "Loading…";
-    }
+    document.title = generalSetting?.storeName || "Loading…";
   }, [generalSetting]);
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <Wrapper>

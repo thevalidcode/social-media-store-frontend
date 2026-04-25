@@ -3,7 +3,7 @@ export type PaymentGatewayPlatform =
   | "MANUAL"
   | "PAYSTACK"
   | "FLUTTERWAVE"
-  | "REFERRAL";
+  | "CREDIT";
 
 export interface PaymentGateway {
   id: number;
@@ -12,6 +12,7 @@ export interface PaymentGateway {
   platform: PaymentGatewayPlatform;
   name: string;
   description?: string;
+  content?: string;
   signature?: string;
   feePercent?: number;
   status: PaymentGatewayStatus;
@@ -20,7 +21,8 @@ export interface PaymentGateway {
   webhookUrl: string;
   min: string;
   max: string;
+  currency: string;
 }
 
 export interface PaymentGatewayPublic
-  extends Omit<PaymentGateway, "signature" | "id" | "uid" | "webhookUrl"> {}
+  extends Omit<PaymentGateway, "signature" | "id" | "webhookUrl"> {}

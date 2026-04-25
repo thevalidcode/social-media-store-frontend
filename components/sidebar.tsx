@@ -7,11 +7,11 @@ import {
   HelpCircle,
   LayoutDashboard,
   LogIn,
-  Menu,
   MessageSquare,
   PlusIcon,
   Server,
   ShoppingCart,
+  Trash2,
   User,
   UserPlus,
 } from "lucide-react";
@@ -45,6 +45,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAppContext } from "@/context/appContext";
 import Image from "next/image";
 import { del } from "idb-keyval";
+import { useGetUserCancellations } from "@/hooks/use-cancellations";
+import { Badge } from "@/components/ui/badge";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
@@ -58,21 +60,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     storeInfo,
   } = useAppContext();
 
-  const isActive = (path: string) => pathname === path;
+  // Get user cancellations count
+  const { data: userCancellations } = useGetUserCancellations();
+  const cancellationCount = userCancellations?.length || 0;
 
-  // Routes to hide when userInfo is falsy
-  // Routes to show only when user is NOT logged in
-  const publicRoutes = [
-    "/client/services",
-    "/client/faq",
-    "/client/blog",
-    "/client/api-docs",
-  ];
+  const isActive = (path: string) => pathname === path;
 
   // Compute authentication status explicitly
   const isAuthenticated = !!userInfo;
 
   const analyticsAllowed = storeInfo?.features?.analytics ?? false;
+  const apiAccessAllowed = storeInfo?.features?.api_access ?? false;
+
+  const publicRoutes = [
+    "/client/services",
+    "/client/faq",
+    "/client/blog",
+    ...(apiAccessAllowed ? ["/client/api-docs"] : []),
+  ];
 
   // Full navigation definition
   const baseNavigation = [
@@ -87,6 +92,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         { title: "Services", url: "/client/services", icon: Server },
         { title: "New Order", url: "/client/new-order", icon: PlusIcon },
         { title: "My Orders", url: "/client/orders", icon: ShoppingCart },
+        cancellationCount > 0 && {
+          title: "Cancellations",
+          url: "/client/cancellations",
+          icon: Trash2,
+          badge: cancellationCount,
+        },
       ],
     },
     {
@@ -109,7 +120,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           url: "/client/support",
           icon: MessageSquare,
         },
-        { title: "API Docs", url: "/client/api-docs", icon: Code },
+        apiAccessAllowed && {
+          title: "API Docs",
+          url: "/client/api-docs",
+          icon: Code,
+        },
       ],
     },
   ];
@@ -189,7 +204,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           }
                         >
                           <item.icon />
-                          <span>{item.title}</span>
+                          <span className="flex-1">{item.title}</span>
+                          {item.badge && item.badge > 0 && (
+                            <Badge variant="destructive" className="ml-auto">
+                              {item.badge}
+                            </Badge>
+                          )}
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>

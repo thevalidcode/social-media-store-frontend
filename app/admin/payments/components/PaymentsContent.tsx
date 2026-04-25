@@ -2,7 +2,10 @@
 
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGetAllPaymentsForAdmin } from "@/hooks/use-payment";
+import {
+  useGetAllPaymentsForAdmin,
+  useUpdatePaymentStatusByAdmin,
+} from "@/hooks/use-payment";
 import { PaymentFilters } from "@/types";
 import { PaymentStats } from "./PaymentStats";
 import { PaymentFiltersBar } from "./PaymentFiltersBar";
@@ -23,6 +26,7 @@ export function PaymentsContent() {
     100, // Fetch max 100 items per request
     filters
   );
+  const updatePaymentStatus = useUpdatePaymentStatusByAdmin();
 
   const payments = paymentsData?.payments || [];
 
@@ -64,6 +68,10 @@ export function PaymentsContent() {
             <PaymentTable
               payments={payments}
               isLoading={isLoading}
+              isUpdatingStatus={updatePaymentStatus.isPending}
+              onStatusUpdate={async (paymentUid, status) => {
+                await updatePaymentStatus.mutateAsync({ paymentUid, status });
+              }}
               rowClassName="transition-colors duration-150 hover:bg-muted/60 hover:shadow-sm cursor-pointer focus-within:bg-primary/10 focus-within:text-primary"
               page={page}
               pageSize={pageSize}

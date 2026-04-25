@@ -1,6 +1,8 @@
 "use client";
 
 import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { adminTheme } from "@/app/_docs/doc";
+import { useAppContext } from "@/context/appContext";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useGetStoreDesign, useUpdateStoreDesign } from "@/hooks/use-store";
 
@@ -20,6 +22,11 @@ type ThemeContextType = {
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+const defaultTheme = adminTheme[0];
+
+const getThemeStorageKey = (scope: string | number | null | undefined) =>
+  scope ? `selectedTheme:${scope}` : "selectedTheme";
 
 // Apply CSS variables
 const applyThemeStyles = (schema: ThemeSchema, isDark: boolean) => {
@@ -49,10 +56,10 @@ const applyThemeStyles = (schema: ThemeSchema, isDark: boolean) => {
   document.head.appendChild(styleElement);
 };
 
-const loadLocalTheme = () => {
+const loadLocalTheme = (storageKey: string) => {
   if (typeof window === "undefined") return null;
   try {
-    const saved = localStorage.getItem("selectedTheme");
+    const saved = localStorage.getItem(storageKey);
     return saved ? JSON.parse(saved) : null;
   } catch {
     return null;
@@ -62,16 +69,17 @@ const loadLocalTheme = () => {
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [isDark, setIsDark] = useState(false);
 
+  const { storeId, domain } = useAppContext();
   const { data: dbTheme } = useGetStoreDesign();
   const updateThemeMutation = useUpdateStoreDesign();
+  const storageKey = getThemeStorageKey(storeId ?? domain);
 
   // MAIN apply function
   const applyTheme = async (theme: ThemeOption) => {
     applyThemeStyles(theme.schema, isDark);
 
-    localStorage.setItem("selectedTheme", JSON.stringify({ ...theme }));
-
-    await updateThemeMutation.mutateAsync({ ...theme });
+    const savedTheme = await updateThemeMutation.mutateAsync({ ...theme });
+    localStorage.setItem(storageKey, JSON.stringify(savedTheme ?? theme));
   };
 
   // Watch dark/light changes
@@ -80,7 +88,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       const darkMode = document.documentElement.classList.contains("dark");
       setIsDark(darkMode);
 
-      const saved = loadLocalTheme();
+      const saved = loadLocalTheme(storageKey);
       if (saved?.schema) {
         applyThemeStyles(saved.schema, darkMode);
       }
@@ -94,23 +102,30 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return () => observer.disconnect();
   }, []);
 
-  // Initial load: localStorage first, then DB
+  // Initial load: DB first, then scoped localStorage, then black fallback
   useEffect(() => {
-    const saved = loadLocalTheme();
+    if (!storeId && !domain) return;
+
+    const saved = loadLocalTheme(storageKey);
     const darkMode = document.documentElement.classList.contains("dark");
 
     setIsDark(darkMode);
 
-    if (saved?.schema) {
-      applyThemeStyles(saved.schema, darkMode);
+    if (dbTheme?.schema) {
+      applyThemeStyles(dbTheme.schema, darkMode);
+      localStorage.setItem(storageKey, JSON.stringify({ ...dbTheme }));
       return;
     }
 
-    if (dbTheme?.schema) {
-      applyThemeStyles(dbTheme.schema, darkMode);
-      localStorage.setItem("selectedTheme", JSON.stringify({ ...dbTheme }));
+    if (saved?.schema) {
+      applyThemeStyles(saved.schema, darkMode);
+      localStorage.setItem(storageKey, JSON.stringify(saved));
+      return;
     }
-  }, [dbTheme]);
+
+    applyThemeStyles(defaultTheme.schema, darkMode);
+    localStorage.setItem(storageKey, JSON.stringify({ ...defaultTheme }));
+  }, [dbTheme, domain, storageKey, storeId]);
 
   return (
     <ThemeContext.Provider value={{ applyTheme }}>

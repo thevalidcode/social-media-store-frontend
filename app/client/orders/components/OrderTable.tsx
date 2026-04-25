@@ -8,9 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { ShoppingCart } from "lucide-react";
+import { ArrowRight, ShoppingCart } from "lucide-react";
 import Loading from "@/app/loading";
 import { useAppContext } from "@/context/appContext";
 import { useCurrencyConverter } from "@/lib/currencyConverter";
@@ -45,6 +46,10 @@ export const OrderTable = ({
     return orders.slice(startIndex, startIndex + pageSize);
   }, [orders, page, pageSize]);
 
+  const handleViewOrder = (uid: string) => {
+    router.push(`/client/orders/detail?uid=${uid}`);
+  };
+
   if (isLoading) return <Loading />;
   if (!orders || orders.length === 0) {
     return (
@@ -70,6 +75,7 @@ export const OrderTable = ({
               <TableHead className="text-center">Quantity</TableHead>
               <TableHead className="text-center">Price</TableHead>
               <TableHead className="text-center">Status</TableHead>
+                <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -128,6 +134,17 @@ export const OrderTable = ({
                 </TableCell>
                 <TableCell className="text-center">
                   <OrderStatusBadge status={order.status} />
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-2"
+                    onClick={() => handleViewOrder(order.uid)}
+                  >
+                    View order
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -190,6 +207,21 @@ export const OrderTable = ({
 
                 <div className="mt-3">
                   <OrderStatusBadge status={order.status} />
+                </div>
+
+                <div className="mt-4 flex items-center justify-between gap-3">
+                  <span className="text-xs text-muted-foreground">
+                    Order #{order.storeScopedId}
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => handleViewOrder(order.uid)}
+                  >
+                    View order
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             </div>

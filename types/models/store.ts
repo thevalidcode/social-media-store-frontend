@@ -21,6 +21,7 @@ export type StoreFeatures = {
   staff_accounts: number;
   social_store_order_sync: boolean;
   social_store_service_sync: boolean;
+  reselling: boolean;
 };
 
 export type SubscriptionStatus =

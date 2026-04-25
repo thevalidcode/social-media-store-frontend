@@ -53,9 +53,17 @@ export default function PaymentMethodCard({ gateways, setGateways }: Props) {
             </CardHeader>
 
             <CardContent className="space-y-3">
-              <div className="text-sm text-muted-foreground">
-                {parse(gateway.description || "")}
-              </div>
+              {gateway.description ? (
+                <div className="text-sm text-muted-foreground whitespace-pre-wrap break-words">
+                  {gateway.description}
+                </div>
+              ) : null}
+
+              {gateway.content ? (
+                <div className="prose prose-sm max-w-none text-sm text-muted-foreground">
+                  {parse(gateway.content)}
+                </div>
+              ) : null}
 
               {gateway.webhookUrl && (
                 <div className="text-xs bg-muted/20 p-2 rounded-md flex justify-between items-center">

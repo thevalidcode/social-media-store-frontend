@@ -3,9 +3,10 @@
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, ShieldCheck, Info } from "lucide-react";
+import { Check, ShieldCheck, Info, BadgeCheck, Clock3 } from "lucide-react";
 import { PaymentGatewayPublic } from "@/types";
 import { platformLogos } from "@/app/_docs/doc";
+import parse from "html-react-parser";
 
 interface PaymentMethodSelectorProps {
   paymentMethods: PaymentGatewayPublic[];
@@ -26,15 +27,18 @@ export function PaymentMethodSelector({
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.2 }}
     >
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <Card className="overflow-hidden border-border/70 shadow-sm">
+        <CardHeader className="space-y-2 border-b bg-muted/20">
+          <CardTitle className="flex items-center gap-2 text-lg">
             <ShieldCheck className="h-5 w-5 text-primary" />
-            Select Payment Method
+            Select a payment gateway
           </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Choose the gateway you want to use for wallet top-ups and payment processing.
+          </p>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid sm:grid-cols-2 gap-3">
+        <CardContent className="space-y-4 p-6">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {paymentMethods.map((m, index) => (
               <motion.div
                 key={m.storeScopedId}
@@ -45,28 +49,28 @@ export function PaymentMethodSelector({
                 whileTap={{ scale: 0.98 }}
               >
                 <Card
-                  className={`cursor-pointer transition-all duration-200 ${
+                  className={`group h-full cursor-pointer overflow-hidden border transition-all duration-200 ${
                     selectedMethod === m.platform
-                      ? "ring-2 ring-primary bg-primary/5 border-primary"
-                      : "hover:border-primary/50 hover:shadow-md"
+                      ? "border-primary bg-primary/5 ring-2 ring-primary/25"
+                      : "hover:border-primary/40 hover:shadow-md"
                   }`}
                   onClick={() => onMethodChange(m.platform)}
                 >
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="relative">
-                        <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center overflow-hidden">
+                  <CardContent className="space-y-4 p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="relative shrink-0">
+                        <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-border bg-background">
                           <img
                             src={platformLogos[m.platform]}
                             alt={m.name}
-                            className="w-10 h-10 object-contain"
+                            className="h-9 w-9 object-contain"
                           />
                         </div>
                         {selectedMethod === m.platform && (
                           <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
-                            className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center"
+                            className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground"
                           >
                             <Check className="h-3 w-3 text-primary-foreground" />
                           </motion.div>
@@ -74,38 +78,31 @@ export function PaymentMethodSelector({
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm truncate">
+                        <p className="truncate text-sm font-semibold">
                           {m.name}
                         </p>
-                        <div className="flex items-center gap-2 mt-0.5">
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
                           <Badge
                             variant="secondary"
-                            className="text-xs px-2 py-0"
+                            className="gap-1 px-2 py-0 text-xs"
                           >
+                            <Clock3 className="h-3 w-3" />
                             {m.feePercent}% fee
+                          </Badge>
+                          <Badge variant="outline" className="px-2 py-0 text-xs">
+                            {m.platform}
                           </Badge>
                           {m.platform === "MANUAL" && (
                             <Badge
-                              variant="outline"
-                              className="text-xs px-2 py-0"
+                              variant="destructive"
+                              className="px-2 py-0 text-xs"
                             >
                               Manual
                             </Badge>
                           )}
                         </div>
-                      </div>
-
-                      <div className="flex-shrink-0">
-                        <div
-                          className={`w-5 h-5 rounded-full border-2 transition-colors ${
-                            selectedMethod === m.platform
-                              ? "border-primary bg-primary"
-                              : "border-muted-foreground/30"
-                          }`}
-                        >
-                          {selectedMethod === m.platform && (
-                            <Check className="h-full w-full text-primary-foreground p-0.5" />
-                          )}
+                        <div className="mt-2 text-xs text-muted-foreground">
+                          Min {Number(m.min).toLocaleString()} · Max {Number(m.max).toLocaleString()}
                         </div>
                       </div>
                     </div>
@@ -115,34 +112,40 @@ export function PaymentMethodSelector({
             ))}
           </div>
 
-          {/* Payment Gateway Description */}
-          {selectedGateway && selectedGateway.description && (
+          {selectedGateway &&
+            (selectedGateway.description || selectedGateway.content) && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="mt-4"
+              className="rounded-2xl border border-border bg-muted/20 p-4"
             >
-              <Card className="border-l-4 border-l-primary bg-primary/5">
-                <CardContent className="p-4">
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0 mt-0.5">
-                      <Info className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <h4 className="text-sm font-semibold text-foreground">
-                        Payment Instructions
-                      </h4>
-                      <div
-                        className="text-sm text-muted-foreground prose prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{
-                          __html: selectedGateway.description,
-                        }}
-                      />
-                    </div>
+              <div className="flex gap-3">
+                <div className="mt-0.5 shrink-0">
+                  <Info className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-sm font-semibold text-foreground">
+                      Gateway details
+                    </h4>
+                    <Badge variant="outline" className="gap-1 text-[10px] uppercase tracking-[0.18em]">
+                      <BadgeCheck className="h-3 w-3" />
+                      Active
+                    </Badge>
                   </div>
-                </CardContent>
-              </Card>
+                  {selectedGateway.description ? (
+                    <div className="text-sm text-muted-foreground whitespace-pre-wrap break-words">
+                      {selectedGateway.description}
+                    </div>
+                  ) : null}
+                  {selectedGateway.content ? (
+                    <div className="prose prose-sm max-w-none text-sm text-muted-foreground">
+                      {parse(selectedGateway.content)}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
             </motion.div>
           )}
         </CardContent>
