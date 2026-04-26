@@ -7,7 +7,6 @@ import { AlertCircle, ArrowLeft, Package, Save } from "lucide-react";
 import { toast } from "sonner";
 
 import Loading from "@/app/loading";
-import { PageContent } from "@/app/(root)/components/page-content";
 import { useAppContext } from "@/context/appContext";
 import { useGetOrderByUidForAdmin, useUpdateOrder } from "@/hooks/use-order";
 import OrderStatusBadge from "@/components/OrderStatusBadge";
@@ -167,7 +166,6 @@ export function AdminOrderDetailClient() {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div className="min-w-0 flex-1">
-          <PageContent pageType="ORDER" />
           <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">
