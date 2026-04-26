@@ -42,8 +42,10 @@ export interface UpdatePaymentGatewayStatusProps {
 }
 
 export interface PaymentGatewayFormResponse {
-  success: string;
-  signature: string;
+  success: boolean;
+  message?: string;
+  data?: PaymentGateway;
+  signature?: string;
 }
 
 /* ---------------------------------------------------------

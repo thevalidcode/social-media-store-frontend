@@ -142,6 +142,11 @@ export default function PaymentMethodForm({
       setSearchQuery("");
       setForm((prev) => ({ ...prev, currency: userCurrency }));
     }
+
+    if (!open) {
+      setShowSignaturePopup(false);
+      setSignature("");
+    }
   }, [open, initialData, userCurrency]);
 
   const handlePlatformSelect = (platform: PlatformOption) => {
@@ -196,8 +201,11 @@ export default function PaymentMethodForm({
 
     const response = await onSave(form);
 
-    if (response.success && response.signature) {
-      setSignature(response.signature);
+    const shouldShowSignature =
+      form.platform !== "MANUAL" && form.platform !== "CREDIT" && !!response.signature;
+
+    if (response.success && shouldShowSignature) {
+      setSignature(response.signature ?? "");
       setShowSignaturePopup(true);
       // Don't close parent dialog yet - signature popup will handle it
     } else {
@@ -207,7 +215,14 @@ export default function PaymentMethodForm({
 
   return (
     <>
-      <Dialog open={open} onOpenChange={onClose}>
+      <Dialog
+        open={open}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) {
+            onClose();
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-[800px] max-h-[90vh] p-0 overflow-hidden">
           <DialogHeader className="px-6 py-4 border-b">
             <DialogTitle className="flex items-center gap-2">
