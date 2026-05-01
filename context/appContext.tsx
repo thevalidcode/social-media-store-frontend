@@ -3,9 +3,9 @@
 import { useQuery } from "@tanstack/react-query";
 import axios, { AxiosInstance } from "axios";
 import { createContext, useContext, useState, useMemo, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Cookies from "js-cookie";
-import { get, set } from "idb-keyval";
+import { del, get, set } from "idb-keyval";
 import { CurrencyCode } from "@/lib/currencyConverter";
 import { Admin, User } from "@/types";
 import { Store } from "@/types";
@@ -63,6 +63,8 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [domain, setDomain] = useState<string>("");
+  const pathname = usePathname();
+  const activeAuthRole = pathname.startsWith("/admin") ? "admin" : "user";
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -103,14 +105,57 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [generalSetting, setGeneralSetting] =
     useState<GeneralSettingProps | null>(null);
 
+  const clearStoredAuth = async () => {
+    setUserInfo(null);
+    setAdminInfo(null);
+
+    try {
+      await Promise.all([del("userInfo"), del("adminInfo")]);
+    } finally {
+      Cookies.remove("csrf_token");
+      Cookies.remove("auth_token");
+    }
+  };
+
+  const redirectToLogin = () => {
+    router.replace(
+      activeAuthRole === "admin" ? "/admin/auth/signin" : "/auth/signin",
+    );
+  };
+
+  const handleAuthFailure = async () => {
+    await api.post("/auth/logout").catch(() => undefined);
+    await clearStoredAuth();
+    redirectToLogin();
+  };
+
   // Load user from IndexedDB on mount
   useEffect(() => {
     const loadUserInfo = async () => {
+      setIsAuthLoading(true);
       try {
-        const storedUser = await get<User | null>("userInfo");
-        if (storedUser) setUserInfo(storedUser);
-        const storedAdmin = await get<Admin | null>("adminInfo");
-        if (storedAdmin) setAdminInfo(storedAdmin);
+        const [storedUser, storedAdmin] = await Promise.all([
+          get<User | null>("userInfo"),
+          get<Admin | null>("adminInfo"),
+        ]);
+
+        if (activeAuthRole === "admin") {
+          if (storedAdmin) {
+            setAdminInfo(storedAdmin);
+          } else {
+            setAdminInfo(null);
+          }
+          setUserInfo(null);
+          await del("userInfo");
+        } else {
+          if (storedUser) {
+            setUserInfo(storedUser);
+          } else {
+            setUserInfo(null);
+          }
+          setAdminInfo(null);
+          await del("adminInfo");
+        }
       } catch (err) {
         console.error("Failed to load user info from IndexedDB:", err);
       } finally {
@@ -118,19 +163,32 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       }
     };
     loadUserInfo();
-  }, []);
+  }, [activeAuthRole]);
 
   useEffect(() => {
     const saveAuthInfo = async () => {
       try {
-        if (userInfo !== null) await set("userInfo", userInfo);
-        if (adminInfo !== null) await set("adminInfo", adminInfo);
+        if (activeAuthRole === "admin") {
+          if (adminInfo !== null) {
+            await set("adminInfo", adminInfo);
+            await del("userInfo");
+          } else {
+            await del("adminInfo");
+          }
+        } else {
+          if (userInfo !== null) {
+            await set("userInfo", userInfo);
+            await del("adminInfo");
+          } else {
+            await del("userInfo");
+          }
+        }
       } catch (err) {
         console.error("Failed to save auth info:", err);
       }
     };
     saveAuthInfo();
-  }, [userInfo, adminInfo]);
+  }, [activeAuthRole, userInfo, adminInfo]);
 
   // Sync currency with localStorage and auto-detect from locale
   useEffect(() => {
@@ -230,10 +288,25 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         Cookies.set("csrf_token", newToken);
       }
       return response;
+    }, async (error) => {
+      const status = error?.response?.status;
+      const payload = error?.response?.data;
+      const combinedMessage = `${payload?.error ?? ""} ${payload?.message ?? ""} ${error?.message ?? ""}`
+        .toLowerCase();
+
+      if (
+        status === 401 &&
+        !String(error?.config?.url ?? "").includes("/auth/logout") &&
+        /token|auth|session|missing authentication/.test(combinedMessage)
+      ) {
+        await handleAuthFailure();
+      }
+
+      return Promise.reject(error);
     });
 
     return newAxios;
-  }, [domain]);
+  }, [domain, activeAuthRole]);
 
   const { error, isLoading } = useQuery({
     queryKey: ["storeId", domain],
