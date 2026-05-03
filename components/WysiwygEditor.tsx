@@ -264,7 +264,7 @@ export default function WysiwygEditor({
     const id = ytMatch ? ytMatch[1] : null;
     const embed = id ? `https://www.youtube.com/embed/${id}` : url;
 
-    editor.chain().focus().setNode("iframe", { src: embed }).run();
+    editor.chain().focus().insertContent({ type: "iframe", attrs: { src: embed } }).run();
   }, [editor]);
 
   const handleSave = useCallback(async () => {
